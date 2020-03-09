@@ -1,0 +1,2 @@
+deb [arch=arm64,trusted=yes] https://packages.cloud.google.com/apt mendel-bsp-enterprise-day main
+deb-src https://packages.cloud.google.com/apt mendel-bsp-enterprise-day main
