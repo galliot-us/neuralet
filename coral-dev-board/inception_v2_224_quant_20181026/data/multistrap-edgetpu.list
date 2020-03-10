@@ -1,0 +1,2 @@
+deb [arch=arm64,trusted=yes] https://packages.cloud.google.com/apt coral-edgetpu-stable main
+deb-src https://packages.cloud.google.com/apt coral-edgetpu-stable main
