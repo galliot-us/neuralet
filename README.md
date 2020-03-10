@@ -33,4 +33,4 @@ Object Detection
 Coming soon.
 
 ### License ###
-[Apache License 2.0](https://github.com/neuralet/neuralet/tree/master/LICENSE)
+[Apache License 2.0](https://github.com/neuralet/neuralet/blob/master/LICENCE)
