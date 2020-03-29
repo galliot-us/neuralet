@@ -1,12 +1,12 @@
 # Coral MobileNet V1 model:
-This is a dockerized implementation of the [Coral](https://coral.ai/) MobileNet V1 for google edge-TPU device. [link to model](https://github.com/google-coral/edgetpu/raw/master/test_data/mobilenet_v1_1.0_224_quant_edgetpu.tflite)
+This is a dockerized implementation of the [Coral](https://coral.ai/) MobileNet V1 for google's [Coral Dev Board](https://coral.ai/products/dev-board/) devices. [Link to the original model.](https://github.com/google-coral/edgetpu/raw/master/test_data/mobilenet_v1_1.0_224_quant_edgetpu.tflite)
 
 MobileNet V1 was introduced by google team in 2017 [link to paper](https://arxiv.org/pdf/1704.04861.pdf) which utilizes “Depthwise Convolution" modules. The motivation behind using Depth-wise convolution is to reduce the model's computational complexity by using depth-wise separable convolutions.
 
 This classification model is trained on [ImageNet](http://www.image-net.org/) dataset and can recognize 1000 different object categories. The input image size of the network must be ```224x224```.
 
 # Codebase architecture:
-In the ```src/``` directory there are two files: ```server-example.py``` which is responsible to run inference on the input image and put the result in the output queue. The server will automatically download the edge-TPU compiled tflite model file upon start if it doesn't exist. The server will start automatically when the container starts.
+The ```server-example.py``` is responsible to run inference on the input image and put the result in the output queue. The server will automatically download the edge-TPU compiled tflite model from [neuralet](https://github.com/neuralet/neuralet-models) if it doesn't exist under ```data/models```. The server will start automatically when the container starts.
 
 The ```client.py``` contains a simple script that allows user to prepare their input data and push it to the queue. The input of the server should be a RGB image with the shape of ```(224,224,3)```.
 
