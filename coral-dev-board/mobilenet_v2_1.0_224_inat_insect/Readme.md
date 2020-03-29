@@ -1,12 +1,12 @@
 # Coral MobileNet V2 (inat_insect) model:
-This is a dockerized implementation of the [Coral](https://coral.ai/) MobileNet V2 (inat_insect) for google edge-TPU device. [link to model](https://github.com/google-coral/edgetpu/raw/master/test_data/mobilenet_v2_1.0_224_inat_insect_quant_edgetpu.tflite)
+This is a dockerized implementation of the [Coral](https://coral.ai/) MobileNet V2 (inat_insect) for google's [Coral Dev Board](https://coral.ai/products/dev-board/) devices. [Link to the original model.](https://github.com/google-coral/edgetpu/raw/master/test_data/mobilenet_v2_1.0_224_inat_insect_quant_edgetpu.tflite)
 
 In 2018 google announced MobileNet version 2 architecture [link to paper](https://arxiv.org/pdf/1801.04381.pdf) which is mainly a refinement over the [MobileNet V1](https://arxiv.org/pdf/1704.04861.pdf) to its improve efficiency and accuracy.
 
 This classification model is trained on [iNaturalist (inat insects)](https://www.inaturalist.org/) dataset and can recognize 1000+ different insects species. The depth_multiplier of the model is 1.0. The input image size of the network must be ```224x224```.
 
 # Codebase architecture:
-In the ```src/``` directory there are two files: ```server-example.py``` which is responsible to run inference on the input image and put the result in the output queue. The server will automatically download the edge-TPU compiled tflite model file upon start if it doesn't exist. The server will start automatically when the container starts.
+The ```server-example.py``` is responsible to run inference on the input image and put the result in the output queue. The server will automatically download the edge-TPU compiled tflite model from [neuralet](https://github.com/neuralet/neuralet-models) if it doesn't exist under ```data/models```. The server will start automatically when the container starts.
 
 The ```client.py``` contains a simple script that allows user to prepare their input data and push it to the queue. The input of the server should be a RGB image with the shape of ```(224,224,3)```.
 
