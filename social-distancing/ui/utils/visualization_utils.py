@@ -628,20 +628,32 @@ def add_cdf_image_summary(values, name):
     tf.summary.image(name, cdf_plot)
 
 
-def visualization_preparation(boxes, img_shape):
+def visualization_preparation(nn_out):
+    """
+    prepare the objects boxes and id in order to visualize
+    Args:
+        nn_out: a list of dicionary contains normalized numbers of bonding boxes {'id' : '0-0', 'box' : [x, y, h, w], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
+        
+    Returns:
+        an output dictionary contains object classes, boxes, scores
+    """
     output_dict = {}
-    height = img_shape[0]
-    width = img_shape[1]
-    output_dict['detection_classes'] = boxes.shapep[0]
-    for obj in boxes:
+    detection_classes = []
+    detection_scores = []
+    detection_boxes = []
+    output_dict['detection_classes'] = nn_out.shapep[0]
+    for obj in nn_out:
         id = obj['id']
         id = id.split("-")[0]
         box = obj['bbox']
-        box[0], box[2] = box[0]/height, box[2]/height
-        box[1], box[3] = box[1]/width, box[3]/width
-        # TODO:Normalizing here
-        output_dict['detection_boxes'] = box
-        output_dict['detection_classes'] = id
-        output_dict['detection_scores'] = 1
+        if 'score' in obj:
+            score = obj['score']
+        else:
+            score = 1.0
+        detection_classes.append(int(id))
+        detection_scores.append(score)
+        detection_boxes.append(box)
+    output_dict['detection_boxes'] = np.array(detection_boxes)
+    output_dict['detection_scores'] = detection_scores
+    output_dict['detection_classes'] = detection_classes
     return output_dict
-
