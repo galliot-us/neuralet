@@ -25,7 +25,7 @@ RUN apt-get install -y python3-wget
 RUN apt-get install -y python3-flask
 RUN apt-get install -y python3-opencv
 
-WORKDIR /repo/
+WORKDIR /repo/social-distancing
 # Also if you use opencv: LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0"
 
 ENTRYPOINT ["python3", "neuralet-distancing.py"]
