@@ -5,7 +5,7 @@ from flask import Flask
 from flask import render_template
 from flask import Response
 
-from .utils import visualization_util as vis_util
+from .utils import visualization_utils as vis_util
 
 class WebGUI:
 
@@ -16,12 +16,21 @@ class WebGUI:
         self._lock = threading.Lock()
         self.app = self.create_flask_app()
 
-    def update(self, input_frame, boxes, distances):
+    def update(self, input_frame, boxes, img_shape, distances):
         # TODO: docstring after completing
-        # TODO: using vis_util for visualizing
+        output_dict = vis_util.visualization_preparation(boxes, img_shape)
+        vis_util.visualize_boxes_and_labels_on_image_array(
+            input_frame,
+            output_dict['detection_boxes'],
+            output_dict['detection_classes'],
+            output_dict['detection_scores'],
+            category_index,
+            instance_masks=output_dict.get('detection_masks'),
+            use_normalized_coordinates=True,
+            line_thickness=3)
         with self._lock:
             self._output_frame = input_frame.copy()
-            self._output_frame = cv.resize(self._output_frame, (220,160))
+            self._output_frame = cv.resize(self._output_frame, (220, 160))
 
 
     def create_flask_app(self):
