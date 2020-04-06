@@ -14,7 +14,7 @@ class Distancing:
         self.detector = None
         self.device = self.config.get_section_dict('Detector')['Device']
         self.running_video = False
-        self.tracker = CentroidTracker(maxDisappeared=5)
+        self.tracker = CentroidTracker(maxDisappeared= int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
         if self.device == 'Jetson':
             from libs.detectors.jetson.Detector import Detector
             self.detector = Detector(self.config)
@@ -85,8 +85,26 @@ class Distancing:
         self.ui.update(cv_image, objects, distancings) 
 
     def calculate_distancing(self, objects_list):
+        '''
+        this function post-process the raw boxes of object detector and calculate a distance matrix
+        for detected bounding boxes.
+        post processing is consist of:
+        1. omitting large boxes by filtering boxes which are biger than the 1/4 of the size the image.
+        2. omitting duplicated boxes by applying an auxilary non-maximum-suppression.
+        3. apply a simple object tracker to make the detection more robust.
+
+        params:
+        object_list: a list of dictionaries. each dictionary has attributes of a detected object such as
+        "id", "centroid" (a tuple of the normalized centroid coordinates (cx,cy,w,h) of the box) and "bbox" (a tuple
+        of the normalized (xmin,ymin,xmax,ymax) coordinate of the box)
+        
+        returns:
+        object_list: the post processed version of the input
+        distances: a NxN ndarray which i,j element is distance between i-th and l-th bounding box
+        '''
         new_objects_list = self.ignore_large_boxes(objects_list)
-        new_objects_list = self.non_max_suppression_fast(new_objects_list, 0.98)
+        new_objects_list = self.non_max_suppression_fast(new_objects_list,
+                float(self.config.get_section_dict("PostProcessor")["NMSThreshold"])
         tracked_boxes = self.tracker.update(new_objects_list)
         new_objects_list = [tracked_boxes[i] for i in tracked_boxes.keys()]
         for i, item in enumerate(new_objects_list):
