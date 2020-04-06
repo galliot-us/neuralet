@@ -7,11 +7,15 @@ from flask import Response
 
 from .utils import visualization_utils as vis_util
 
-category_index = {'id': 0, 'name': 'safe', 'id': 1, 'name': 'unsafe'}  # TODO: json file for detector config
+category_index = {
+    "id": 0,
+    "name": "safe",
+    "id": 1,
+    "name": "unsafe",
+}  # TODO: json file for detector config
 
 
 class WebGUI:
-
     def __init__(self, config, engine_instance):
         self.config = config
         self.__ENGINE_INSTANCE = engine_instance
@@ -29,16 +33,17 @@ class WebGUI:
         Returns:
             draw the bounding boxes to an output frame
         """
-        output_dict = vis_util.visualization_preparation(nn_out)
+        output_dict = vis_util.visualization_preparation(nn_out, distances)
         vis_util.visualize_boxes_and_labels_on_image_array(
             input_frame,
-            output_dict['detection_boxes'],
-            output_dict['detection_classes'],
-            output_dict['detection_scores'],
+            output_dict["detection_boxes"],
+            output_dict["detection_classes"],
+            output_dict["detection_scores"],
             category_index,
-            instance_masks=output_dict.get('detection_masks'),
+            instance_masks=output_dict.get("detection_masks"),
             use_normalized_coordinates=True,
-            line_thickness=3)
+            line_thickness=3,
+        )
         with self._lock:
             self._output_frame = input_frame.copy()
 
@@ -76,8 +81,8 @@ class WebGUI:
 
             # yield the output frame in the byte format
             yield (
-                    b"--frame\r\n"
-                    b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encodedImage) + b"\r\n"
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encodedImage) + b"\r\n"
             )
 
     def _run(self):
@@ -88,5 +93,5 @@ class WebGUI:
     def start(self):
         threading.Thread(target=self._run).start()
         time.sleep(1)
-        video_path = self.config.get_section_dict('App')['VideoPath']
+        video_path = self.config.get_section_dict("App")["VideoPath"]
         self.__ENGINE_INSTANCE.process_video(video_path)
