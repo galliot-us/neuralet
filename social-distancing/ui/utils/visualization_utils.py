@@ -34,136 +34,11 @@ import PIL.ImageFont as ImageFont
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
+
 STANDARD_COLORS = [
-    "AliceBlue",
-    "Chartreuse",
-    "Aqua",
-    "Aquamarine",
-    "Azure",
-    "Beige",
-    "Bisque",
-    "BlanchedAlmond",
-    "BlueViolet",
-    "BurlyWood",
-    "CadetBlue",
-    "AntiqueWhite",
-    "Chocolate",
-    "Coral",
-    "CornflowerBlue",
-    "Cornsilk",
-    "Crimson",
-    "Cyan",
-    "DarkCyan",
-    "DarkGoldenRod",
-    "DarkGrey",
-    "DarkKhaki",
-    "DarkOrange",
-    "DarkOrchid",
-    "DarkSalmon",
-    "DarkSeaGreen",
-    "DarkTurquoise",
-    "DarkViolet",
-    "DeepPink",
-    "DeepSkyBlue",
-    "DodgerBlue",
-    "FireBrick",
-    "FloralWhite",
-    "ForestGreen",
-    "Fuchsia",
-    "Gainsboro",
-    "GhostWhite",
-    "Gold",
-    "GoldenRod",
-    "Salmon",
-    "Tan",
-    "HoneyDew",
-    "HotPink",
-    "IndianRed",
-    "Ivory",
-    "Khaki",
-    "Lavender",
-    "LavenderBlush",
-    "LawnGreen",
-    "LemonChiffon",
-    "LightBlue",
-    "LightCoral",
-    "LightCyan",
-    "LightGoldenRodYellow",
-    "LightGray",
-    "LightGrey",
-    "LightGreen",
-    "LightPink",
-    "LightSalmon",
-    "LightSeaGreen",
-    "LightSkyBlue",
-    "LightSlateGray",
-    "LightSlateGrey",
-    "LightSteelBlue",
-    "LightYellow",
-    "Lime",
-    "LimeGreen",
-    "Linen",
-    "Magenta",
-    "MediumAquaMarine",
-    "MediumOrchid",
-    "MediumPurple",
-    "MediumSeaGreen",
-    "MediumSlateBlue",
-    "MediumSpringGreen",
-    "MediumTurquoise",
-    "MediumVioletRed",
-    "MintCream",
-    "MistyRose",
-    "Moccasin",
-    "NavajoWhite",
-    "OldLace",
-    "Olive",
-    "OliveDrab",
-    "Orange",
-    "OrangeRed",
-    "Orchid",
-    "PaleGoldenRod",
-    "PaleGreen",
-    "PaleTurquoise",
-    "PaleVioletRed",
-    "PapayaWhip",
-    "PeachPuff",
-    "Peru",
-    "Pink",
-    "Plum",
-    "PowderBlue",
-    "Purple",
-    "Red",
-    "RosyBrown",
-    "RoyalBlue",
-    "SaddleBrown",
-    "Green",
-    "SandyBrown",
-    "SeaGreen",
-    "SeaShell",
-    "Sienna",
-    "Silver",
-    "SkyBlue",
-    "SlateBlue",
-    "SlateGray",
-    "SlateGrey",
-    "Snow",
-    "SpringGreen",
-    "SteelBlue",
-    "GreenYellow",
-    "Teal",
-    "Thistle",
-    "Tomato",
-    "Turquoise",
-    "Violet",
-    "Wheat",
-    "White",
-    "WhiteSmoke",
-    "Yellow",
-    "YellowGreen",
-]
-
-
+        "Green",
+        "Blue"
+        ]
 
 def draw_bounding_box_on_image_array(
     image,
@@ -171,7 +46,7 @@ def draw_bounding_box_on_image_array(
     xmin,
     ymax,
     xmax,
-    color="red",
+    color=(255, 0, 0), #RGB
     thickness=4,
     display_str_list=(),
     use_normalized_coordinates=True,
@@ -216,7 +91,7 @@ def draw_bounding_box_on_image(
     xmin,
     ymax,
     xmax,
-    color="red",
+    color=(255, 0, 0), #RGB
     thickness=4,
     display_str_list=(),
     use_normalized_coordinates=True,
@@ -340,18 +215,19 @@ def draw_bounding_boxes_on_image(
 
 def _visualize_boxes(image, boxes, classes, scores, category_index, **kwargs):
     return visualize_boxes_and_labels_on_image_array(
-        image, boxes, classes, scores, category_index=category_index, **kwargs
+        image, boxes, classes, scores, colors, category_index=category_index, **kwargs
     )
 
 
 def _visualize_boxes_and_masks(
-    image, boxes, classes, scores, masks, category_index, **kwargs
+    image, boxes, classes, scores, colors, masks, category_index, **kwargs
 ):
     return visualize_boxes_and_labels_on_image_array(
         image,
         boxes,
         classes,
         scores,
+        colors,
         category_index=category_index,
         instance_masks=masks,
         **kwargs
@@ -479,13 +355,14 @@ def visualize_boxes_and_labels_on_image_array(
     boxes,
     classes,
     scores,
+    colors,
     category_index,
     instance_masks=None,
     instance_boundaries=None,
     keypoints=None,
-    use_normalized_coordinates=False,
+    use_normalized_coordinates=True,
     max_boxes_to_draw=20,
-    min_score_thresh=0.5,
+    min_score_thresh=0.0,
     agnostic_mode=False,
     line_thickness=4,
     groundtruth_box_visualization_color="black",
@@ -577,13 +454,13 @@ def visualize_boxes_and_labels_on_image_array(
                     ]
 
     # Draw all boxes onto image.
-    for box, color in box_to_color_map.items():
-        ymin, xmin, ymax, xmax = box
+    for box, color in zip(boxes, colors):#box_to_color_map.items():
+        xmin, ymin, xmax, ymax = box
         if instance_masks is not None:
-            draw_mask_on_image_array(image, box_to_instance_masks_map[box], color=color)
+            draw_mask_on_image_array(image, box_to_instance_masks_map[tuple(box)], color=color)
         if instance_boundaries is not None:
             draw_mask_on_image_array(
-                image, box_to_instance_boundaries_map[box], color="red", alpha=1.0
+                image, box_to_instance_boundaries_map[tuple(box)], color="red", alpha=1.0
             )
         draw_bounding_box_on_image_array(
             image,
@@ -593,7 +470,7 @@ def visualize_boxes_and_labels_on_image_array(
             xmax,
             color=color,
             thickness=line_thickness,
-            display_str_list=box_to_display_str_map[box],
+            display_str_list=box_to_display_str_map[tuple(box)],
             use_normalized_coordinates=use_normalized_coordinates,
         )
         if keypoints is not None:
@@ -612,36 +489,40 @@ def visualization_preparation(nn_out, distances):
     """
     prepare the objects boxes and id in order to visualize
     Args:
-        nn_out: a list of dicionary contains normalized numbers of bonding boxes {'id' : '0-0', 'box' : [x, y, h, w], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
+        nn_out: a list of dicionary contains normalized numbers of bonding boxes {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
         distances: a symmetric matrix of normalized distances
     Returns:
         an output dictionary contains object classes, boxes, scores
     """
     output_dict = {}
-    DISTANCE_THRESHOLD = 0.2  # TODO: add to config
+    DISTANCE_THRESHOLD = 0.1  # TODO: add to config
     detection_classes = []
     detection_scores = []
     detection_boxes = []
+    colors = []
+
+    distance = np.amin(distances + np.identity(len(distances))*10., 0)
+    distance = np.float_power(distance, 0.3)
     for i, obj in enumerate(nn_out):
         # change object id based on physical distances matrix
-        for j in range(i + 1, len(nn_out)):
-            # i= rows, j=columns
-            obj_dist = distances[i][i]
-            if obj_dist < DISTANCE_THRESHOLD:
-                nn_out[j]["id"] = "1-" + str(j)
-                nn_out[i]["id"] = "1-" + str(i)
-
-        id = obj["id"]
-        id = id.split("-")[0]
+        R = 255* (1.0 - distance[i])
+        G = 255 - R  
+        B = 255 - R
+        color = (int(B), int(G), int(R))
+        obj_id = obj["id"]
+        obj_id = obj_id.split("-")[0]
+        
         box = obj["bbox"]
         if "score" in obj:
             score = obj["score"]
         else:
             score = 1.0
-        detection_classes.append(int(id))
+        detection_classes.append(int(obj_id))
         detection_scores.append(score)
         detection_boxes.append(box)
+        colors.append(color)
     output_dict["detection_boxes"] = np.array(detection_boxes)
     output_dict["detection_scores"] = detection_scores
     output_dict["detection_classes"] = detection_classes
+    output_dict["detection_colors"] = colors
     return output_dict
