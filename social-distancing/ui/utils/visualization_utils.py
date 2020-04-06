@@ -622,10 +622,9 @@ def visualization_preparation(nn_out, distances):
     detection_classes = []
     detection_scores = []
     detection_boxes = []
-    output_dict["detection_classes"] = nn_out.shapep[0]
     for i, obj in enumerate(nn_out):
         # change object id based on physical distances matrix
-        for j in range(i + 1, output_dict["detection_classes"]):
+        for j in range(i + 1, len(nn_out)):
             # i= rows, j=columns
             obj_dist = distances[i][i]
             if obj_dist < DISTANCE_THRESHOLD:
