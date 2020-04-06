@@ -26,14 +26,11 @@ import functools
 import matplotlib
 
 matplotlib.use("Agg")  # pylint: disable=multiple-statements
-import matplotlib.pyplot as plt  # pylint: disable=g-import-not-at-top
 import numpy as np
 import PIL.Image as Image
 import PIL.ImageColor as ImageColor
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
-import six
-import tensorflow as tf
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -166,34 +163,6 @@ STANDARD_COLORS = [
     "YellowGreen",
 ]
 
-
-def save_image_array_as_png(image, output_path):
-    """Saves an image (represented as a numpy array) to PNG.
-  
-    Args:
-      image: a numpy array with shape [height, width, 3].
-      output_path: path to which image should be written.
-    """
-    image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
-    with tf.gfile.Open(output_path, "w") as fid:
-        image_pil.save(fid, "PNG")
-
-
-def encode_image_array_as_png_str(image):
-    """Encodes a numpy array into a PNG string.
-  
-    Args:
-      image: a numpy array with shape [height, width, 3].
-  
-    Returns:
-      PNG encoded image string.
-    """
-    image_pil = Image.fromarray(np.uint8(image))
-    output = six.BytesIO()
-    image_pil.save(output, format="PNG")
-    png_string = output.getvalue()
-    output.close()
-    return png_string
 
 
 def draw_bounding_box_on_image_array(
@@ -328,33 +297,6 @@ def draw_bounding_box_on_image(
         text_bottom -= text_height - 2 * margin
 
 
-def draw_bounding_boxes_on_image_array(
-    image, boxes, color="red", thickness=4, display_str_list_list=()
-):
-    """Draws bounding boxes on image (numpy array).
-  
-    Args:
-      image: a numpy array object.
-      boxes: a 2 dimensional numpy array of [N, 4]: (ymin, xmin, ymax, xmax).
-             The coordinates are in normalized format between [0, 1].
-      color: color to draw bounding box. Default is red.
-      thickness: line thickness. Default value is 4.
-      display_str_list_list: list of list of strings.
-                             a list of strings for each bounding box.
-                             The reason to pass a list of strings for a
-                             bounding box is that it might contain
-                             multiple labels.
-  
-    Raises:
-      ValueError: if boxes is not a [N, 4] array
-    """
-    image_pil = Image.fromarray(image)
-    draw_bounding_boxes_on_image(
-        image_pil, boxes, color, thickness, display_str_list_list
-    )
-    np.copyto(image, np.array(image_pil))
-
-
 def draw_bounding_boxes_on_image(
     image, boxes, color="red", thickness=4, display_str_list_list=()
 ):
@@ -443,85 +385,6 @@ def _visualize_boxes_and_masks_and_keypoints(
         keypoints=keypoints,
         **kwargs
     )
-
-
-def draw_bounding_boxes_on_image_tensors(
-    images,
-    boxes,
-    classes,
-    scores,
-    category_index,
-    instance_masks=None,
-    keypoints=None,
-    max_boxes_to_draw=20,
-    min_score_thresh=0.2,
-):
-    """Draws bounding boxes, masks, and keypoints on batch of image tensors.
-  
-    Args:
-      images: A 4D uint8 image tensor of shape [N, H, W, C].
-      boxes: [N, max_detections, 4] float32 tensor of detection boxes.
-      classes: [N, max_detections] int tensor of detection classes. Note that
-        classes are 1-indexed.
-      scores: [N, max_detections] float32 tensor of detection scores.
-      category_index: a dict that maps integer ids to category dicts. e.g.
-        {1: {1: 'dog'}, 2: {2: 'cat'}, ...}
-      instance_masks: A 4D uint8 tensor of shape [N, max_detection, H, W] with
-        instance masks.
-      keypoints: A 4D float32 tensor of shape [N, max_detection, num_keypoints, 2]
-        with keypoints.
-      max_boxes_to_draw: Maximum number of boxes to draw on an image. Default 20.
-      min_score_thresh: Minimum score threshold for visualization. Default 0.2.
-  
-    Returns:
-      4D image tensor of type uint8, with boxes drawn on top.
-    """
-    visualization_keyword_args = {
-        "use_normalized_coordinates": True,
-        "max_boxes_to_draw": max_boxes_to_draw,
-        "min_score_thresh": min_score_thresh,
-        "agnostic_mode": False,
-        "line_thickness": 4,
-    }
-
-    if instance_masks is not None and keypoints is None:
-        visualize_boxes_fn = functools.partial(
-            _visualize_boxes_and_masks,
-            category_index=category_index,
-            **visualization_keyword_args
-        )
-        elems = [images, boxes, classes, scores, instance_masks]
-    elif instance_masks is None and keypoints is not None:
-        visualize_boxes_fn = functools.partial(
-            _visualize_boxes_and_keypoints,
-            category_index=category_index,
-            **visualization_keyword_args
-        )
-        elems = [images, boxes, classes, scores, keypoints]
-    elif instance_masks is not None and keypoints is not None:
-        visualize_boxes_fn = functools.partial(
-            _visualize_boxes_and_masks_and_keypoints,
-            category_index=category_index,
-            **visualization_keyword_args
-        )
-        elems = [images, boxes, classes, scores, instance_masks, keypoints]
-    else:
-        visualize_boxes_fn = functools.partial(
-            _visualize_boxes,
-            category_index=category_index,
-            **visualization_keyword_args
-        )
-        elems = [images, boxes, classes, scores]
-
-    def draw_boxes(image_and_detections):
-        """Draws boxes on image."""
-        image_with_boxes = tf.py_func(
-            visualize_boxes_fn, image_and_detections, tf.uint8
-        )
-        return image_with_boxes
-
-    images = tf.map_fn(draw_boxes, elems, dtype=tf.uint8, back_prop=False)
-    return images
 
 
 def draw_keypoints_on_image_array(
@@ -743,41 +606,6 @@ def visualize_boxes_and_labels_on_image_array(
             )
 
     return image
-
-
-def add_cdf_image_summary(values, name):
-    """Adds a tf.summary.image for a CDF plot of the values.
-  
-    Normalizes `values` such that they sum to 1, plots the cumulative distribution
-    function and creates a tf image summary.
-  
-    Args:
-      values: a 1-D float32 tensor containing the values.
-      name: name for the image summary.
-    """
-
-    def cdf_plot(values):
-        """Numpy function to plot CDF."""
-        normalized_values = values / np.sum(values)
-        sorted_values = np.sort(normalized_values)
-        cumulative_values = np.cumsum(sorted_values)
-        fraction_of_examples = (
-            np.arange(cumulative_values.size, dtype=np.float32) / cumulative_values.size
-        )
-        fig = plt.figure(frameon=False)
-        ax = fig.add_subplot("111")
-        ax.plot(fraction_of_examples, cumulative_values)
-        ax.set_ylabel("cumulative normalized values")
-        ax.set_xlabel("fraction of examples")
-        fig.canvas.draw()
-        width, height = fig.get_size_inches() * fig.get_dpi()
-        image = np.fromstring(fig.canvas.tostring_rgb(), dtype="uint8").reshape(
-            1, int(height), int(width), 3
-        )
-        return image
-
-    cdf_plot = tf.py_func(cdf_plot, [values], tf.uint8)
-    tf.summary.image(name, cdf_plot)
 
 
 def visualization_preparation(nn_out, distances):
