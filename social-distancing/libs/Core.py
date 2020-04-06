@@ -1,8 +1,9 @@
 import os, re
 import time
+
+import numpy as np
 import cv2 as cv
 from scipy.spatial import distance as dist
-from collections import OrderedDict
 from libs.centroid_object_tracker import CentroidTracker
 
 class Distancing:
@@ -34,24 +35,29 @@ class Distancing:
         self.ui = ui
 
     def __process(self, cv_image):
-
+        """
+        return object_list list of  dict for each obj, 
+        obj["bbox"] is normalized coordinations for [x0, y0, x1, y1] of box
+        """
         if self.device == 'Dummy': 
             return cv_image, [], None
 
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
-        objects_list = self.detector.inference(rgb_resized_image)
+        tmp_objects_list = self.detector.inference(rgb_resized_image)
         hscale = cv_image.shape[0]/resized_image.shape[0]
         wscale = cv_image.shape[1]/resized_image.shape[1]
-        for i in range(len(objects_list)):
-            box = objects_list[i]
+
+        for obj in tmp_objects_list:
+            box = obj["bbox"]
             x0 = box[1]
             y0 = box[0]
             x1 = box[3]
             y1 = box[2]
-            objects_list[i] = [(x0+x1)/2, (y0+y1)/2, x1 - x0, y1 - y0] 
+            obj["centroid"] = [(x0+x1)/2, (y0+y1)/2, x1 - x0, y1 - y0]
+            obj["bbox"] = [x0, y0, x1, y1]
 
-        object_list,distancings = self.calculate_distancing(objects_list)
+        object_list, distancings = self.calculate_distancing(tmp_objects_list)
         return cv_image, object_list, distancings
 
     def process_video(self, video_uri):
@@ -79,26 +85,22 @@ class Distancing:
         self.ui.update(cv_image, objects, distancings) 
 
     def calculate_distancing(self, objects_list):
-        object_list = self.ignore_large_boxes(object_list)
-        object_list = self.non_max_suppression_fast(object_list,0.98)
-        tracked_boxes = self.tracker.update(object_list)
-        object_list = [tracked_boxes[i] for i in tracked_boxes.keys()]
-        for i,item in enumerate(object_list):
+        new_objects_list = self.ignore_large_boxes(objects_list)
+        new_objects_list = self.non_max_suppression_fast(new_objects_list, 0.98)
+        tracked_boxes = self.tracker.update(new_objects_list)
+        new_objects_list = [tracked_boxes[i] for i in tracked_boxes.keys()]
+        for i, item in enumerate(new_objects_list):
             item["id"] = item["id"].split("-")[0] + "-" + str(i)
-        
 
-        centroids = np.array([object_list[i]["bbox"] for i in range(len(object_list))])[...,:2]
-        distances = dist.cdist(centroids,centroids)
-        for item in object_list:
-            item["bbox"][0] -= item["bbox"][2]/2
-            item["bbox"][1] -= item["bbox"][3]/2
-        return object_list,distances
+        centroids = np.array( [obj["centroid"] for obj in new_objects_list] ) 
+        distances = dist.cdist(centroids, centroids)
+        return new_objects_list, distances
 
     @staticmethod
     def ignore_large_boxes(object_list):
         large_boxes = []
         for i in range(len(object_list)):
-            if (object_list[i]["bbox"][2] * object_list[i]["bbox"][3]) > 0.25:
+            if (object_list[i]["centroid"][2] * object_list[i]["centroid"][3]) > 0.25:
                 large_boxes.append(i)
         updated_object_list = [j for i,j in enumerate(object_list) if i not in large_boxes]
         return updated_object_list
@@ -106,7 +108,7 @@ class Distancing:
     @staticmethod
     def non_max_suppression_fast(object_list, overlapThresh):
         # if there are no boxes, return an empty list
-        boxes = np.array([item["bbox"] for item in object_list])
+        boxes = np.array([item["centroid"] for item in object_list])
         if len(boxes) == 0:
             return []
         # if the bounding boxes integers, convert them to floats --
