@@ -4,8 +4,15 @@ from collections import OrderedDict
 import numpy as np
 
 class CentroidTracker():
+    """
+    a simple object tracker based on Euclidian distance of bounding boxes centroid of two consecutive frames.
+    if a box is losted betweeb two frames the tracker keep the box for next maxDisappeared frames.
+    """
 	def __init__(self, maxDisappeared=50):
+    """
+    maxDisappeared:if a box is losted betweeb two frames the tracker keep the box for next maxDisappeared frames.
 
+    """
 		self.nextObjectID = 0
 		self.objects = OrderedDict()
 		self.disappeared = OrderedDict()
@@ -58,7 +65,7 @@ class CentroidTracker():
 
 				for row in unusedRows:             
 					objectID = objectIDs[row]
-					self.objects[objectID]["id"] = f"0-{biggest_existing_id+1}"
+					self.objects[objectID]["id"] = self.objects[objectID]["id"].split("-")[0] + "-" +str(biggest_existing_id+1)
 					self.disappeared[objectID] += 1
 					biggest_existing_id += 1
 					if self.disappeared[objectID] > self.maxDisappeared:
