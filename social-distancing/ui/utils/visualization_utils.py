@@ -21,10 +21,11 @@ The functions do not return a value, instead they modify the image itself.
 """
 import collections
 import functools
-# Set headless-friendly backend.
-import matplotlib;
 
-matplotlib.use('Agg')  # pylint: disable=multiple-statements
+# Set headless-friendly backend.
+import matplotlib
+
+matplotlib.use("Agg")  # pylint: disable=multiple-statements
 import matplotlib.pyplot as plt  # pylint: disable=g-import-not-at-top
 import numpy as np
 import PIL.Image as Image
@@ -37,29 +38,132 @@ import tensorflow as tf
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
 STANDARD_COLORS = [
-    'AliceBlue', 'Chartreuse', 'Aqua', 'Aquamarine', 'Azure', 'Beige', 'Bisque',
-    'BlanchedAlmond', 'BlueViolet', 'BurlyWood', 'CadetBlue', 'AntiqueWhite',
-    'Chocolate', 'Coral', 'CornflowerBlue', 'Cornsilk', 'Crimson', 'Cyan',
-    'DarkCyan', 'DarkGoldenRod', 'DarkGrey', 'DarkKhaki', 'DarkOrange',
-    'DarkOrchid', 'DarkSalmon', 'DarkSeaGreen', 'DarkTurquoise', 'DarkViolet',
-    'DeepPink', 'DeepSkyBlue', 'DodgerBlue', 'FireBrick', 'FloralWhite',
-    'ForestGreen', 'Fuchsia', 'Gainsboro', 'GhostWhite', 'Gold', 'GoldenRod',
-    'Salmon', 'Tan', 'HoneyDew', 'HotPink', 'IndianRed', 'Ivory', 'Khaki',
-    'Lavender', 'LavenderBlush', 'LawnGreen', 'LemonChiffon', 'LightBlue',
-    'LightCoral', 'LightCyan', 'LightGoldenRodYellow', 'LightGray', 'LightGrey',
-    'LightGreen', 'LightPink', 'LightSalmon', 'LightSeaGreen', 'LightSkyBlue',
-    'LightSlateGray', 'LightSlateGrey', 'LightSteelBlue', 'LightYellow', 'Lime',
-    'LimeGreen', 'Linen', 'Magenta', 'MediumAquaMarine', 'MediumOrchid',
-    'MediumPurple', 'MediumSeaGreen', 'MediumSlateBlue', 'MediumSpringGreen',
-    'MediumTurquoise', 'MediumVioletRed', 'MintCream', 'MistyRose', 'Moccasin',
-    'NavajoWhite', 'OldLace', 'Olive', 'OliveDrab', 'Orange', 'OrangeRed',
-    'Orchid', 'PaleGoldenRod', 'PaleGreen', 'PaleTurquoise', 'PaleVioletRed',
-    'PapayaWhip', 'PeachPuff', 'Peru', 'Pink', 'Plum', 'PowderBlue', 'Purple',
-    'Red', 'RosyBrown', 'RoyalBlue', 'SaddleBrown', 'Green', 'SandyBrown',
-    'SeaGreen', 'SeaShell', 'Sienna', 'Silver', 'SkyBlue', 'SlateBlue',
-    'SlateGray', 'SlateGrey', 'Snow', 'SpringGreen', 'SteelBlue', 'GreenYellow',
-    'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White',
-    'WhiteSmoke', 'Yellow', 'YellowGreen'
+    "AliceBlue",
+    "Chartreuse",
+    "Aqua",
+    "Aquamarine",
+    "Azure",
+    "Beige",
+    "Bisque",
+    "BlanchedAlmond",
+    "BlueViolet",
+    "BurlyWood",
+    "CadetBlue",
+    "AntiqueWhite",
+    "Chocolate",
+    "Coral",
+    "CornflowerBlue",
+    "Cornsilk",
+    "Crimson",
+    "Cyan",
+    "DarkCyan",
+    "DarkGoldenRod",
+    "DarkGrey",
+    "DarkKhaki",
+    "DarkOrange",
+    "DarkOrchid",
+    "DarkSalmon",
+    "DarkSeaGreen",
+    "DarkTurquoise",
+    "DarkViolet",
+    "DeepPink",
+    "DeepSkyBlue",
+    "DodgerBlue",
+    "FireBrick",
+    "FloralWhite",
+    "ForestGreen",
+    "Fuchsia",
+    "Gainsboro",
+    "GhostWhite",
+    "Gold",
+    "GoldenRod",
+    "Salmon",
+    "Tan",
+    "HoneyDew",
+    "HotPink",
+    "IndianRed",
+    "Ivory",
+    "Khaki",
+    "Lavender",
+    "LavenderBlush",
+    "LawnGreen",
+    "LemonChiffon",
+    "LightBlue",
+    "LightCoral",
+    "LightCyan",
+    "LightGoldenRodYellow",
+    "LightGray",
+    "LightGrey",
+    "LightGreen",
+    "LightPink",
+    "LightSalmon",
+    "LightSeaGreen",
+    "LightSkyBlue",
+    "LightSlateGray",
+    "LightSlateGrey",
+    "LightSteelBlue",
+    "LightYellow",
+    "Lime",
+    "LimeGreen",
+    "Linen",
+    "Magenta",
+    "MediumAquaMarine",
+    "MediumOrchid",
+    "MediumPurple",
+    "MediumSeaGreen",
+    "MediumSlateBlue",
+    "MediumSpringGreen",
+    "MediumTurquoise",
+    "MediumVioletRed",
+    "MintCream",
+    "MistyRose",
+    "Moccasin",
+    "NavajoWhite",
+    "OldLace",
+    "Olive",
+    "OliveDrab",
+    "Orange",
+    "OrangeRed",
+    "Orchid",
+    "PaleGoldenRod",
+    "PaleGreen",
+    "PaleTurquoise",
+    "PaleVioletRed",
+    "PapayaWhip",
+    "PeachPuff",
+    "Peru",
+    "Pink",
+    "Plum",
+    "PowderBlue",
+    "Purple",
+    "Red",
+    "RosyBrown",
+    "RoyalBlue",
+    "SaddleBrown",
+    "Green",
+    "SandyBrown",
+    "SeaGreen",
+    "SeaShell",
+    "Sienna",
+    "Silver",
+    "SkyBlue",
+    "SlateBlue",
+    "SlateGray",
+    "SlateGrey",
+    "Snow",
+    "SpringGreen",
+    "SteelBlue",
+    "GreenYellow",
+    "Teal",
+    "Thistle",
+    "Tomato",
+    "Turquoise",
+    "Violet",
+    "Wheat",
+    "White",
+    "WhiteSmoke",
+    "Yellow",
+    "YellowGreen",
 ]
 
 
@@ -70,9 +174,9 @@ def save_image_array_as_png(image, output_path):
       image: a numpy array with shape [height, width, 3].
       output_path: path to which image should be written.
     """
-    image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
-    with tf.gfile.Open(output_path, 'w') as fid:
-        image_pil.save(fid, 'PNG')
+    image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
+    with tf.gfile.Open(output_path, "w") as fid:
+        image_pil.save(fid, "PNG")
 
 
 def encode_image_array_as_png_str(image):
@@ -86,21 +190,23 @@ def encode_image_array_as_png_str(image):
     """
     image_pil = Image.fromarray(np.uint8(image))
     output = six.BytesIO()
-    image_pil.save(output, format='PNG')
+    image_pil.save(output, format="PNG")
     png_string = output.getvalue()
     output.close()
     return png_string
 
 
-def draw_bounding_box_on_image_array(image,
-                                     ymin,
-                                     xmin,
-                                     ymax,
-                                     xmax,
-                                     color='red',
-                                     thickness=4,
-                                     display_str_list=(),
-                                     use_normalized_coordinates=True):
+def draw_bounding_box_on_image_array(
+    image,
+    ymin,
+    xmin,
+    ymax,
+    xmax,
+    color="red",
+    thickness=4,
+    display_str_list=(),
+    use_normalized_coordinates=True,
+):
     """Adds a bounding box to an image (numpy array).
   
     Bounding box coordinates can be specified in either absolute (pixel) or
@@ -120,22 +226,32 @@ def draw_bounding_box_on_image_array(image,
         ymin, xmin, ymax, xmax as relative to the image.  Otherwise treat
         coordinates as absolute.
     """
-    image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
-    draw_bounding_box_on_image(image_pil, ymin, xmin, ymax, xmax, color,
-                               thickness, display_str_list,
-                               use_normalized_coordinates)
+    image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
+    draw_bounding_box_on_image(
+        image_pil,
+        ymin,
+        xmin,
+        ymax,
+        xmax,
+        color,
+        thickness,
+        display_str_list,
+        use_normalized_coordinates,
+    )
     np.copyto(image, np.array(image_pil))
 
 
-def draw_bounding_box_on_image(image,
-                               ymin,
-                               xmin,
-                               ymax,
-                               xmax,
-                               color='red',
-                               thickness=4,
-                               display_str_list=(),
-                               use_normalized_coordinates=True):
+def draw_bounding_box_on_image(
+    image,
+    ymin,
+    xmin,
+    ymax,
+    xmax,
+    color="red",
+    thickness=4,
+    display_str_list=(),
+    use_normalized_coordinates=True,
+):
     """Adds a bounding box to an image.
   
     Bounding box coordinates can be specified in either absolute (pixel) or
@@ -163,14 +279,21 @@ def draw_bounding_box_on_image(image,
     draw = ImageDraw.Draw(image)
     im_width, im_height = image.size
     if use_normalized_coordinates:
-        (left, right, top, bottom) = (xmin * im_width, xmax * im_width,
-                                      ymin * im_height, ymax * im_height)
+        (left, right, top, bottom) = (
+            xmin * im_width,
+            xmax * im_width,
+            ymin * im_height,
+            ymax * im_height,
+        )
     else:
         (left, right, top, bottom) = (xmin, xmax, ymin, ymax)
-    draw.line([(left, top), (left, bottom), (right, bottom),
-               (right, top), (left, top)], width=thickness, fill=color)
+    draw.line(
+        [(left, top), (left, bottom), (right, bottom), (right, top), (left, top)],
+        width=thickness,
+        fill=color,
+    )
     try:
-        font = ImageFont.truetype('arial.ttf', 24)
+        font = ImageFont.truetype("arial.ttf", 24)
     except IOError:
         font = ImageFont.load_default()
 
@@ -190,22 +313,24 @@ def draw_bounding_box_on_image(image,
         text_width, text_height = font.getsize(display_str)
         margin = np.ceil(0.05 * text_height)
         draw.rectangle(
-            [(left, text_bottom - text_height - 2 * margin), (left + text_width,
-                                                              text_bottom)],
-            fill=color)
+            [
+                (left, text_bottom - text_height - 2 * margin),
+                (left + text_width, text_bottom),
+            ],
+            fill=color,
+        )
         draw.text(
             (left + margin, text_bottom - text_height - margin),
             display_str,
-            fill='black',
-            font=font)
+            fill="black",
+            font=font,
+        )
         text_bottom -= text_height - 2 * margin
 
 
-def draw_bounding_boxes_on_image_array(image,
-                                       boxes,
-                                       color='red',
-                                       thickness=4,
-                                       display_str_list_list=()):
+def draw_bounding_boxes_on_image_array(
+    image, boxes, color="red", thickness=4, display_str_list_list=()
+):
     """Draws bounding boxes on image (numpy array).
   
     Args:
@@ -224,16 +349,15 @@ def draw_bounding_boxes_on_image_array(image,
       ValueError: if boxes is not a [N, 4] array
     """
     image_pil = Image.fromarray(image)
-    draw_bounding_boxes_on_image(image_pil, boxes, color, thickness,
-                                 display_str_list_list)
+    draw_bounding_boxes_on_image(
+        image_pil, boxes, color, thickness, display_str_list_list
+    )
     np.copyto(image, np.array(image_pil))
 
 
-def draw_bounding_boxes_on_image(image,
-                                 boxes,
-                                 color='red',
-                                 thickness=4,
-                                 display_str_list_list=()):
+def draw_bounding_boxes_on_image(
+    image, boxes, color="red", thickness=4, display_str_list_list=()
+):
     """Draws bounding boxes on image.
   
     Args:
@@ -255,22 +379,32 @@ def draw_bounding_boxes_on_image(image,
     if not boxes_shape:
         return
     if len(boxes_shape) != 2 or boxes_shape[1] != 4:
-        raise ValueError('Input must be of size [N, 4]')
+        raise ValueError("Input must be of size [N, 4]")
     for i in range(boxes_shape[0]):
         display_str_list = ()
         if display_str_list_list:
             display_str_list = display_str_list_list[i]
-        draw_bounding_box_on_image(image, boxes[i, 0], boxes[i, 1], boxes[i, 2],
-                                   boxes[i, 3], color, thickness, display_str_list)
+        draw_bounding_box_on_image(
+            image,
+            boxes[i, 0],
+            boxes[i, 1],
+            boxes[i, 2],
+            boxes[i, 3],
+            color,
+            thickness,
+            display_str_list,
+        )
 
 
 def _visualize_boxes(image, boxes, classes, scores, category_index, **kwargs):
     return visualize_boxes_and_labels_on_image_array(
-        image, boxes, classes, scores, category_index=category_index, **kwargs)
+        image, boxes, classes, scores, category_index=category_index, **kwargs
+    )
 
 
-def _visualize_boxes_and_masks(image, boxes, classes, scores, masks,
-                               category_index, **kwargs):
+def _visualize_boxes_and_masks(
+    image, boxes, classes, scores, masks, category_index, **kwargs
+):
     return visualize_boxes_and_labels_on_image_array(
         image,
         boxes,
@@ -278,11 +412,13 @@ def _visualize_boxes_and_masks(image, boxes, classes, scores, masks,
         scores,
         category_index=category_index,
         instance_masks=masks,
-        **kwargs)
+        **kwargs
+    )
 
 
-def _visualize_boxes_and_keypoints(image, boxes, classes, scores, keypoints,
-                                   category_index, **kwargs):
+def _visualize_boxes_and_keypoints(
+    image, boxes, classes, scores, keypoints, category_index, **kwargs
+):
     return visualize_boxes_and_labels_on_image_array(
         image,
         boxes,
@@ -290,11 +426,13 @@ def _visualize_boxes_and_keypoints(image, boxes, classes, scores, keypoints,
         scores,
         category_index=category_index,
         keypoints=keypoints,
-        **kwargs)
+        **kwargs
+    )
 
 
 def _visualize_boxes_and_masks_and_keypoints(
-        image, boxes, classes, scores, masks, keypoints, category_index, **kwargs):
+    image, boxes, classes, scores, masks, keypoints, category_index, **kwargs
+):
     return visualize_boxes_and_labels_on_image_array(
         image,
         boxes,
@@ -303,18 +441,21 @@ def _visualize_boxes_and_masks_and_keypoints(
         category_index=category_index,
         instance_masks=masks,
         keypoints=keypoints,
-        **kwargs)
+        **kwargs
+    )
 
 
-def draw_bounding_boxes_on_image_tensors(images,
-                                         boxes,
-                                         classes,
-                                         scores,
-                                         category_index,
-                                         instance_masks=None,
-                                         keypoints=None,
-                                         max_boxes_to_draw=20,
-                                         min_score_thresh=0.2):
+def draw_bounding_boxes_on_image_tensors(
+    images,
+    boxes,
+    classes,
+    scores,
+    category_index,
+    instance_masks=None,
+    keypoints=None,
+    max_boxes_to_draw=20,
+    min_score_thresh=0.2,
+):
     """Draws bounding boxes, masks, and keypoints on batch of image tensors.
   
     Args:
@@ -336,53 +477,56 @@ def draw_bounding_boxes_on_image_tensors(images,
       4D image tensor of type uint8, with boxes drawn on top.
     """
     visualization_keyword_args = {
-        'use_normalized_coordinates': True,
-        'max_boxes_to_draw': max_boxes_to_draw,
-        'min_score_thresh': min_score_thresh,
-        'agnostic_mode': False,
-        'line_thickness': 4
+        "use_normalized_coordinates": True,
+        "max_boxes_to_draw": max_boxes_to_draw,
+        "min_score_thresh": min_score_thresh,
+        "agnostic_mode": False,
+        "line_thickness": 4,
     }
 
     if instance_masks is not None and keypoints is None:
         visualize_boxes_fn = functools.partial(
             _visualize_boxes_and_masks,
             category_index=category_index,
-            **visualization_keyword_args)
+            **visualization_keyword_args
+        )
         elems = [images, boxes, classes, scores, instance_masks]
     elif instance_masks is None and keypoints is not None:
         visualize_boxes_fn = functools.partial(
             _visualize_boxes_and_keypoints,
             category_index=category_index,
-            **visualization_keyword_args)
+            **visualization_keyword_args
+        )
         elems = [images, boxes, classes, scores, keypoints]
     elif instance_masks is not None and keypoints is not None:
         visualize_boxes_fn = functools.partial(
             _visualize_boxes_and_masks_and_keypoints,
             category_index=category_index,
-            **visualization_keyword_args)
+            **visualization_keyword_args
+        )
         elems = [images, boxes, classes, scores, instance_masks, keypoints]
     else:
         visualize_boxes_fn = functools.partial(
             _visualize_boxes,
             category_index=category_index,
-            **visualization_keyword_args)
+            **visualization_keyword_args
+        )
         elems = [images, boxes, classes, scores]
 
     def draw_boxes(image_and_detections):
         """Draws boxes on image."""
-        image_with_boxes = tf.py_func(visualize_boxes_fn, image_and_detections,
-                                      tf.uint8)
+        image_with_boxes = tf.py_func(
+            visualize_boxes_fn, image_and_detections, tf.uint8
+        )
         return image_with_boxes
 
     images = tf.map_fn(draw_boxes, elems, dtype=tf.uint8, back_prop=False)
     return images
 
 
-def draw_keypoints_on_image_array(image,
-                                  keypoints,
-                                  color='red',
-                                  radius=2,
-                                  use_normalized_coordinates=True):
+def draw_keypoints_on_image_array(
+    image, keypoints, color="red", radius=2, use_normalized_coordinates=True
+):
     """Draws keypoints on an image (numpy array).
   
     Args:
@@ -393,17 +537,16 @@ def draw_keypoints_on_image_array(image,
       use_normalized_coordinates: if True (default), treat keypoint values as
         relative to the image.  Otherwise treat them as absolute.
     """
-    image_pil = Image.fromarray(np.uint8(image)).convert('RGB')
-    draw_keypoints_on_image(image_pil, keypoints, color, radius,
-                            use_normalized_coordinates)
+    image_pil = Image.fromarray(np.uint8(image)).convert("RGB")
+    draw_keypoints_on_image(
+        image_pil, keypoints, color, radius, use_normalized_coordinates
+    )
     np.copyto(image, np.array(image_pil))
 
 
-def draw_keypoints_on_image(image,
-                            keypoints,
-                            color='red',
-                            radius=2,
-                            use_normalized_coordinates=True):
+def draw_keypoints_on_image(
+    image, keypoints, color="red", radius=2, use_normalized_coordinates=True
+):
     """Draws keypoints on an image.
   
     Args:
@@ -422,12 +565,17 @@ def draw_keypoints_on_image(image,
         keypoints_x = tuple([im_width * x for x in keypoints_x])
         keypoints_y = tuple([im_height * y for y in keypoints_y])
     for keypoint_x, keypoint_y in zip(keypoints_x, keypoints_y):
-        draw.ellipse([(keypoint_x - radius, keypoint_y - radius),
-                      (keypoint_x + radius, keypoint_y + radius)],
-                     outline=color, fill=color)
+        draw.ellipse(
+            [
+                (keypoint_x - radius, keypoint_y - radius),
+                (keypoint_x + radius, keypoint_y + radius),
+            ],
+            outline=color,
+            fill=color,
+        )
 
 
-def draw_mask_on_image_array(image, mask, color='red', alpha=0.4):
+def draw_mask_on_image_array(image, mask, color="red", alpha=0.4):
     """Draws mask on an image.
   
     Args:
@@ -441,42 +589,46 @@ def draw_mask_on_image_array(image, mask, color='red', alpha=0.4):
       ValueError: On incorrect data type for image or masks.
     """
     if image.dtype != np.uint8:
-        raise ValueError('`image` not of type np.uint8')
+        raise ValueError("`image` not of type np.uint8")
     if mask.dtype != np.uint8:
-        raise ValueError('`mask` not of type np.uint8')
+        raise ValueError("`mask` not of type np.uint8")
     if np.any(np.logical_and(mask != 1, mask != 0)):
-        raise ValueError('`mask` elements should be in [0, 1]')
+        raise ValueError("`mask` elements should be in [0, 1]")
     if image.shape[:2] != mask.shape:
-        raise ValueError('The image has spatial dimensions %s but the mask has '
-                         'dimensions %s' % (image.shape[:2], mask.shape))
+        raise ValueError(
+            "The image has spatial dimensions %s but the mask has "
+            "dimensions %s" % (image.shape[:2], mask.shape)
+        )
     rgb = ImageColor.getrgb(color)
     pil_image = Image.fromarray(image)
 
-    solid_color = np.expand_dims(
-        np.ones_like(mask), axis=2) * np.reshape(list(rgb), [1, 1, 3])
-    pil_solid_color = Image.fromarray(np.uint8(solid_color)).convert('RGBA')
-    pil_mask = Image.fromarray(np.uint8(255.0 * alpha * mask)).convert('L')
+    solid_color = np.expand_dims(np.ones_like(mask), axis=2) * np.reshape(
+        list(rgb), [1, 1, 3]
+    )
+    pil_solid_color = Image.fromarray(np.uint8(solid_color)).convert("RGBA")
+    pil_mask = Image.fromarray(np.uint8(255.0 * alpha * mask)).convert("L")
     pil_image = Image.composite(pil_solid_color, pil_image, pil_mask)
-    np.copyto(image, np.array(pil_image.convert('RGB')))
+    np.copyto(image, np.array(pil_image.convert("RGB")))
 
 
 def visualize_boxes_and_labels_on_image_array(
-        image,
-        boxes,
-        classes,
-        scores,
-        category_index,
-        instance_masks=None,
-        instance_boundaries=None,
-        keypoints=None,
-        use_normalized_coordinates=False,
-        max_boxes_to_draw=20,
-        min_score_thresh=.5,
-        agnostic_mode=False,
-        line_thickness=4,
-        groundtruth_box_visualization_color='black',
-        skip_scores=False,
-        skip_labels=False):
+    image,
+    boxes,
+    classes,
+    scores,
+    category_index,
+    instance_masks=None,
+    instance_boundaries=None,
+    keypoints=None,
+    use_normalized_coordinates=False,
+    max_boxes_to_draw=20,
+    min_score_thresh=0.5,
+    agnostic_mode=False,
+    line_thickness=4,
+    groundtruth_box_visualization_color="black",
+    skip_scores=False,
+    skip_labels=False,
+):
     """Overlay labeled boxes on an image with formatted scores and label names.
   
     This function groups boxes that correspond to the same location
@@ -538,41 +690,37 @@ def visualize_boxes_and_labels_on_image_array(
             if scores is None:
                 box_to_color_map[box] = groundtruth_box_visualization_color
             else:
-                display_str = ''
+                display_str = ""
                 if not skip_labels:
                     if not agnostic_mode:
                         if classes[i] in category_index.keys():
-                            class_name = category_index[classes[i]]['name']
+                            class_name = category_index[classes[i]]["name"]
                         else:
-                            class_name = 'N/A'
+                            class_name = "N/A"
                         display_str = str(class_name)
                 if not skip_scores:
                     if not display_str:
-                        display_str = '{}%'.format(int(100 * scores[i]))
+                        display_str = "{}%".format(int(100 * scores[i]))
                     else:
-                        display_str = '{}: {}%'.format(display_str, int(100 * scores[i]))
+                        display_str = "{}: {}%".format(
+                            display_str, int(100 * scores[i])
+                        )
                 box_to_display_str_map[box].append(display_str)
                 if agnostic_mode:
-                    box_to_color_map[box] = 'DarkOrange'
+                    box_to_color_map[box] = "DarkOrange"
                 else:
                     box_to_color_map[box] = STANDARD_COLORS[
-                        classes[i] % len(STANDARD_COLORS)]
+                        classes[i] % len(STANDARD_COLORS)
+                    ]
 
     # Draw all boxes onto image.
     for box, color in box_to_color_map.items():
         ymin, xmin, ymax, xmax = box
         if instance_masks is not None:
-            draw_mask_on_image_array(
-                image,
-                box_to_instance_masks_map[box],
-                color=color
-            )
+            draw_mask_on_image_array(image, box_to_instance_masks_map[box], color=color)
         if instance_boundaries is not None:
             draw_mask_on_image_array(
-                image,
-                box_to_instance_boundaries_map[box],
-                color='red',
-                alpha=1.0
+                image, box_to_instance_boundaries_map[box], color="red", alpha=1.0
             )
         draw_bounding_box_on_image_array(
             image,
@@ -583,14 +731,16 @@ def visualize_boxes_and_labels_on_image_array(
             color=color,
             thickness=line_thickness,
             display_str_list=box_to_display_str_map[box],
-            use_normalized_coordinates=use_normalized_coordinates)
+            use_normalized_coordinates=use_normalized_coordinates,
+        )
         if keypoints is not None:
             draw_keypoints_on_image_array(
                 image,
                 box_to_keypoints_map[box],
                 color=color,
                 radius=line_thickness / 2,
-                use_normalized_coordinates=use_normalized_coordinates)
+                use_normalized_coordinates=use_normalized_coordinates,
+            )
 
     return image
 
@@ -611,49 +761,60 @@ def add_cdf_image_summary(values, name):
         normalized_values = values / np.sum(values)
         sorted_values = np.sort(normalized_values)
         cumulative_values = np.cumsum(sorted_values)
-        fraction_of_examples = (np.arange(cumulative_values.size, dtype=np.float32)
-                                / cumulative_values.size)
+        fraction_of_examples = (
+            np.arange(cumulative_values.size, dtype=np.float32) / cumulative_values.size
+        )
         fig = plt.figure(frameon=False)
-        ax = fig.add_subplot('111')
+        ax = fig.add_subplot("111")
         ax.plot(fraction_of_examples, cumulative_values)
-        ax.set_ylabel('cumulative normalized values')
-        ax.set_xlabel('fraction of examples')
+        ax.set_ylabel("cumulative normalized values")
+        ax.set_xlabel("fraction of examples")
         fig.canvas.draw()
         width, height = fig.get_size_inches() * fig.get_dpi()
-        image = np.fromstring(fig.canvas.tostring_rgb(), dtype='uint8').reshape(
-            1, int(height), int(width), 3)
+        image = np.fromstring(fig.canvas.tostring_rgb(), dtype="uint8").reshape(
+            1, int(height), int(width), 3
+        )
         return image
 
     cdf_plot = tf.py_func(cdf_plot, [values], tf.uint8)
     tf.summary.image(name, cdf_plot)
 
 
-def visualization_preparation(nn_out):
+def visualization_preparation(nn_out, distances):
     """
     prepare the objects boxes and id in order to visualize
     Args:
         nn_out: a list of dicionary contains normalized numbers of bonding boxes {'id' : '0-0', 'box' : [x, y, h, w], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
-        
+        distances: a symmetric matrix of normalized distances
     Returns:
         an output dictionary contains object classes, boxes, scores
     """
     output_dict = {}
+    DISTANCE_THRESHOLD = 0.2  # TODO: add to config
     detection_classes = []
     detection_scores = []
     detection_boxes = []
-    output_dict['detection_classes'] = nn_out.shapep[0]
-    for obj in nn_out:
-        id = obj['id']
+    output_dict["detection_classes"] = nn_out.shapep[0]
+    for i, obj in enumerate(nn_out):
+        # change object id based on physical distances matrix
+        for j in range(i + 1, output_dict["detection_classes"]):
+            # i= rows, j=columns
+            obj_dist = distances[i][i]
+            if obj_dist < DISTANCE_THRESHOLD:
+                nn_out[j]["id"] = "1-" + str(j)
+                nn_out[i]["id"] = "1-" + str(i)
+
+        id = obj["id"]
         id = id.split("-")[0]
-        box = obj['bbox']
-        if 'score' in obj:
-            score = obj['score']
+        box = obj["bbox"]
+        if "score" in obj:
+            score = obj["score"]
         else:
             score = 1.0
         detection_classes.append(int(id))
         detection_scores.append(score)
         detection_boxes.append(box)
-    output_dict['detection_boxes'] = np.array(detection_boxes)
-    output_dict['detection_scores'] = detection_scores
-    output_dict['detection_classes'] = detection_classes
+    output_dict["detection_boxes"] = np.array(detection_boxes)
+    output_dict["detection_scores"] = detection_scores
+    output_dict["detection_classes"] = detection_classes
     return output_dict
