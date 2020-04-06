@@ -9,9 +9,7 @@ from .utils import visualization_utils as vis_util
 
 category_index = {
     "id": 0,
-    "name": "safe",
-    "id": 1,
-    "name": "unsafe",
+    "name": "Pedestrian",
 }  # TODO: json file for detector config
 
 
@@ -27,18 +25,31 @@ class WebGUI:
         """
         Args:
             input_frame: uint8 numpy array with shape (img_height, img_width, 3)
-            nn_out: a list of dicionary contains normalized numbers of bounding boxes {'id' : '0-0', 'box' : [x, y, h, w], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
+            nn_out: a list of dicionary contains normalized numbers of bounding boxes {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
             distances: a symmetric matrix of normalized distances
 
         Returns:
             draw the bounding boxes to an output frame
         """
+        # Simple opencv visualization for debigging 
+        #for obj in nn_out:
+        #    box = obj["bbox"]
+        #    x0, y0, x1, y1 = box
+        #    h = input_frame.shape[0]
+        #    w = input_frame.shape[1]
+        #    x0 = int( x0 * w )
+        #    y0 = int( y0 * h )
+        #    x1 = int( x1 * w )
+        #    y1 = int( y1 * h )
+        #    cv.rectangle(input_frame, (x0, y0), (x1, y1), (255, 0, 0), 2)
+
         output_dict = vis_util.visualization_preparation(nn_out, distances)
         vis_util.visualize_boxes_and_labels_on_image_array(
             input_frame,
             output_dict["detection_boxes"],
             output_dict["detection_classes"],
             output_dict["detection_scores"],
+            output_dict["detection_colors"],
             category_index,
             instance_masks=output_dict.get("detection_masks"),
             use_normalized_coordinates=True,

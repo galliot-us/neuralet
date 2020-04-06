@@ -57,8 +57,8 @@ class Distancing:
             obj["centroid"] = [(x0+x1)/2, (y0+y1)/2, x1 - x0, y1 - y0]
             obj["bbox"] = [x0, y0, x1, y1]
 
-        object_list, distancings = self.calculate_distancing(tmp_objects_list)
-        return cv_image, object_list, distancings
+        objects_list, distancings = self.calculate_distancing(tmp_objects_list)
+        return cv_image, objects_list, distancings
 
     def process_video(self, video_uri):
         self.running_video = True
