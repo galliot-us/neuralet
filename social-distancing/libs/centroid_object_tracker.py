@@ -29,13 +29,13 @@ class CentroidTracker():
 			return self.objects
 		inputCentroids = np.zeros((len(object_list), 2))
 		for i, object_item in enumerate(object_list):
-			inputCentroids[i] = (object_item["bbox"][0], object_item["bbox"][1])
+			inputCentroids[i] = (object_item["centroid"][0], object_item["centroid"][1])
 		if len(self.objects) == 0:
 			for i in range(0, len(inputCentroids)):
 				self.register(object_list[i])
 		else:
 			objectIDs = list(self.objects.keys())
-			objectCentroids = [object_item["bbox"][0:2] for object_item in self.objects.values()]
+			objectCentroids = [object_item["centroid"][0:2] for object_item in self.objects.values()]
 			D = dist.cdist(np.array(objectCentroids), inputCentroids)
 			rows = D.min(axis=1).argsort()
 			cols = D.argmin(axis=1)[rows]
