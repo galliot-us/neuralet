@@ -45,8 +45,6 @@ class Distancing:
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         tmp_objects_list = self.detector.inference(rgb_resized_image)
-        hscale = cv_image.shape[0]/resized_image.shape[0]
-        wscale = cv_image.shape[1]/resized_image.shape[1]
 
         for obj in tmp_objects_list:
             box = obj["bbox"]
@@ -61,7 +59,6 @@ class Distancing:
         return cv_image, objects_list, distancings
 
     def process_video(self, video_uri):
-        self.running_video = True
         input_cap = cv.VideoCapture(video_uri)
 
         if (input_cap.isOpened()):
@@ -70,6 +67,7 @@ class Distancing:
             print('failed to load video ', video_uri)
             return
 
+        self.running_video = True
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             _, objects, distancings = self.__process(cv_image)

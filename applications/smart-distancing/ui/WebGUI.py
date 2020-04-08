@@ -31,7 +31,7 @@ class WebGUI:
         Returns:
             draw the bounding boxes to an output frame
         """
-        # Simple opencv visualization for debigging 
+        # Simple opencv visualization for debigging
         #for obj in nn_out:
         #    box = obj["bbox"]
         #    x0, y0, x1, y1 = box
@@ -61,7 +61,6 @@ class WebGUI:
     def create_flask_app(self):
         app = Flask(__name__)
 
-        # @staticmethod
         @app.route("/")
         def _index():
             return render_template("index.html")
