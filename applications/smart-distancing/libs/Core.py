@@ -25,7 +25,7 @@ class Distancing:
             self.detector = None
 
         self.image_size = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
-        
+
         if self.device != 'Dummy':
             print('Device is: ', self.device)
             print('Detector is: ', self.detector.name)
@@ -36,10 +36,10 @@ class Distancing:
 
     def __process(self, cv_image):
         """
-        return object_list list of  dict for each obj, 
+        return object_list list of  dict for each obj,
         obj["bbox"] is normalized coordinations for [x0, y0, x1, y1] of box
         """
-        if self.device == 'Dummy': 
+        if self.device == 'Dummy':
             return cv_image, [], None
 
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
@@ -68,13 +68,12 @@ class Distancing:
             print('opened video ', video_uri)
         else:
             print('failed to load video ', video_uri)
-            return 
+            return
 
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             _, objects, distancings = self.__process(cv_image)
             self.ui.update(cv_image, objects, distancings)
-            time.sleep(0.030) 
 
         input_cap.release()
         self.running_video = False
@@ -82,7 +81,7 @@ class Distancing:
     def process_image(self, image_path):
         cv_image = cv.imread(image_path)
         _, objects, distancings = self.__process(cv_image)
-        self.ui.update(cv_image, objects, distancings) 
+        self.ui.update(cv_image, objects, distancings)
 
     def calculate_distancing(self, objects_list):
         new_objects_list = self.ignore_large_boxes(objects_list)
@@ -92,7 +91,7 @@ class Distancing:
         for i, item in enumerate(new_objects_list):
             item["id"] = item["id"].split("-")[0] + "-" + str(i)
 
-        centroids = np.array( [obj["centroid"] for obj in new_objects_list] ) 
+        centroids = np.array( [obj["centroid"] for obj in new_objects_list] )
         distances = dist.cdist(centroids, centroids)
         return new_objects_list, distances
 
@@ -115,7 +114,7 @@ class Distancing:
         # this is important since we'll be doing a bunch of divisions
         if boxes.dtype.kind == "i":
             boxes = boxes.astype("float")
-        # initialize the list of picked indexes 
+        # initialize the list of picked indexes
         pick = []
         # grab the coordinates of the bounding boxes
         cy = boxes[:,1]
@@ -154,7 +153,7 @@ class Distancing:
             idxs = np.delete(idxs, np.concatenate(([last],
                 np.where(overlap > overlapThresh)[0])))
         # return only the bounding boxes that were picked using the
-        #integer data 
+        #integer data
         updated_object_list = [j for i,j in enumerate(object_list) if i in pick]
         return updated_object_list
 
