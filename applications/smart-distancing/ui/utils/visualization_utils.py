@@ -20,8 +20,6 @@ The functions do not return a value, instead they modify the image itself.
 
 """
 import collections
-import functools
-
 import numpy as np
 import PIL.Image as Image
 import PIL.ImageColor as ImageColor
@@ -48,10 +46,10 @@ def draw_bounding_box_on_image_array(
     use_normalized_coordinates=True,
 ):
     """Adds a bounding box to an image (numpy array).
-
+  
     Bounding box coordinates can be specified in either absolute (pixel) or
     normalized coordinates by setting the use_normalized_coordinates argument.
-
+  
     Args:
       image: a numpy array with shape [height, width, 3].
       ymin: ymin of bounding box.
@@ -93,15 +91,15 @@ def draw_bounding_box_on_image(
     use_normalized_coordinates=True,
 ):
     """Adds a bounding box to an image.
-
+  
     Bounding box coordinates can be specified in either absolute (pixel) or
     normalized coordinates by setting the use_normalized_coordinates argument.
-
+  
     Each string in display_str_list is displayed on a separate line above the
     bounding box in black text on a rectangle filled with the input 'color'.
     If the top of the bounding box extends to the edge of the image, the strings
     are displayed below the bounding box.
-
+  
     Args:
       image: a PIL.Image object.
       ymin: ymin of bounding box.
@@ -168,102 +166,11 @@ def draw_bounding_box_on_image(
         text_bottom -= text_height - 2 * margin
 
 
-def draw_bounding_boxes_on_image(
-    image, boxes, color="red", thickness=4, display_str_list_list=()
-):
-    """Draws bounding boxes on image.
-
-    Args:
-      image: a PIL.Image object.
-      boxes: a 2 dimensional numpy array of [N, 4]: (ymin, xmin, ymax, xmax).
-             The coordinates are in normalized format between [0, 1].
-      color: color to draw bounding box. Default is red.
-      thickness: line thickness. Default value is 4.
-      display_str_list_list: list of list of strings.
-                             a list of strings for each bounding box.
-                             The reason to pass a list of strings for a
-                             bounding box is that it might contain
-                             multiple labels.
-
-    Raises:
-      ValueError: if boxes is not a [N, 4] array
-    """
-    boxes_shape = boxes.shape
-    if not boxes_shape:
-        return
-    if len(boxes_shape) != 2 or boxes_shape[1] != 4:
-        raise ValueError("Input must be of size [N, 4]")
-    for i in range(boxes_shape[0]):
-        display_str_list = ()
-        if display_str_list_list:
-            display_str_list = display_str_list_list[i]
-        draw_bounding_box_on_image(
-            image,
-            boxes[i, 0],
-            boxes[i, 1],
-            boxes[i, 2],
-            boxes[i, 3],
-            color,
-            thickness,
-            display_str_list,
-        )
-
-
-def _visualize_boxes(image, boxes, classes, scores, category_index, **kwargs):
-    return visualize_boxes_and_labels_on_image_array(
-        image, boxes, classes, scores, colors, category_index=category_index, **kwargs
-    )
-
-
-def _visualize_boxes_and_masks(
-    image, boxes, classes, scores, colors, masks, category_index, **kwargs
-):
-    return visualize_boxes_and_labels_on_image_array(
-        image,
-        boxes,
-        classes,
-        scores,
-        colors,
-        category_index=category_index,
-        instance_masks=masks,
-        **kwargs
-    )
-
-
-def _visualize_boxes_and_keypoints(
-    image, boxes, classes, scores, keypoints, category_index, **kwargs
-):
-    return visualize_boxes_and_labels_on_image_array(
-        image,
-        boxes,
-        classes,
-        scores,
-        category_index=category_index,
-        keypoints=keypoints,
-        **kwargs
-    )
-
-
-def _visualize_boxes_and_masks_and_keypoints(
-    image, boxes, classes, scores, masks, keypoints, category_index, **kwargs
-):
-    return visualize_boxes_and_labels_on_image_array(
-        image,
-        boxes,
-        classes,
-        scores,
-        category_index=category_index,
-        instance_masks=masks,
-        keypoints=keypoints,
-        **kwargs
-    )
-
-
 def draw_keypoints_on_image_array(
     image, keypoints, color="red", radius=2, use_normalized_coordinates=True
 ):
     """Draws keypoints on an image (numpy array).
-
+  
     Args:
       image: a numpy array with shape [height, width, 3].
       keypoints: a numpy array with shape [num_keypoints, 2].
@@ -283,7 +190,7 @@ def draw_keypoints_on_image(
     image, keypoints, color="red", radius=2, use_normalized_coordinates=True
 ):
     """Draws keypoints on an image.
-
+  
     Args:
       image: a PIL.Image object.
       keypoints: a numpy array with shape [num_keypoints, 2].
@@ -312,14 +219,14 @@ def draw_keypoints_on_image(
 
 def draw_mask_on_image_array(image, mask, color="red", alpha=0.4):
     """Draws mask on an image.
-
+  
     Args:
       image: uint8 numpy array with shape (img_height, img_height, 3)
       mask: a uint8 numpy array of shape (img_height, img_height) with
         values between either 0 or 1.
       color: color to draw the keypoints with. Default is red.
       alpha: transparency value between 0 and 1. (default: 0.4)
-
+  
     Raises:
       ValueError: On incorrect data type for image or masks.
     """
@@ -366,12 +273,12 @@ def visualize_boxes_and_labels_on_image_array(
     skip_labels=False,
 ):
     """Overlay labeled boxes on an image with formatted scores and label names.
-
+  
     This function groups boxes that correspond to the same location
     and creates a display string for each detection and overlays these
     on the image. Note that this function modifies the image in place, and returns
     that same image.
-
+  
     Args:
       image: uint8 numpy array with shape (img_height, img_width, 3)
       boxes: a numpy array of shape [N, 4]
@@ -380,6 +287,7 @@ def visualize_boxes_and_labels_on_image_array(
       scores: a numpy array of shape [N] or None.  If scores=None, then
         this function assumes that the boxes to be plotted are groundtruth
         boxes and plot all boxes as black with no classes or scores.
+      colors: BGR fromat colors for drawing the boxes
       category_index: a dict containing category dictionaries (each holding
         category index `id` and category name `name`) keyed by category indices.
       instance_masks: a numpy array of shape [N, image_height, image_width] with
@@ -401,7 +309,7 @@ def visualize_boxes_and_labels_on_image_array(
         boxes
       skip_scores: whether to skip score when drawing a single detection
       skip_labels: whether to skip label when drawing a single detection
-
+  
     Returns:
       uint8 numpy array with shape (img_height, img_width, 3) with overlaid boxes.
     """
@@ -481,33 +389,34 @@ def visualize_boxes_and_labels_on_image_array(
     return image
 
 
-def visualization_preparation(nn_out, distances):
+def visualization_preparation(nn_out, distances, dist_threshold):
     """
     prepare the objects boxes and id in order to visualize
     Args:
         nn_out: a list of dicionary contains normalized numbers of bonding boxes {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
         distances: a symmetric matrix of normalized distances
+        dist_threshold: the minimum distance for considering unsafe distance between objects
     Returns:
         an output dictionary contains object classes, boxes, scores
     """
     output_dict = {}
-    DISTANCE_THRESHOLD = 0.1  # TODO: add to config
     detection_classes = []
     detection_scores = []
     detection_boxes = []
     colors = []
 
-    distance = np.amin(distances + np.identity(len(distances))*10., 0)
-    distance = np.float_power(distance, 0.3)
+    distance = np.amin(distances + np.identity(len(distances))*2., 0)
     for i, obj in enumerate(nn_out):
-        # change object id based on physical distances matrix
-        R = 255* (1.0 - distance[i])
+        # colorizing bounding box based on the distances between them
+        # R = 255 when dist=0 and R = 0 when dist > dist_threshold
+        R = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0)
         G = 255 - R
-        B = 255 - R
+        B = 0
+
         color = (int(B), int(G), int(R))
         obj_id = obj["id"]
         obj_id = obj_id.split("-")[0]
-
+        
         box = obj["bbox"]
         if "score" in obj:
             score = obj["score"]
