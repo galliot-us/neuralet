@@ -7,43 +7,43 @@ from flask import Response
 
 from .utils import visualization_utils as vis_util
 
-category_index = {
+category_index ={0:{
     "id": 0,
     "name": "Pedestrian",
-}  # TODO: json file for detector config
+}}  # TODO: json file for detector config
 
 
 class WebGUI:
+    """
+    The webgui object implements a flask application and acts as an interface for users.
+    Once it is created it will act as a central application for the view outputs.
+
+    :param config:
+    :param engine_instance:
+    """
+    
     def __init__(self, config, engine_instance):
         self.config = config
         self.__ENGINE_INSTANCE = engine_instance
         self._output_frame = None
         self._lock = threading.Lock()
+        self._host = self.config.get_section_dict("App")["Host"]
+        self._port = int(self.config.get_section_dict("App")["Port"])
         self.app = self.create_flask_app()
-
+        self._dist_threshold = float(self.config.get_section_dict("Detector")["DistThreshold"])
+    
     def update(self, input_frame, nn_out, distances):
         """
         Args:
             input_frame: uint8 numpy array with shape (img_height, img_width, 3)
-            nn_out: a list of dicionary contains normalized numbers of bounding boxes {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
+            nn_out: a list of dicionary contains normalized numbers of bounding boxes 
+            {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
             distances: a symmetric matrix of normalized distances
 
         Returns:
             draw the bounding boxes to an output frame
         """
-        # Simple opencv visualization for debigging
-        #for obj in nn_out:
-        #    box = obj["bbox"]
-        #    x0, y0, x1, y1 = box
-        #    h = input_frame.shape[0]
-        #    w = input_frame.shape[1]
-        #    x0 = int( x0 * w )
-        #    y0 = int( y0 * h )
-        #    x1 = int( x1 * w )
-        #    y1 = int( y1 * h )
-        #    cv.rectangle(input_frame, (x0, y0), (x1, y1), (255, 0, 0), 2)
-
-        output_dict = vis_util.visualization_preparation(nn_out, distances)
+        output_dict = vis_util.visualization_preparation(nn_out, distances, self._dist_threshold)
         vis_util.visualize_boxes_and_labels_on_image_array(
             input_frame,
             output_dict["detection_boxes"],
@@ -76,7 +76,6 @@ class WebGUI:
         return app
 
     def _generate(self):
-        # TODO: docstring after completing
         while True:
             with self._lock:
                 # check if the output frame is available, otherwise skip
@@ -97,7 +96,7 @@ class WebGUI:
 
     def _run(self):
         self.app.run(
-            host="0.0.0.0", port=8000, debug=True, threaded=True, use_reloader=False,
+                host=self._host, port=self._port, debug=True, threaded=True, use_reloader=False,
         )
 
     def start(self):
