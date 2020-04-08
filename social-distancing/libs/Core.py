@@ -1,5 +1,4 @@
 import time
-
 import cv2 as cv
 import numpy as np
 from libs.centroid_object_tracker import CentroidTracker
@@ -75,7 +74,6 @@ class Distancing:
             _, cv_image = input_cap.read()
             _, objects, distancings = self.__process(cv_image)
             self.ui.update(cv_image, objects, distancings)
-            time.sleep(0.030)
 
         input_cap.release()
         self.running_video = False
