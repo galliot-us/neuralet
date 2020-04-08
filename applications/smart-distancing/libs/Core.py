@@ -42,6 +42,10 @@ class Distancing:
         if self.device == 'Dummy':
             return cv_image, [], None
 
+        # Resize input image to resolution
+        resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
+        cv_image = cv.resize(cv_image, tuple(resolution))
+
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         tmp_objects_list = self.detector.inference(rgb_resized_image)
@@ -69,7 +73,7 @@ class Distancing:
         self.running_video = True
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
-            _, objects, distancings = self.__process(cv_image)
+            cv_image, objects, distancings = self.__process(cv_image)
             self.ui.update(cv_image, objects, distancings)
 
         input_cap.release()
@@ -77,7 +81,7 @@ class Distancing:
 
     def process_image(self, image_path):
         cv_image = cv.imread(image_path)
-        _, objects, distancings = self.__process(cv_image)
+        cv_image, objects, distancings = self.__process(cv_image)
         self.ui.update(cv_image, objects, distancings)
 
     def calculate_distancing(self, objects_list):
