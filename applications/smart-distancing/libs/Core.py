@@ -80,6 +80,7 @@ class Distancing:
         self.running_video = False
 
     def process_image(self, image_path):
+        # Process and pass the image to ui modules
         cv_image = cv.imread(image_path)
         cv_image, objects, distancings = self.__process(cv_image)
         self.ui.update(cv_image, objects, distancings)
