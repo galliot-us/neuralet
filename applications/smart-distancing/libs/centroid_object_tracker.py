@@ -21,21 +21,49 @@ class CentroidTracker:
         self.max_disappeared = max_disappeared
 
     def register(self, object_item):
+        # Register a new detected object and set a unique id for it
         self.objects[self.nextobject_id] = object_item
         self.disappeared[self.nextobject_id] = 0
         self.nextobject_id += 1
 
-    def deregister(self, object_id):
+    def diregister(self, object_id):
+        """
+        Remove an object from objects and disappeared list.
+
+        Args:
+            object_id: A unique id for detected objects which is at objects list
+
+        """
         del self.objects[object_id]
         del self.disappeared[object_id]
 
     def update(self, object_list):
+        """
+        Updates the objects from the previous frame.
+        This function compares previous frame with current frame and take following actions:
+
+        1- Updates the bounding boxes of current frame, if finds the bounding boxs of the previous
+        frame are matched with current ones.
+        2- Registers an object as new one, if the current bounding boxes of that object is not
+        matched with any bounding boxes from previous frame.
+        3- Corresponds a bounding box as a lost bounding box and increments the counter of disappeared
+        object, if there is no matched bounding box from the previous frame with current frame's
+        bounding boxes.
+
+        Args:
+            object_list: A list of detected objects.
+
+        Return:
+            objects: A list of updated objects.
+        """
         if len(object_list) == 0:
             for object_id in list(self.disappeared.keys()):
                 self.disappeared[object_id] += 1
+                # Removed an object from the tracker when the object is not appear at max_disappeared perivous frames
                 if self.disappeared[object_id] > self.max_disappeared:
-                    self.deregister(object_id)
+                    self.diregister(object_id)
             return self.objects
+
         input_centroids = np.zeros((len(object_list), 2))
         for i, object_item in enumerate(object_list):
             input_centroids[i] = (object_item["centroid"][0], object_item["centroid"][1])
@@ -72,7 +100,7 @@ class CentroidTracker:
                     self.disappeared[object_id] += 1
                     biggest_existing_id += 1
                     if self.disappeared[object_id] > self.max_disappeared:
-                        self.deregister(object_id)
+                        self.diregister(object_id)
 
             else:
                 for col in unused_cols:
