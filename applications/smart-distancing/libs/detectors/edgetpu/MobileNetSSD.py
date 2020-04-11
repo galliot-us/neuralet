@@ -5,7 +5,7 @@ import wget
 
 from tflite_runtime.interpreter import load_delegate
 from tflite_runtime.interpreter import Interpreter
-from libs.detectors.utils import _convert_infr_time_to_fps
+from ..utils.fps_calculator import convert_infr_time_to_fps
 
 
 class Detector():
@@ -67,7 +67,7 @@ class Detector():
         t_begin = time.perf_counter()
         self.interpreter.invoke()
         inference_time = time.perf_counter() - t_begin  # Second
-        self.fps = _convert_infr_time_to_fps(inference_time)
+        self.fps = convert_infr_time_to_fps(inference_time)
         # The function `get_tensor()` returns a copy of the tensor data.
         # Use `tensor()` in order to get a pointer to the tensor.
         boxes = self.interpreter.get_tensor(self.output_details[0]['index'])
