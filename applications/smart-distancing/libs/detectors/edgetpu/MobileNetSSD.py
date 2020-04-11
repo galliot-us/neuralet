@@ -1,10 +1,11 @@
 import os
-# import time TODO: will be used for future improvements
+import time
 import numpy as np
 import wget
 
 from tflite_runtime.interpreter import load_delegate
 from tflite_runtime.interpreter import Interpreter
+from libs.detectors.utils import _convert_infr_time_to_fps
 
 
 class Detector():
@@ -15,11 +16,13 @@ class Detector():
 
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
+
     def __init__(self, config):
         self.config = config
         # Get the model name from the config
         self.model_name = self.config.get_section_dict('Detector')['Name']
-
+        # Frames Per Second
+        self.fps = None
         self.model_file = 'mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
         self.model_path = 'libs/detectors/edgetpu/data/' + self.model_file
 
@@ -61,9 +64,10 @@ class Detector():
         input_image = np.expand_dims(resized_rgb_image, axis=0)
         # Fill input tensor with input_image
         self.interpreter.set_tensor(self.input_details[0]["index"], input_image)
-        # t_begin = time.perf_counter() # TODO: will be used for getting fps
+        t_begin = time.perf_counter()
         self.interpreter.invoke()
-        # inference_time = time.perf_counter() - t_begin # TODO: will be used for getting fps
+        inference_time = time.perf_counter() - t_begin  # Second
+        self.fps = _convert_infr_time_to_fps(inference_time)
         # The function `get_tensor()` returns a copy of the tensor data.
         # Use `tensor()` in order to get a pointer to the tensor.
         boxes = self.interpreter.get_tensor(self.output_details[0]['index'])
