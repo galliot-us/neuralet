@@ -2,7 +2,7 @@ import ctypes
 import numpy as np
 import tensorrt as trt
 import pycuda.driver as cuda
-import pycuda.autoinit # This is needed for initializing CUDA driver
+import pycuda.autoinit  # Required for initializing CUDA driver
 
 
 class Detector():
@@ -14,7 +14,7 @@ class Detector():
     """
 
     def _load_plugins(self):
-        """ This is needed as Flattenconcat is not natively supported in TensorRT. """
+        """ Required as Flattenconcat is not natively supported in TensorRT. """
         ctypes.CDLL("/opt/libflattenconcat.so")
         trt.init_libnvinfer_plugins(self.trt_logger, '')
 
@@ -59,7 +59,7 @@ class Detector():
         self.host_outputs = []
         self.cuda_outputs = []
         self.bindings = []
-        self.stream = cuda.Stream() # create a cuda stream to run inference
+        self.stream = cuda.Stream()  # create a cuda stream to run inference
         self.context = self._create_context()
 
     def __del__(self):
@@ -106,7 +106,7 @@ class Detector():
         img_resized = self._preprocess_trt(img)
         # transfer the data to the GPU, run inference and the copy the results back
         np.copyto(self.host_inputs[0], img_resized.ravel())
-        
+
         cuda.memcpy_htod_async(
             self.cuda_inputs[0], self.host_inputs[0], self.stream)
         self.context.execute_async(
