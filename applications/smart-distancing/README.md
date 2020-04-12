@@ -55,10 +55,10 @@ cd neuralet/applications/smart-distancing/
 ./download_jetson_trt.sh
 
 # 2) build Docker image:
-docker build -f Dockerfile-jetson-nano -t "neuralet/social-distancing:jetson-nano" .
+docker build -f Dockerfile-jetson-nano -t "neuralet/jetson-nano:applications-smart-distancing" .
 
 # 3) run Docker container:
-docker run -it --runtime nvidia --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/social-distancing:jetson-nano
+docker run -it --runtime nvidia --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
 ```
 
 **Run on Coral Dev Board**
