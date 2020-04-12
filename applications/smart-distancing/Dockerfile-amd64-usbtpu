@@ -1,7 +1,7 @@
 # docker can be installed on the dev board following these instructions: 
 # https://docs.docker.com/install/linux/docker-ce/debian/#install-using-the-repository , step 4: x86_64 / amd64
-# 1) build: docker build -f Dockerfile-amd64-usbtpu -t "neuralet/social-distancing:amd64-usbtpu" .
-# 2) run: docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/social-distancing:amd64-usbtpu
+# 1) build: docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:applications-smart-distancing" .
+# 2) run: docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:applications-smart-distancing
 
 FROM amd64/debian:buster
 
