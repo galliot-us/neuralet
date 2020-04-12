@@ -2,6 +2,8 @@ import ctypes
 import numpy as np
 import tensorrt as trt
 import pycuda.driver as cuda
+import time 
+from ..utils.fps_calculator import convert_infr_time_to_fps
 
 
 class Detector():
@@ -46,6 +48,7 @@ class Detector():
         self.trt_logger = trt.Logger(trt.Logger.INFO)
         self._load_plugins()
         self.engine = self._load_engine()
+        self.fps = None
 
         self.host_inputs = []
         self.cuda_inputs = []
@@ -98,7 +101,9 @@ class Detector():
         """
         img_resized = self._preprocess_trt(img)
         np.copyto(self.host_inputs[0], img_resized.ravel())
-
+        
+        # Start inference time
+        t_begin = time.perf_counter()
         cuda.memcpy_htod_async(
             self.cuda_inputs[0], self.host_inputs[0], self.stream)
         self.context.execute_async(
@@ -110,7 +115,10 @@ class Detector():
         cuda.memcpy_dtoh_async(
             self.host_outputs[0], self.cuda_outputs[0], self.stream)
         self.stream.synchronize()
-
+        inference_time = time.perf_counter() - t_begin  # Seconds
+        
+        # Calculate Frames rate (fps)
+        self.fps = convert_infr_time_to_fps(inference_time)
         output = self.host_outputs[0]
         boxes, scores, classes = self._postprocess_trt(img, output)
         result = []
