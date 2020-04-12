@@ -4,7 +4,7 @@ class Detector():
     When an instance of the Detector is created you can call inference method and feed your
     input image in order to get the detection results.
 
-    :param: config: Is a ConfigEngine instance which provides necessary parameters.
+    :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
     def __init__(self, config):
         self.config = config
