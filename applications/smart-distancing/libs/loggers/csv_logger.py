@@ -1,6 +1,7 @@
+import csv
 import os
 from datetime import date
-import csv
+
 import numpy as np
 
 
@@ -19,7 +20,11 @@ class Logger:
 
     def update(self, frame_number, object_list, distances):
         file_name = str(date.today())
-        file_path = os.path.join(self.objects_log_directory, file_name + ".csv")
+        object_log_file_path = os.path.join(self.objects_log_directory, file_name + ".csv")
+        self.log_objects(object_list,frame_number,object_log_file_path)
+
+    @staticmethod
+    def log_objects(object_list, frame_number, file_path):
         for object_item in object_list:
             object_dict = {}
             object_dict.update({"frame_number": frame_number})
@@ -44,6 +49,6 @@ class Logger:
 
     def computed_violating_objects(self, distances):
         triu_distances = np.triu(distances) + np.tril(10 * np.ones(distances.shape))
-        violating_objects = np.argwhere(triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
+        violating_objects = np.argwhere(
+            triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
         return violating_objects
-
