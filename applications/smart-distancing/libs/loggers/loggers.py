@@ -1,17 +1,17 @@
 class Logger:
-    def __init__(self, fps, config):
-        self.fps = fps
+    def __init__(self, config):
+        self.fps = int(config.get_section_dict("Logger")["Fps"])
         self.config = config
-        self.name = self.config.get_section_dict("Logger")["name"]
+        self.name = self.config.get_section_dict("Logger")["Name"]
         if self.name == "csv_logger":
             from . import csv_logger
-            self.logger = csv_logger.Logger()
-        self.time_interval = self.config.get_section_dict("Logger")["time_interval"]
+            self.logger = csv_logger.Logger(self.config)
+        self.time_interval = float(self.config.get_section_dict("Logger")["TimeInterval"])
         self.frame_number = 0
 
     def update(self, object_list, distances):
         if self.frame_number % int(self.fps * self.time_interval) == 0:
-            self.logger.update(object_list, distances)
+            self.logger.update(self.frame_number, object_list, distances)
             self.frame_number += 1
         else:
             self.frame_number += 1

@@ -3,6 +3,7 @@ import cv2 as cv
 import numpy as np
 from libs.centroid_object_tracker import CentroidTracker
 from scipy.spatial import distance as dist
+from libs.loggers.loggers import Logger
 
 
 class Distancing:
@@ -15,6 +16,7 @@ class Distancing:
         self.running_video = False
         self.tracker = CentroidTracker(
             maxDisappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
+        self.logger = Logger(self.config)
         if self.device == 'Jetson':
             from libs.detectors.jetson.Detector import Detector
             self.detector = Detector(self.config)
@@ -74,6 +76,7 @@ class Distancing:
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             cv_image, objects, distancings = self.__process(cv_image)
+            self.logger.update(objects,distancings)
             self.ui.update(cv_image, objects, distancings)
 
         input_cap.release()
