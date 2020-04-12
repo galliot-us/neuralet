@@ -9,6 +9,7 @@ class Detector():
     def __init__(self, config):
         self.config = config
         self.net = None
+        self.fps = None
         # Get model name from the config
         self.name = self.config.get_section_dict('Detector')['Name']
         if self.name == 'mobilenet_ssd_v2':  # or mobilenet_ssd_v1
@@ -20,4 +21,5 @@ class Detector():
     def inference(self, resized_rgb_image):
         # Here should inference on the image, output a list of objects, each obj is a dict with two keys "id" and "bbox" 
         # return [{"id": 0, "bbox": [x, y, w, h]}, {...}, {...}, ...]
+        self.fps = self.net.fps # Get fps
         return self.net.inference(resized_rgb_image)
