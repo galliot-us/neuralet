@@ -1,6 +1,7 @@
 import os
 from datetime import date
 import csv
+import numpy as np
 
 
 class Logger:
@@ -40,3 +41,9 @@ class Logger:
                     writer = csv.DictWriter(csvfile, fieldnames=field_names)
                     writer.writeheader()
                     writer.writerow(object_dict)
+
+    def computed_violating_objects(self, distances):
+        triu_distances = np.triu(distances) + np.tril(10 * np.ones(distances.shape))
+        violating_objects = np.argwhere(triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
+        return violating_objects
+
