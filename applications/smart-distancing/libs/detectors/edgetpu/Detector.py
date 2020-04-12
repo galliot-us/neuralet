@@ -18,6 +18,6 @@ class Detector():
             raise ValueError('Not supported network named: ', self.name)
 
     def inference(self, resized_rgb_image):
-        # Here should inference on the image, output a list of objects, each obj is a dict with two keys "id" and "bbox" 
-        # return [{"id": 0, "bbox": [x, y, w, h]}, {...}, {...}, ...]
+        # Here should inference on the image, output a list of objects, each obj is a dict with two keys "id" and "bbox" and "score"
+        # return [{"id": 0, "bbox": [x1, y1, x2, y2], "score":s%}, {...}, {...}, ...]
         return self.net.inference(resized_rgb_image)
