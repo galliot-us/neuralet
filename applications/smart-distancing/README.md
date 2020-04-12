@@ -54,7 +54,7 @@ cd neuralet/applications/smart-distancing/
 # 1) Download TensorRT engine file built with JetPack 4.3:
 ./download_jetson_trt.sh
 
-# 2) Build Docker image (This step is optional, you can skip it if you want to run the container from neuralet dockerhub)
+# 2) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
 docker build -f Dockerfile-jetson-nano -t "neuralet/jetson-nano:applications-smart-distancing" .
 
 # 3) Run Docker container:
@@ -65,10 +65,10 @@ docker run -it --runtime nvidia --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONE
 ```
 cd neuralet/applications/smart-distancing/
 
-# 1) Build Docker image
-docker build -f Dockerfile-coral-dev-board -t "neuralet/social-distancing:coral-dev-board" .
+# 1) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
+docker build -f Dockerfile-coral-dev-board -t "neuralet/coral-dev-board:applications-smart-distancing" .
 # 2) Run Docker container:
-docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/social-distancing:coral-dev-board
+docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/coral-dev-board:applications-smart-distancing
 ```
 
 **Run on AMD64 node with a connected Coral USB Accelerator**
