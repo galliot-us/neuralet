@@ -31,7 +31,8 @@ class WebGUI:
         self._port = int(self.config.get_section_dict("App")["Port"])
         self.app = self.create_flask_app()
         self._dist_threshold = float(self.config.get_section_dict("Detector")["DistThreshold"])
-
+        self._displayed_items = {}  # all items here will be used at ui webpage
+    
     def update(self, input_frame, nn_out, distances):
         """
         Args:
@@ -58,6 +59,14 @@ class WebGUI:
             line_thickness=3,
         )
 
+        try:
+            self._displayed_items['fps'] = self.__ENGINE_INSTANCE.detector.fps
+        except:
+             # fps is not implemented for the detector instance"
+            self._displayed_items['fps'] = None
+
+        font = cv.FONT_HERSHEY_SIMPLEX
+        cv.putText(input_frame, 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)', (10, 470), font, 0.75, (255, 0, 20), 2, cv.LINE_AA)
         # Lock the main thread and copy input_frame to output_frame
         with self._lock:
             self._output_frame = input_frame.copy()
