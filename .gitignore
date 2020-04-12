@@ -1,4 +1,5 @@
 *.~
 .*.swp
 *.pb
-*.tflite
+.tflite
+*.idea
