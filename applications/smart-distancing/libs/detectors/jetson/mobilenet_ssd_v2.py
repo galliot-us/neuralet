@@ -1,25 +1,34 @@
-"""ssd.py
-This module implements the TrtSSD class.
-"""
 import ctypes
 import numpy as np
-import cv2
 import tensorrt as trt
-import pycuda.autoinit  # This is needed for initializing CUDA driver
 import pycuda.driver as cuda
+import pycuda.autoinit  # Required for initializing CUDA driver
+
 
 class Detector():
-    
+    """
+    Perform object detection with the given prebuilt tensorrt engine.
+
+    :param config: Is a ConfigEngine instance which provides necessary parameters.
+    :param output_layout:
+    """
+
     def _load_plugins(self):
+        """ Required as Flattenconcat is not natively supported in TensorRT. """
         ctypes.CDLL("/opt/libflattenconcat.so")
         trt.init_libnvinfer_plugins(self.trt_logger, '')
 
     def _load_engine(self):
+        """ Load engine file as a trt Runtime. """
         TRTbinPath = 'libs/detectors/jetson/data/TRT_%s.bin' % self.model
         with open(TRTbinPath, 'rb') as f, trt.Runtime(self.trt_logger) as runtime:
             return runtime.deserialize_cuda_engine(f.read())
 
     def _create_context(self):
+        """
+        Create some space to store intermediate activation values. 
+        Since the engine holds the network definition and trained parameters, additional space is necessary.
+        """
         for binding in self.engine:
             size = trt.volume(self.engine.get_binding_shape(binding)) * \
                    self.engine.max_batch_size
@@ -35,7 +44,7 @@ class Detector():
         return self.engine.create_execution_context()
 
     def __init__(self, config, output_layout=7):
-        """Initialize TensorRT plugins, engine and conetxt."""
+        """ Initialize TensorRT plugins, engine and conetxt. """
         self.config = config
         self.model = self.config.get_section_dict('Detector')['Name']
         self.class_id = int(self.config.get_section_dict('Detector')['ClassID'])
@@ -50,45 +59,52 @@ class Detector():
         self.host_outputs = []
         self.cuda_outputs = []
         self.bindings = []
-        self.stream = cuda.Stream()
+        self.stream = cuda.Stream()  # create a cuda stream to run inference
         self.context = self._create_context()
 
     def __del__(self):
-        """Free CUDA memories."""
+        """ Free CUDA memories. """
         del self.stream
         del self.cuda_outputs
         del self.cuda_inputs
 
     def _preprocess_trt(self, img):
-        """Preprocess an image before TRT SSD inferencing."""
+        """ Preprocess an image before TRT SSD inferencing. """
         img = img.transpose((2, 0, 1)).astype(np.float32)
-        img = (2.0/255.0) * img - 1.0
+        img = (2.0 / 255.0) * img - 1.0
         return img
 
-
     def _postprocess_trt(self, img, output):
-        """Postprocess TRT SSD output."""
+        """ Postprocess TRT SSD output. """
         img_h, img_w, _ = img.shape
         boxes, confs, clss = [], [], []
         for prefix in range(0, len(output), self.output_layout):
-            #index = int(output[prefix+0])
-            conf = float(output[prefix+2])
+            # index = int(output[prefix+0])
+            conf = float(output[prefix + 2])
             if conf < float(self.conf_threshold):
                 continue
-            x1 = (output[prefix+3])# * img_w)
-            y1 = (output[prefix+4])# * img_h)
-            x2 = (output[prefix+5])# * img_w)
-            y2 = (output[prefix+6])# * img_h)
-            cls = int(output[prefix+1])
+            x1 = (output[prefix + 3])  # * img_w)
+            y1 = (output[prefix + 4])  # * img_h)
+            x2 = (output[prefix + 5])  # * img_w)
+            y2 = (output[prefix + 6])  # * img_h)
+            cls = int(output[prefix + 1])
             boxes.append((y1, x1, y2, x2))
             confs.append(conf)
             clss.append(cls)
         return boxes, confs, clss
 
-
     def inference(self, img):
-        """Detect objects in the input image."""
+        """
+        Detect objects in the input image.
+
+        Args:
+            img: uint8 numpy array with shape (img_height, img_width, channels)
+
+        Returns:
+            result: a dictionary contains of [{"id": 0, "bbox": [x1, y1, x2, y2], "score": s% }, {...}, {...}, ...]
+        """
         img_resized = self._preprocess_trt(img)
+        # transfer the data to the GPU, run inference and the copy the results back
         np.copyto(self.host_inputs[0], img_resized.ravel())
 
         cuda.memcpy_htod_async(
@@ -106,10 +122,8 @@ class Detector():
         output = self.host_outputs[0]
         boxes, scores, classes = self._postprocess_trt(img, output)
         result = []
-        for i in range(len(boxes)): #number of boxes
-            if classes[i] == self.class_id+1:
-                result.append({"id": str(classes[i]-1) + '-' + str(i), "bbox": boxes[i], "score": scores[i]})
+        for i in range(len(boxes)):  # number of boxes
+            if classes[i] == self.class_id + 1:
+                result.append({"id": str(classes[i] - 1) + '-' + str(i), "bbox": boxes[i], "score": scores[i]})
 
         return result
-
-
