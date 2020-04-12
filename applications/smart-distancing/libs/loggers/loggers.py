@@ -1,7 +1,7 @@
 class Logger:
     def __init__(self, config):
-        self.fps = int(config.get_section_dict("Logger")["Fps"])
         self.config = config
+        self.fps = int(self.config.get_section_dict("Logger")["Fps"])
         self.name = self.config.get_section_dict("Logger")["Name"]
         if self.name == "csv_logger":
             from . import csv_logger
