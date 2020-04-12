@@ -6,7 +6,7 @@ The function(s) do return a fps value.
 """
 
 
-def convert_infr_time_to_fps(infr_time: float) -> float:
+def convert_infr_time_to_fps(infr_time: float) -> int:
     # Gets the time of inference (infr_time) and returns Frames Per Second (fps)
-    fps = 1.0 / infr_time
+    fps = int(1.0 / infr_time)
     return fps
