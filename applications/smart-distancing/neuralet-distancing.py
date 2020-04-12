@@ -3,9 +3,9 @@ import sys
 
 import argparse
 
-from libs.Core import Distancing as CvEngine
-from libs.ConfigEngine import ConfigEngine
-from ui.WebGUI import WebGUI as UI
+from libs.core import Distancing as CvEngine
+from libs.config_engine import ConfigEngine
+from ui.web_gui import WebGUI as UI
 
 class DistanceApp():
     def __init__(self, args):
