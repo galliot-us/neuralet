@@ -6,14 +6,15 @@ class Detector():
 
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
+
     def __init__(self, config):
         self.config = config
         self.net = None
         # Get model name from the config
         self.name = self.config.get_section_dict('Detector')['Name']
-        if self.name == 'ssd_mobilenet_v2_coco': 
-            from . import MobileNetSSDV2
-            self.net = MobileNetSSDV2.Detector(self.config)
+        if self.name == 'ssd_mobilenet_v2_coco':
+            from . import mobilenet_ssd_v2
+            self.net = mobilenet_ssd_v2.Detector(self.config)
         else:
             raise ValueError('Not supported network named: ', self.name)
 

@@ -12,8 +12,8 @@ class Detector():
         # Get model name from the config
         self.name = self.config.get_section_dict('Detector')['Name']
         if self.name == 'mobilenet_ssd_v2':  # or mobilenet_ssd_v1
-            from . import MobileNetSSD
-            self.net = MobileNetSSD.Detector(self.config)
+            from . import mobilenet_ssd
+            self.net = mobilenet_ssd.Detector(self.config)
         else:
             raise ValueError('Not supported network named: ', self.name)
 
