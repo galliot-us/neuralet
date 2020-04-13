@@ -41,7 +41,6 @@ class Logger:
     @staticmethod
     def log_objects(object_list, frame_number, file_path):
         if len(object_list) != 0:
-            start = time.perf_counter()
             object_dict = list(map(lambda x: prepare_object(x, frame_number), object_list))
 
             if not os.path.exists(file_path):
@@ -54,7 +53,6 @@ class Logger:
                 field_names = list(object_dict[0].keys())
                 writer = csv.DictWriter(csvfile, fieldnames=field_names)
                 writer.writerows(object_dict)
-            print("logging objects took ", time.perf_counter() - start, "  sec")
 
     def log_distances(self, distances, frame_number, file_path):
         violating_objects = self.extract_violating_objects(distances)
