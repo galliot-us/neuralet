@@ -1,8 +1,21 @@
 import csv
 import os
+import time
 from datetime import date
 
 import numpy as np
+
+
+def prepare_object(object_item, frame_number):
+    object_dict = {}
+    object_dict.update({"frame_number": frame_number})
+    for key, value in object_item.items():
+        if isinstance(value, (list, tuple)):
+            for i, item in enumerate(value):
+                object_dict.update({str(key) + "_" + str(i): item})
+        else:
+            object_dict.update({key: value})
+    return object_dict
 
 
 class Logger:
@@ -27,26 +40,21 @@ class Logger:
 
     @staticmethod
     def log_objects(object_list, frame_number, file_path):
-        for object_item in object_list:
-            object_dict = {}
-            object_dict.update({"frame_number": frame_number})
-            for key, value in object_item.items():
-                if isinstance(value, (list, tuple)):
-                    for i, item in enumerate(value):
-                        object_dict.update({str(key) + "_" + str(i): item})
-                else:
-                    object_dict.update({key: value})
+        if len(object_list) != 0:
+            start = time.perf_counter()
+            object_dict = list(map(lambda x: prepare_object(x, frame_number), object_list))
 
             if not os.path.exists(file_path):
                 with open(file_path, "w", newline="") as csvfile:
-                    field_names = list(object_dict.keys())
+                    field_names = list(object_dict[0].keys())
                     writer = csv.DictWriter(csvfile, fieldnames=field_names)
                     writer.writeheader()
 
             with open(file_path, "a", newline="") as csvfile:
-                field_names = list(object_dict.keys())
+                field_names = list(object_dict[0].keys())
                 writer = csv.DictWriter(csvfile, fieldnames=field_names)
-                writer.writerow(object_dict)
+                writer.writerows(object_dict)
+            print("logging objects took ", time.perf_counter() - start, "  sec")
 
     def log_distances(self, distances, frame_number, file_path):
         violating_objects = self.extract_violating_objects(distances)
@@ -68,4 +76,3 @@ class Logger:
         violating_objects = np.argwhere(
             triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
         return violating_objects
-
