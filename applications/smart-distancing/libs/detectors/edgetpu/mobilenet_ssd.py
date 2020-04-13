@@ -8,7 +8,7 @@ from tflite_runtime.interpreter import Interpreter
 from ..utils.fps_calculator import convert_infr_time_to_fps
 
 
-class Detector():
+class Detector:
     """
     Perform object detection with the given model. The model is a quantized tflite
     file which if the detector can not find it at the path it will download it
