@@ -10,9 +10,9 @@ from ..utils.fps_calculator import convert_infr_time_to_fps
 
 class Detector():
     """
-    Perform object detection with the given model. The model is a quantized tflite file which its address
-    is set at config. Take care if the detector can not find the tflite file at the path it will be downloaded
-    the model from neuralet repository automatically.
+    Perform object detection with the given model. The model is a quantized tflite
+    file which if the detector can not find it at the path it will download it
+    from neuralet repository automatically.
 
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
@@ -59,7 +59,7 @@ class Detector():
             resized_rgb_image: uint8 numpy array with shape (img_height, img_width, channels)
 
         Returns:
-            result: a dictionary contains of [{"id": 0, "bbox": [x, y, w, h]}, {...}, {...}, ...]
+            result: a dictionary contains of [{"id": 0, "bbox": [x1, y1, x2, y2], "score":s%}, {...}, {...}, ...]
         """
         input_image = np.expand_dims(resized_rgb_image, axis=0)
         # Fill input tensor with input_image

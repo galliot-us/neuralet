@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ==============================================================================
+
 
 """A set of functions that are used for visualization.
 
@@ -30,21 +30,21 @@ _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
 
 STANDARD_COLORS = [
-        "Green",
-        "Blue"
-        ]
+    "Green",
+    "Blue"
+]
 
 
 def draw_bounding_box_on_image_array(
-    image,
-    ymin,
-    xmin,
-    ymax,
-    xmax,
-    color=(255, 0, 0),  # RGB
-    thickness=4,
-    display_str_list=(),
-    use_normalized_coordinates=True,
+        image,
+        ymin,
+        xmin,
+        ymax,
+        xmax,
+        color=(255, 0, 0),  # RGB
+        thickness=4,
+        display_str_list=(),
+        use_normalized_coordinates=True,
 ):
     """Adds a bounding box to an image (numpy array).
   
@@ -81,15 +81,15 @@ def draw_bounding_box_on_image_array(
 
 
 def draw_bounding_box_on_image(
-    image,
-    ymin,
-    xmin,
-    ymax,
-    xmax,
-    color=(255, 0, 0),  # RGB
-    thickness=4,
-    display_str_list=(),
-    use_normalized_coordinates=True,
+        image,
+        ymin,
+        xmin,
+        ymax,
+        xmax,
+        color=(255, 0, 0),  # RGB
+        thickness=4,
+        display_str_list=(),
+        use_normalized_coordinates=True,
 ):
     """Adds a bounding box to an image.
   
@@ -168,7 +168,7 @@ def draw_bounding_box_on_image(
 
 
 def draw_keypoints_on_image_array(
-    image, keypoints, color="red", radius=2, use_normalized_coordinates=True
+        image, keypoints, color="red", radius=2, use_normalized_coordinates=True
 ):
     """Draws keypoints on an image (numpy array).
   
@@ -188,7 +188,7 @@ def draw_keypoints_on_image_array(
 
 
 def draw_keypoints_on_image(
-    image, keypoints, color="red", radius=2, use_normalized_coordinates=True
+        image, keypoints, color="red", radius=2, use_normalized_coordinates=True
 ):
     """Draws keypoints on an image.
   
@@ -255,23 +255,23 @@ def draw_mask_on_image_array(image, mask, color="red", alpha=0.4):
 
 
 def visualize_boxes_and_labels_on_image_array(
-    image,
-    boxes,
-    classes,
-    scores,
-    colors,
-    category_index,
-    instance_masks=None,
-    instance_boundaries=None,
-    keypoints=None,
-    use_normalized_coordinates=True,
-    max_boxes_to_draw=20,
-    min_score_thresh=0.0,
-    agnostic_mode=False,
-    line_thickness=4,
-    groundtruth_box_visualization_color="black",
-    skip_scores=False,
-    skip_labels=False,
+        image,
+        boxes,
+        classes,
+        scores,
+        colors,
+        category_index,
+        instance_masks=None,
+        instance_boundaries=None,
+        keypoints=None,
+        use_normalized_coordinates=True,
+        max_boxes_to_draw=20,
+        min_score_thresh=0.0,
+        agnostic_mode=False,
+        line_thickness=4,
+        groundtruth_box_visualization_color="black",
+        skip_scores=False,
+        skip_labels=False,
 ):
     """Overlay labeled boxes on an image with formatted scores and label names.
   
@@ -356,7 +356,7 @@ def visualize_boxes_and_labels_on_image_array(
                 else:
                     box_to_color_map[box] = STANDARD_COLORS[
                         classes[i] % len(STANDARD_COLORS)
-                    ]
+                        ]
 
     # Draw all boxes onto image.
     for box, color in zip(boxes, colors):
@@ -407,7 +407,7 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     detection_boxes = []
     colors = []
 
-    distance = np.amin(distances + np.identity(len(distances))*2., 0)
+    distance = np.amin(distances + np.identity(len(distances)) * 2., 0)
     for i, obj in enumerate(nn_out):
         # Colorizing bounding box based on the distances between them
         # R = 255 when dist=0 and R = 0 when dist > dist_threshold

@@ -2,28 +2,35 @@ import ctypes
 import numpy as np
 import tensorrt as trt
 import pycuda.driver as cuda
-import time 
+import time
 from ..utils.fps_calculator import convert_infr_time_to_fps
+import pycuda.autoinit  # Required for initializing CUDA driver
 
 
-class Detector():
+class Detector:
     """
-    Perform object detection with the given model. The model is a TRT.bin file.
+    Perform object detection with the given prebuilt tensorrt engine.
 
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     :param output_layout:
     """
 
     def _load_plugins(self):
+        """ Required as Flattenconcat is not natively supported in TensorRT. """
         ctypes.CDLL("/opt/libflattenconcat.so")
         trt.init_libnvinfer_plugins(self.trt_logger, '')
 
     def _load_engine(self):
-        TRTbinPath = 'libs/detectors/jetson/data/TRT_%s.bin' % self.model
-        with open(TRTbinPath, 'rb') as f, trt.Runtime(self.trt_logger) as runtime:
+        """ Load engine file as a trt Runtime. """
+        trt_bin_path = 'libs/detectors/jetson/data/TRT_%s.bin' % self.model
+        with open(trt_bin_path, 'rb') as f, trt.Runtime(self.trt_logger) as runtime:
             return runtime.deserialize_cuda_engine(f.read())
 
     def _create_context(self):
+        """
+        Create some space to store intermediate activation values. 
+        Since the engine holds the network definition and trained parameters, additional space is necessary.
+        """
         for binding in self.engine:
             size = trt.volume(self.engine.get_binding_shape(binding)) * \
                    self.engine.max_batch_size
@@ -39,7 +46,7 @@ class Detector():
         return self.engine.create_execution_context()
 
     def __init__(self, config, output_layout=7):
-        """Initialize TensorRT plugins, engine and conetxt."""
+        """ Initialize TensorRT plugins, engine and conetxt. """
         self.config = config
         self.model = self.config.get_section_dict('Detector')['Name']
         self.class_id = int(self.config.get_section_dict('Detector')['ClassID'])
@@ -55,23 +62,24 @@ class Detector():
         self.host_outputs = []
         self.cuda_outputs = []
         self.bindings = []
-        self.stream = cuda.Stream()
+        self.stream = cuda.Stream()  # create a CUDA stream to run inference
         self.context = self._create_context()
 
     def __del__(self):
-        """Free CUDA memories."""
+        """ Free CUDA memories. """
         del self.stream
         del self.cuda_outputs
         del self.cuda_inputs
 
-    def _preprocess_trt(self, img):
-        """Preprocess an image before TRT SSD inferencing."""
+    @staticmethod
+    def _preprocess_trt(img):
+        """ Preprocess an image before TRT SSD inferencing. """
         img = img.transpose((2, 0, 1)).astype(np.float32)
         img = (2.0 / 255.0) * img - 1.0
         return img
 
     def _postprocess_trt(self, img, output):
-        """Postprocess TRT SSD output."""
+        """ Postprocess TRT SSD output. """
         img_h, img_w, _ = img.shape
         boxes, confs, clss = [], [], []
         for prefix in range(0, len(output), self.output_layout):
@@ -97,11 +105,12 @@ class Detector():
             img: uint8 numpy array with shape (img_height, img_width, channels)
 
         Returns:
-            result: a dictionary contains of [{"id": 0, "bbox": [x, y, w, h]}, {...}, {...}, ...]
+            result: a dictionary contains of [{"id": 0, "bbox": [x1, y1, x2, y2], "score": s% }, {...}, {...}, ...]
         """
         img_resized = self._preprocess_trt(img)
+        # transfer the data to the GPU, run inference and the copy the results back
         np.copyto(self.host_inputs[0], img_resized.ravel())
-        
+
         # Start inference time
         t_begin = time.perf_counter()
         cuda.memcpy_htod_async(
@@ -116,7 +125,7 @@ class Detector():
             self.host_outputs[0], self.cuda_outputs[0], self.stream)
         self.stream.synchronize()
         inference_time = time.perf_counter() - t_begin  # Seconds
-        
+
         # Calculate Frames rate (fps)
         self.fps = convert_infr_time_to_fps(inference_time)
         output = self.host_outputs[0]

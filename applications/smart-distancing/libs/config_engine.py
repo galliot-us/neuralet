@@ -6,8 +6,8 @@ import threading
 class ConfigEngine:
     """
     Handle the .ini confige file and provide a convenient interface to read the parameters from config.
-    When an instance of ConfigeEngine is created you can use or pass it to other classes/ modules in
-    which you want to access the parameters at config file
+    When an instance of ConfigeEngine is created you can use/pass it to other classes/modules that needs
+    access to the parameters at config file.
 
     :param config_path: the path of config file
     """
