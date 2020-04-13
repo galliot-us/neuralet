@@ -25,6 +25,7 @@ import PIL.Image as Image
 import PIL.ImageColor as ImageColor
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
+import cv2 as cv
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -435,3 +436,9 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     output_dict["detection_classes"] = detection_classes
     output_dict["detection_colors"] = colors
     return output_dict
+
+
+def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), thickness=2):
+    font = cv.FONT_HERSHEY_SIMPLEX
+    cv.putText(input_frame, txt, origin, font, fontscale,
+               color, thickness, cv.LINE_AA)
