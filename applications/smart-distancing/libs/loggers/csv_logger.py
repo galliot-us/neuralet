@@ -1,6 +1,7 @@
 import csv
 import os
 from datetime import date
+
 import numpy as np
 
 
@@ -25,8 +26,17 @@ def prepare_object(object_item, frame_number):
     for key, value in object_item.items():
         if isinstance(value, (list, tuple)):
             for i, item in enumerate(value):
+                if isinstance(item, float):
+                    item = round(item, 4)
+                elif isinstance(item, np.float32):
+                    item = round(float(item), 4)
+
                 object_dict.update({str(key) + "_" + str(i): item})
         else:
+            if isinstance(value, float):
+                value = round(value, 4)
+            elif isinstance(value, np.float32):
+                value = round(float(value), 4)
             object_dict.update({key: value})
     return object_dict
 
