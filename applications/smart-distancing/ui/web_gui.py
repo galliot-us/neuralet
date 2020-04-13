@@ -65,11 +65,11 @@ class WebGUI:
             # fps is not implemented for the detector instance"
             self._displayed_items['fps'] = None
 
+        # Put fps to the frame
         # region
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
-        # Put fps to the frame
         txt = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps) 
-        # (0, 0) is the top left (x,y)
+        # (0, 0) is the top-left (x,y)
         origin = (10, 470)
         vis_util.text_putter(input_frame, txt, origin)
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
