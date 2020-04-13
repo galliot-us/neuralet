@@ -37,41 +37,35 @@ class Logger:
                 else:
                     object_dict.update({key: value})
 
-            if os.path.exists(file_path):
-                with open(file_path, "a", newline="") as csvfile:
-                    field_names = list(object_dict.keys())
-                    writer = csv.DictWriter(csvfile, fieldnames=field_names)
-                    writer.writerow(object_dict)
-            else:
+            if not os.path.exists(file_path):
                 with open(file_path, "w", newline="") as csvfile:
                     field_names = list(object_dict.keys())
                     writer = csv.DictWriter(csvfile, fieldnames=field_names)
                     writer.writeheader()
-                    writer.writerow(object_dict)
+
+            with open(file_path, "a", newline="") as csvfile:
+                field_names = list(object_dict.keys())
+                writer = csv.DictWriter(csvfile, fieldnames=field_names)
+                writer.writerow(object_dict)
 
     def log_distances(self, distances, frame_number, file_path):
         violating_objects = self.extract_violating_objects(distances)
-        for indices in violating_objects:
-            if os.path.exists(file_path):
-                with open(file_path, "a", newline="") as csvfile:
-                    field_names = ["frame_number", "object_0", "object_1", "distance"]
-                    writer = csv.DictWriter(csvfile, fieldnames=field_names)
-                    writer.writerow({"frame_number": frame_number,
-                                     "object_0": indices[0],
-                                     "object_1": indices[1],
-                                     "distance": distances[indices[0], indices[1]]})
-            else:
-                with open(file_path, "w", newline="") as csvfile:
-                    field_names = ["frame_number", "object_0", "object_1", "distance"]
-                    writer = csv.DictWriter(csvfile, fieldnames=field_names)
-                    writer.writeheader()
-                    writer.writerow({"frame_number": frame_number,
-                                     "object_0": indices[0],
-                                     "object_1": indices[1],
-                                     "distance": distances[indices[0], indices[1]]})
+        if not os.path.exists(file_path):
+            with open(file_path, "w", newline="") as csvfile:
+                field_names = ["frame_number", "object_0", "object_1", "distance"]
+                writer = csv.DictWriter(csvfile, fieldnames=field_names)
+                writer.writeheader()
+        with open(file_path, "a", newline="") as csvfile:
+            field_names = ["frame_number", "object_0", "object_1", "distance"]
+            writer = csv.DictWriter(csvfile, fieldnames=field_names)
+            writer.writerows([{"frame_number": frame_number,
+                               "object_0": indices[0],
+                               "object_1": indices[1],
+                               "distance": distances[indices[0], indices[1]]} for indices in violating_objects])
 
     def extract_violating_objects(self, distances):
         triu_distances = np.triu(distances) + np.tril(10 * np.ones(distances.shape))
         violating_objects = np.argwhere(
             triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
         return violating_objects
+
