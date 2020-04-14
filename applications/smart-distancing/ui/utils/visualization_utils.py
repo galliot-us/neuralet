@@ -16,7 +16,7 @@
 """A set of functions that are used for visualization.
 
 These functions often receive an image, perform some visualization on the image.
-The functions do not return a value, instead they modify the image itself.
+Most functions do not return a value, instead they modify the image itself.
 
 """
 import collections
@@ -25,6 +25,7 @@ import PIL.Image as Image
 import PIL.ImageColor as ImageColor
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
+import cv2 as cv
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
@@ -393,6 +394,7 @@ def visualize_boxes_and_labels_on_image_array(
 def visualization_preparation(nn_out, distances, dist_threshold):
     """
     prepare the objects boxes and id in order to visualize
+
     Args:
         nn_out: a list of dicionary contains normalized numbers of bonding boxes
         {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
@@ -435,3 +437,21 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     output_dict["detection_classes"] = detection_classes
     output_dict["detection_colors"] = colors
     return output_dict
+
+
+def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), thickness=2):
+    """
+    The function renders the specified text string in the image. This function does not return a
+    value instead it modifies the input image.
+
+    Args:
+        input_frame: The source image, is an RGB image.
+        txt: The specific text string for drawing.
+        origin: Top-left corner of the text string in the image.
+        fontscale: Font scale factor that is multiplied by the font-specific base size.
+        color: Text Color. (BGR format)
+        thickness: Thickness of the lines used to draw a text.
+    """
+    font = cv.FONT_HERSHEY_SIMPLEX
+    cv.putText(input_frame, txt, origin, font, fontscale,
+               color, thickness, cv.LINE_AA)
