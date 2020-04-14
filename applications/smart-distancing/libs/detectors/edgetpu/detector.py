@@ -1,4 +1,4 @@
-class Detector():
+class Detector:
     """
     Detector class is a high level class for detecting object using edgetpu devices.
     When an instance of the Detector is created you can call inference method and feed your
@@ -10,6 +10,7 @@ class Detector():
     def __init__(self, config):
         self.config = config
         self.net = None
+        self.fps = None
         # Get model name from the config
         self.name = self.config.get_section_dict('Detector')['Name']
         if self.name == 'mobilenet_ssd_v2':  # or mobilenet_ssd_v1
@@ -20,7 +21,7 @@ class Detector():
 
     def inference(self, resized_rgb_image):
         """
-        Run inference on an image.
+        Run inference on an image and get Frames rate (fps)
 
         Args:
             resized_rgb_image: A numpy array with shape [height, width, channels]
@@ -29,5 +30,7 @@ class Detector():
             output: List of objects, each obj is a dict with two keys "id" and "bbox" and "score"
             e.g. [{"id": 0, "bbox": [x1, y1, x2, y2], "score":s%}, {...}, {...}, ...]
         """
+        self.fps = self.net.fps
         output = self.net.inference(resized_rgb_image)
         return output
+
