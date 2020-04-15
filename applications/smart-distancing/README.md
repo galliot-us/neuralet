@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# Smart Distancing
+# Smart Social Distancing
 
 ## Introduction
 
@@ -96,4 +96,6 @@ The project is under substantial active development; you can find our roadmap at
 
 ## Contact Us
 
-Visit our website at https://neuralet.com, and check out our other models at https://github.com/neuralet.
+* Visit our website at https://neuralet.com
+* Email us at covid19project@neuralet.com
+* Check out our other models at https://github.com/neuralet.
