@@ -2,8 +2,17 @@
 import configparser
 import threading
 
+
 class ConfigEngine:
-    def __init__(self, config_path = './config-skeleton.ini'):
+    """
+    Handle the .ini confige file and provide a convenient interface to read the parameters from config.
+    When an instance of ConfigeEngine is created you can use/pass it to other classes/modules that needs
+    access to the parameters at config file.
+
+    :param config_path: the path of config file
+    """
+
+    def __init__(self, config_path='./config-skeleton.ini'):
         self.config = configparser.ConfigParser()
         self.config.optionxform = str
         self.config_file_path = config_path
@@ -12,7 +21,7 @@ class ConfigEngine:
         self.config._interpolation = configparser.ExtendedInterpolation()
         self.section_options_dict = {}
         self._load()
-    
+
     def set_config_file(self, path):
         self.lock.acquire()
         try:
@@ -48,7 +57,7 @@ class ConfigEngine:
 
     def get_section_dict(self, section):
         return self.section_options_dict[section]
-        
+
     def get_boolean(self, section, option):
         result = None
         self.lock.acquire()
@@ -64,7 +73,7 @@ class ConfigEngine:
             self.config.set(section, option, str(not val))
         finally:
             self.lock.release()
-    
+
     def set_option_in_section(self, section, option, value):
         self.lock.acquire()
         try:

@@ -7,77 +7,103 @@ from scipy.spatial import distance as dist
 
 class CentroidTracker:
     """
-    a simple object tracker based on Euclidian distance of bounding boxes centroid of two consecutive frames.
-    if a box is losted betweeb two frames the tracker keep the box for next maxDisappeared frames.
+    A simple object tracker based on euclidean distance of bounding boxe centroids of two consecutive frames.
+    if a box is lost between two frames the tracker keeps the box for next max_disappeared frames.
+
+    :param max_disappeared: If a box is losted betweeb two frames the tracker keep the box for next
+     max_disappeared frames.
     """
 
-    def __init__(self, maxDisappeared=50):
-
-        """
-        maxDisappeared:if a box is losted betweeb two frames the tracker keep the box for next maxDisappeared frames.
-
-        """
-        self.nextObjectID = 0
-        self.objects = OrderedDict()
+    def __init__(self, max_disappeared=50):
+        self.nextobject_id = 0
+        self.tracked_objects = OrderedDict()
         self.disappeared = OrderedDict()
-        self.maxDisappeared = maxDisappeared
+        self.max_disappeared = max_disappeared
 
     def register(self, object_item):
-        self.objects[self.nextObjectID] = object_item
-        self.disappeared[self.nextObjectID] = 0
-        self.nextObjectID += 1
+        # Register a new detected object and set a unique id for it
+        self.tracked_objects[self.nextobject_id] = object_item
+        self.disappeared[self.nextobject_id] = 0
+        self.nextobject_id += 1
 
-    def deregister(self, objectID):
-        del self.objects[objectID]
-        del self.disappeared[objectID]
+    def diregister(self, object_id):
+        """
+        Remove an object from objects and disappeared list.
 
-    def update(self, object_list):
-        if len(object_list) == 0:
-            for objectID in list(self.disappeared.keys()):
-                self.disappeared[objectID] += 1
-                if self.disappeared[objectID] > self.maxDisappeared:
-                    self.deregister(objectID)
-            return self.objects
-        inputCentroids = np.zeros((len(object_list), 2))
-        for i, object_item in enumerate(object_list):
-            inputCentroids[i] = (object_item["centroid"][0], object_item["centroid"][1])
-        if len(self.objects) == 0:
-            for i in range(0, len(inputCentroids)):
-                self.register(object_list[i])
+        Args:
+            object_id: Unique object ID for detected objects which is at objects list
+
+        """
+        del self.tracked_objects[object_id]
+        del self.disappeared[object_id]
+
+    def update(self, detected_objects):
+        """
+        Updates the objects from the previous frame.
+        This function compares previous frame with current frame and take following actions:
+
+        1- For each object that is being tracked, update its bounding box if it matches a
+        detected object in the current frame.
+        2- For any detection in the current frame that doesn't match any tracked object,
+        register it as a new object.
+        3- For each object that is being tracked and doesn't match a detection in the
+        current frame, register it as lost and increment its disappeared counter.
+
+        Args:
+            detected_objects: List of detected objects.
+
+        Return:
+            tracked_objects: List of updated objects.
+        """
+        if len(detected_objects) == 0:
+            for object_id in list(self.disappeared.keys()):
+                self.disappeared[object_id] += 1
+                # Removed an object from the tracker when the object is missing in the 'max_disappeared' previous frames.
+                if self.disappeared[object_id] > self.max_disappeared:
+                    self.diregister(object_id)
+            return self.tracked_objects
+
+        input_centroids = np.zeros((len(detected_objects), 2))
+        for i, object_item in enumerate(detected_objects):
+            input_centroids[i] = (object_item["centroid"][0], object_item["centroid"][1])
+        if len(self.tracked_objects) == 0:
+            for i in range(0, len(input_centroids)):
+                self.register(detected_objects[i])
         else:
-            objectIDs = list(self.objects.keys())
-            objectCentroids = [object_item["centroid"][0:2] for object_item in self.objects.values()]
-            D = dist.cdist(np.array(objectCentroids), inputCentroids)
-            rows = D.min(axis=1).argsort()
-            cols = D.argmin(axis=1)[rows]
-            usedRows = set()
-            usedCols = set()
+            object_ids = list(self.tracked_objects.keys())
+            object_centroids = [object_item["centroid"][0:2] for object_item in self.tracked_objects.values()]
+            computed_dist = dist.cdist(np.array(object_centroids), input_centroids)
+            rows = computed_dist.min(axis=1).argsort()
+            cols = computed_dist.argmin(axis=1)[rows]
+            used_rows = set()
+            used_cols = set()
             for (row, col) in zip(rows, cols):
-                if row in usedRows or col in usedCols:
+                if row in used_rows or col in used_cols:
                     continue
-                objectID = objectIDs[row]
-                self.objects[objectID] = object_list[col]
-                self.disappeared[objectID] = 0
-                usedRows.add(row)
-                usedCols.add(col)
+                object_id = object_ids[row]
+                self.tracked_objects[object_id] = detected_objects[col]
+                self.disappeared[object_id] = 0
+                used_rows.add(row)
+                used_cols.add(col)
 
-            unusedRows = set(range(0, D.shape[0])).difference(usedRows)
-            unusedCols = set(range(0, D.shape[1])).difference(usedCols)
+            unused_rows = set(range(0, computed_dist.shape[0])).difference(used_rows)
+            unused_cols = set(range(0, computed_dist.shape[1])).difference(used_cols)
 
-            if D.shape[0] >= D.shape[1]:
-                biggest_existing_id = int(object_list[-1]["id"].split("-")[-1])
+            if computed_dist.shape[0] >= computed_dist.shape[1]:
+                biggest_existing_id = int(detected_objects[-1]["id"].split("-")[-1])
 
-                for row in unusedRows:
-                    objectID = objectIDs[row]
-                    self.objects[objectID]["id"] = self.objects[objectID]["id"].split("-")[0] + "-" + str(
+                for row in unused_rows:
+                    object_id = object_ids[row]
+                    self.tracked_objects[object_id]["id"] = self.tracked_objects[object_id]["id"].split("-")[
+                                                                0] + "-" + str(
                         biggest_existing_id + 1)
-                    self.disappeared[objectID] += 1
+                    self.disappeared[object_id] += 1
                     biggest_existing_id += 1
-                    if self.disappeared[objectID] > self.maxDisappeared:
-                        self.deregister(objectID)
+                    if self.disappeared[object_id] > self.max_disappeared:
+                        self.diregister(object_id)
 
             else:
-                for col in unusedCols:
-                    self.register(object_list[col])
+                for col in unused_cols:
+                    self.register(detected_objects[col])
 
-        return self.objects
+        return self.tracked_objects
