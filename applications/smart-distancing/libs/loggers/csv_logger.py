@@ -1,6 +1,6 @@
 import csv
 import os
-from datetime import date
+from datetime import date, datetime
 
 import numpy as np
 
@@ -72,6 +72,10 @@ class Logger:
         information of an object (person) in a frame. distances: A 2-d numpy array that stores distance between each
         pair of objects.
         """
+        # Get timeline
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        self.submited_time = time.time()
         file_name = str(date.today())
         objects_log_file_path = os.path.join(self.objects_log_directory, file_name + ".csv")
         distances_log_file_path = os.path.join(self.distances_log_directory, file_name + ".csv")
@@ -87,19 +91,18 @@ class Logger:
         Args: objects_list: A list of dictionary where each dictionary stores information of an object (person) in a
         frame. frame_number: current frame number file_path: log file path
         """
-        if len(objects_list) != 0:
-            object_dict = list(map(lambda x: prepare_object(x, frame_number), objects_list))
+        now = datetime.now()
+        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
+        file_exists = os.path.isfile(file_path)
+        with open(file_path, "a") as csvfile:
+            headers = ["Timestamp", "DetectedObjects"]
+            writer = csv.DictWriter(csvfile, fieldnames=headers)
 
-            if not os.path.exists(file_path):
-                with open(file_path, "w", newline="") as csvfile:
-                    field_names = list(object_dict[0].keys())
-                    writer = csv.DictWriter(csvfile, fieldnames=field_names)
-                    writer.writeheader()
+            if not file_exists:
+                writer.writeheader()
 
-            with open(file_path, "a", newline="") as csvfile:
-                field_names = list(object_dict[0].keys())
-                writer = csv.DictWriter(csvfile, fieldnames=field_names)
-                writer.writerows(object_dict)
+            writer.writerow({'Timestamp': current_time, 'DetectedObjects': len(objects_list)})
+
 
     def log_distances(self, distances, frame_number, file_path):
         """Write violated incident's information of a frame into the object log file.
