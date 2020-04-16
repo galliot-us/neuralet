@@ -1,4 +1,4 @@
-from datetime import datetime
+import time
 
 
 class Logger:
@@ -30,7 +30,7 @@ class Logger:
             from . import csv_logger
             self.logger = csv_logger.Logger(self.config)
         self.time_interval = float(self.config.get_section_dict("Logger")["TimeInterval"])  # Seconds
-        self.frame_number = 0
+        self.submited_time = 0
 
     def update(self, objects_list, distances):
         """call the update method of the logger.
@@ -42,8 +42,6 @@ class Logger:
             objects_list: a list of dictionary where each dictionary stores information of an object (person) in a frame.
             distances: a 2-d numpy array that stores distance between each pair of objects.
         """
-        # Get timeline
-        now = datetime.now()
-        current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-        if self.frame_number % int(self.fps * self.time_interval) == 0:
-            self.logger.update(self.frame_number, objects_list, distances)
+        if time.time() - self.submited_time > self.time_interval:
+            self.logger.update(0, objects_list, distances)
+            self.submited_time = time.time()
