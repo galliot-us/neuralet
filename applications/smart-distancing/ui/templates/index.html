@@ -1,9 +1,13 @@
 <html>
-  <head>
+<head>
     <title>Neuralet Edge TPU Streamer</title>
-  </head>
-  <body>
-    <h1>Neuralet Edge TPU Streamer</h1>
-    <img src="{{ url_for('video_feed') }}">
-  </body>
+</head>
+<body>
+<h1>Neuralet Edge TPU Streamer</h1>
+<img src="{{ url_for('video_feed') }}">
+
+<form action="/visualize_logs">
+    <button type="submit">Visualize Logs</button>
+</form>
+</body>
 </html>
