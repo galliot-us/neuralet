@@ -35,7 +35,6 @@ class WebGUI:
 
         # TODO: read from config file
         self.objects_log = 'logs/objects_log/objects_log.csv'
-        self.distances_log = 'logs/distances_log/distances_log.csv'
 
     def update(self, input_frame, nn_out, distances):
         """
@@ -103,7 +102,7 @@ class WebGUI:
         @app.route("/visualize_logs", methods=['GET'])
         def _index():
             # Render a html file located at templates as home page
-            path = [self.objects_log, self.distances_log]
+            path = [self.objects_log]
             return render_template("visualizer.html", csv_path=path)
 
         return app
