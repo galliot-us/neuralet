@@ -22,7 +22,10 @@ class Logger:
         self.config = config
         self.log_directory = config.get_section_dict("Logger")["LogDirectory"]
         self.objects_log_directory = os.path.join(self.log_directory, "objects_log")
-
+        
+        if not os.path.exists(self.log_directory):
+            os.mkdir(self.log_directory)
+                                
         if not os.path.exists(self.objects_log_directory):
             os.mkdir(self.objects_log_directory)
 
