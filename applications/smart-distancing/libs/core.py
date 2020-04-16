@@ -15,7 +15,7 @@ class Distancing:
         self.device = self.config.get_section_dict('Detector')['Device']
         self.running_video = False
         self.tracker = CentroidTracker(
-            maxDisappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
+            max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
         self.logger = Logger(self.config)
         if self.device == 'Jetson':
             from libs.detectors.jetson.detector import Detector
