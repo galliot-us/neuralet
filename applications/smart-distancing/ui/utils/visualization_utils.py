@@ -446,7 +446,6 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     for i, obj in enumerate(nn_out):
         # Colorizing bounding box based on the distances between them
         # R = 255 when dist=0 and R = 0 when dist > dist_threshold
-        dist_threshold = 170
         r_channel = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0)
         g_channel = 255 - r_channel
         b_channel = 0
