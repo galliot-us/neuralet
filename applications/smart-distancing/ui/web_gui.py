@@ -1,6 +1,7 @@
 import threading
 import time
 import cv2 as cv
+from datetime import date
 from flask import Flask
 from flask import render_template
 from flask import Response
@@ -34,7 +35,8 @@ class WebGUI:
         self._displayed_items = {}  # all items here will be used at ui webpage
 
         # TODO: read from config file
-        self.objects_log = 'logs/objects_log/objects_log.csv'
+        file_name = str(date.today()) + '.csv'
+        self.objects_log = './static/data/objects_log/' + file_name
 
     def update(self, input_frame, nn_out, distances):
         """
@@ -100,7 +102,7 @@ class WebGUI:
             )
 
         @app.route("/visualize_logs", methods=['GET'])
-        def _index():
+        def visualizer_page():
             # Render a html file located at templates as home page
             path = [self.objects_log]
             return render_template("visualizer.html", csv_path=path)
