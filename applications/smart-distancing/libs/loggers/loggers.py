@@ -43,5 +43,5 @@ class Logger:
             distances: a 2-d numpy array that stores distance between each pair of objects.
         """
         if time.time() - self.submited_time > self.time_interval:
-            self.logger.update(0, objects_list, distances)
+            self.logger.update(objects_list, distances)
             self.submited_time = time.time()
