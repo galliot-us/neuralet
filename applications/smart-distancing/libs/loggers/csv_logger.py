@@ -9,23 +9,22 @@ class Logger:
     """A CSV logger class that store objects information and violated distances information into csv files.
 
     This logger creates two csv file every day in two different directory, one for logging detected objects
-    and one for logging violated social distancing incidents. The file names are the same as recording date.
+    and violated social distancing incidents. The file names are the same as recording date.
 
-        :param config: A ConfigEngine object which store all of the config parameters. Access to any parameter
+    :param config: A ConfigEngine object which store all of the config parameters. Access to any parameter
         is possible by calling get_section_dict method.
-        :param log_directory: The parent directory that stores all log file.
-        :param objects_log_directory: A directory inside the log_directory that stores object log files.
-        :param distances_log_directory: A directory inside the log_directory that stores violated distances log files.
     """
 
     def __init__(self, config):
         self.config = config
+        # The parent directory that stores all log file.
         self.log_directory = config.get_section_dict("Logger")["LogDirectory"]
+        # A directory inside the log_directory that stores object log files.
         self.objects_log_directory = os.path.join(self.log_directory, "objects_log")
-        
+
         if not os.path.exists(self.log_directory):
             os.mkdir(self.log_directory)
-                                
+
         if not os.path.exists(self.objects_log_directory):
             os.mkdir(self.objects_log_directory)
 
@@ -33,7 +32,8 @@ class Logger:
         """Write the object and violated distances information of a frame into log files.
 
         Args:
-            objects_list: A list of dictionary where each dictionary stores information of an object (person) in a frame. distances: A 2-d numpy array that stores distance between each
+            objects_list: List of dictionary where each dictionary stores information of an object (person) in a frame.
+            Distances: A 2-d numpy array that stores distance between each
         pair of objects.
             distances: A 2-d numpy array that stores distance between each pair of objects.
         """
@@ -48,8 +48,8 @@ class Logger:
 
         Args:
             objects_list: A list of dictionary where each dictionary stores information of an object (person) in a frame.
-            frame_number: Current frame number file_path: log file path.
             distances: A 2-d numpy array that stores distance between each pair of objects.
+            file_path: The path for storing log files
 
         """
 
