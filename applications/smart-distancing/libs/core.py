@@ -76,7 +76,7 @@ class Distancing:
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             cv_image, objects, distancings = self.__process(cv_image)
-            self.logger.update(objects,distancings)
+            self.logger.update(objects, distancings)
             self.ui.update(cv_image, objects, distancings)
 
         input_cap.release()
@@ -116,7 +116,7 @@ class Distancing:
         for i, item in enumerate(new_objects_list):
             item["id"] = item["id"].split("-")[0] + "-" + str(i)
 
-        centroids = np.array( [obj["centroid"] for obj in new_objects_list] )
+        centroids = np.array([obj["centroid"] for obj in new_objects_list])
         distances = dist.cdist(centroids, centroids)
         return new_objects_list, distances
 
@@ -188,6 +188,6 @@ class Distancing:
             overlap = (w * h) / area[idxs[:last]]
             # delete all indexes from the index list that have
             idxs = np.delete(idxs, np.concatenate(([last],
-                                                  np.where(overlap > overlapThresh)[0])))
+                                                   np.where(overlap > overlapThresh)[0])))
         updated_object_list = [j for i, j in enumerate(object_list) if i in pick]
         return updated_object_list
