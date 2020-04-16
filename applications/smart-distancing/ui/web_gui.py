@@ -20,7 +20,8 @@ class WebGUI:
     Once it is created it will act as a central application for viewing outputs.
 
     :param config: Is a ConfigEngine instance which provides necessary parameters.
-    :param engine_instance:
+    :param engine_instance:  A ConfigEngine object which store all of the config parameters. Access to any parameter
+        is possible by calling get_section_dict method.
     """
 
     def __init__(self, config, engine_instance):
