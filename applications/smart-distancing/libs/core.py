@@ -18,10 +18,10 @@ class Distancing:
             maxDisappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
         self.logger = Logger(self.config)
         if self.device == 'Jetson':
-            from libs.detectors.jetson.Detector import Detector
+            from libs.detectors.jetson.detector import Detector
             self.detector = Detector(self.config)
         elif self.device == 'EdgeTPU':
-            from libs.detectors.edgetpu.Detector import Detector
+            from libs.detectors.edgetpu.detector import Detector
             self.detector = Detector(self.config)
         elif self.device == 'Dummy':
             self.detector = None
@@ -83,6 +83,7 @@ class Distancing:
         self.running_video = False
 
     def process_image(self, image_path):
+        # Process and pass the image to ui modules
         cv_image = cv.imread(image_path)
         cv_image, objects, distancings = self.__process(cv_image)
         self.ui.update(cv_image, objects, distancings)

@@ -11,12 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# ==============================================================================
+
 
 """A set of functions that are used for visualization.
 
 These functions often receive an image, perform some visualization on the image.
-The functions do not return a value, instead they modify the image itself.
+Most functions do not return a value, instead they modify the image itself.
 
 """
 import collections
@@ -25,25 +25,27 @@ import PIL.Image as Image
 import PIL.ImageColor as ImageColor
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
+import cv2 as cv
 
 _TITLE_LEFT_MARGIN = 10
 _TITLE_TOP_MARGIN = 10
 
 STANDARD_COLORS = [
-        "Green",
-        "Blue"
-        ]
+    "Green",
+    "Blue"
+]
+
 
 def draw_bounding_box_on_image_array(
-    image,
-    ymin,
-    xmin,
-    ymax,
-    xmax,
-    color=(255, 0, 0), #RGB
-    thickness=4,
-    display_str_list=(),
-    use_normalized_coordinates=True,
+        image,
+        ymin,
+        xmin,
+        ymax,
+        xmax,
+        color=(255, 0, 0),  # RGB
+        thickness=4,
+        display_str_list=(),
+        use_normalized_coordinates=True,
 ):
     """Adds a bounding box to an image (numpy array).
   
@@ -80,15 +82,15 @@ def draw_bounding_box_on_image_array(
 
 
 def draw_bounding_box_on_image(
-    image,
-    ymin,
-    xmin,
-    ymax,
-    xmax,
-    color=(255, 0, 0), #RGB
-    thickness=4,
-    display_str_list=(),
-    use_normalized_coordinates=True,
+        image,
+        ymin,
+        xmin,
+        ymax,
+        xmax,
+        color=(255, 0, 0),  # RGB
+        thickness=4,
+        display_str_list=(),
+        use_normalized_coordinates=True,
 ):
     """Adds a bounding box to an image.
   
@@ -167,7 +169,7 @@ def draw_bounding_box_on_image(
 
 
 def draw_keypoints_on_image_array(
-    image, keypoints, color="red", radius=2, use_normalized_coordinates=True
+        image, keypoints, color="red", radius=2, use_normalized_coordinates=True
 ):
     """Draws keypoints on an image (numpy array).
   
@@ -187,7 +189,7 @@ def draw_keypoints_on_image_array(
 
 
 def draw_keypoints_on_image(
-    image, keypoints, color="red", radius=2, use_normalized_coordinates=True
+        image, keypoints, color="red", radius=2, use_normalized_coordinates=True
 ):
     """Draws keypoints on an image.
   
@@ -254,23 +256,23 @@ def draw_mask_on_image_array(image, mask, color="red", alpha=0.4):
 
 
 def visualize_boxes_and_labels_on_image_array(
-    image,
-    boxes,
-    classes,
-    scores,
-    colors,
-    category_index,
-    instance_masks=None,
-    instance_boundaries=None,
-    keypoints=None,
-    use_normalized_coordinates=True,
-    max_boxes_to_draw=20,
-    min_score_thresh=0.0,
-    agnostic_mode=False,
-    line_thickness=4,
-    groundtruth_box_visualization_color="black",
-    skip_scores=False,
-    skip_labels=False,
+        image,
+        boxes,
+        classes,
+        scores,
+        colors,
+        category_index,
+        instance_masks=None,
+        instance_boundaries=None,
+        keypoints=None,
+        use_normalized_coordinates=True,
+        max_boxes_to_draw=20,
+        min_score_thresh=0.0,
+        agnostic_mode=False,
+        line_thickness=4,
+        groundtruth_box_visualization_color="black",
+        skip_scores=False,
+        skip_labels=False,
 ):
     """Overlay labeled boxes on an image with formatted scores and label names.
   
@@ -355,10 +357,10 @@ def visualize_boxes_and_labels_on_image_array(
                 else:
                     box_to_color_map[box] = STANDARD_COLORS[
                         classes[i] % len(STANDARD_COLORS)
-                    ]
+                        ]
 
     # Draw all boxes onto image.
-    for box, color in zip(boxes, colors):#box_to_color_map.items():
+    for box, color in zip(boxes, colors):
         xmin, ymin, xmax, ymax = box
         if instance_masks is not None:
             draw_mask_on_image_array(image, box_to_instance_masks_map[tuple(box)], color=color)
@@ -392,8 +394,10 @@ def visualize_boxes_and_labels_on_image_array(
 def visualization_preparation(nn_out, distances, dist_threshold):
     """
     prepare the objects boxes and id in order to visualize
+
     Args:
-        nn_out: a list of dicionary contains normalized numbers of bonding boxes {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
+        nn_out: a list of dicionary contains normalized numbers of bonding boxes
+        {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
         distances: a symmetric matrix of normalized distances
         dist_threshold: the minimum distance for considering unsafe distance between objects
     Returns:
@@ -405,23 +409,25 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     detection_boxes = []
     colors = []
 
-    distance = np.amin(distances + np.identity(len(distances))*2., 0)
+    distance = np.amin(distances + np.identity(len(distances)) * 2., 0)
     for i, obj in enumerate(nn_out):
-        # colorizing bounding box based on the distances between them
+        # Colorizing bounding box based on the distances between them
         # R = 255 when dist=0 and R = 0 when dist > dist_threshold
-        R = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0)
-        G = 255 - R
-        B = 0
-
-        color = (int(B), int(G), int(R))
+        r_channel = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0)
+        g_channel = 255 - r_channel
+        b_channel = 0
+        # Create a tuple object of colors
+        color = (int(b_channel), int(g_channel), int(r_channel))
+        # Get the object id
         obj_id = obj["id"]
+        # Split and get the first item of obj_id
         obj_id = obj_id.split("-")[0]
-        
         box = obj["bbox"]
         if "score" in obj:
             score = obj["score"]
         else:
             score = 1.0
+        # Append all processed items
         detection_classes.append(int(obj_id))
         detection_scores.append(score)
         detection_boxes.append(box)
@@ -431,3 +437,21 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     output_dict["detection_classes"] = detection_classes
     output_dict["detection_colors"] = colors
     return output_dict
+
+
+def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), thickness=2):
+    """
+    The function renders the specified text string in the image. This function does not return a
+    value instead it modifies the input image.
+
+    Args:
+        input_frame: The source image, is an RGB image.
+        txt: The specific text string for drawing.
+        origin: Top-left corner of the text string in the image.
+        fontscale: Font scale factor that is multiplied by the font-specific base size.
+        color: Text Color. (BGR format)
+        thickness: Thickness of the lines used to draw a text.
+    """
+    font = cv.FONT_HERSHEY_SIMPLEX
+    cv.putText(input_frame, txt, origin, font, fontscale,
+               color, thickness, cv.LINE_AA)
