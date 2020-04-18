@@ -123,7 +123,7 @@ class Distancing:
             item["id"] = item["id"].split("-")[0] + "-" + str(i)
 
         centroids = np.array( [obj["centroid"] for obj in new_objects_list] )
-        distances = self.check_distance(new_objects_list)
+        distances = self.calculate_box_distances(new_objects_list)
 
         return new_objects_list, distances
 
@@ -200,8 +200,22 @@ class Distancing:
         return updated_object_list
 
 
-    def calculate_distance_from_two_points(self,first_point, second_point):
+    def calculate_distance_of_two_points_of_boxes(self,first_point, second_point):
     
+        """
+        this function calculates a distance L for two input corresponding points of two detected bounding boxes.
+        it is assumed that each person is H = 170 cm tall in real scene to map the distances in the image (in pixels) to 
+        physical distance measures (in meters). 
+
+        params:
+        first_point: a tuple of x,y of a point of bbox (center or each of 4 corners) and h which height of bbox.
+        second_point: same as first_point for the corresponding point of other box 
+
+        returns:
+        L:  estimated distance between corresponding points of i-th and j-th bounding box in real scene (cm)
+
+        """
+
         # estimate corresponding points distance
         [xc1, yc1, h1] = first_point
         [xc2, yc2, h2] = second_point
@@ -217,8 +231,23 @@ class Distancing:
         return L 
 
 
-    def check_distance(self, nn_out):
+    def calculate_box_distances(self, nn_out):
         
+        """
+        this function calculates a distance matrix for detected bounding boxes.
+        two methods are implemented to calculate the distances, first one estimates distance of center points of the
+        boxes and second one uses minimum distance of each of 4 points of bounding boxes.
+
+        params:
+        object_list: a list of dictionaries. each dictionary has attributes of a detected object such as
+        "id", "centroidReal" (a tuple of the centroid coordinates (cx,cy,w,h) of the box) and "bboxReal" (a tuple
+        of the (xmin,ymin,xmax,ymax) coordinate of the box)
+
+        returns:
+        distances: a NxN ndarray which i,j element is estimated distance between i-th and j-th bounding box in real scene (cm)
+
+        """
+
         distances = []
         for i in range(len(nn_out)):
             distanceRow=[]
@@ -237,17 +266,17 @@ class Distancing:
                         third_point_of_second_box = [nn_out[j]["bboxReal"][0],nn_out[j]["bboxReal"][3],nn_out[j]["bboxReal"][3]-nn_out[j]["bboxReal"][1]]
                         forth_point_of_second_box = [nn_out[j]["bboxReal"][2],nn_out[j]["bboxReal"][3],nn_out[j]["bboxReal"][3]-nn_out[j]["bboxReal"][1]]
 
-                        L1 = self.calculate_distance_from_two_points(first_point_of_first_box, first_point_of_second_box)
-                        L2 = self.calculate_distance_from_two_points(second_point_of_first_box, second_point_of_second_box)
-                        L3 = self.calculate_distance_from_two_points(third_point_of_first_box, third_point_of_second_box)
-                        L4 = self.calculate_distance_from_two_points(forth_point_of_first_box, forth_point_of_second_box)
+                        L1 = self.calculate_distance_of_two_points_of_boxes(first_point_of_first_box, first_point_of_second_box)
+                        L2 = self.calculate_distance_of_two_points_of_boxes(second_point_of_first_box, second_point_of_second_box)
+                        L3 = self.calculate_distance_of_two_points_of_boxes(third_point_of_first_box, third_point_of_second_box)
+                        L4 = self.calculate_distance_of_two_points_of_boxes(forth_point_of_first_box, forth_point_of_second_box)
                         
                         L = min(L1, L2, L3, L4)
                     elif ( int(self.dist_method) == 1 ):
                         center_of_first_box = [nn_out[i]["centroidReal"][0],nn_out[i]["centroidReal"][1],nn_out[i]["centroidReal"][3]]
                         center_of_second_box = [nn_out[j]["centroidReal"][0],nn_out[j]["centroidReal"][1],nn_out[j]["centroidReal"][3]]
 
-                        L = self.calculate_distance_from_two_points(center_of_first_box, center_of_second_box) 
+                        L = self.calculate_distance_of_two_points_of_boxes(center_of_first_box, center_of_second_box) 
                 distanceRow.append(L)    
             distances.append(distanceRow)
         return distances 
