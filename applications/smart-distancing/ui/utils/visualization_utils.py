@@ -391,38 +391,6 @@ def visualize_boxes_and_labels_on_image_array(
     return image
 
 
-
-def checkDistance(nn_out):
-
-    # unNormalize centroid of boxes!
-    w,h = 1920,1280
-
-    for obj in nn_out:
-        centroidBox = obj["centroid"]
-        xc = centroidBox[0]*w
-        yc = centroidBox[1]*h
-        wc = centroidBox[2]*w
-        hc = centroidBox[3]*h
-        obj["centroidReal"]=[xc, yc, wc, hc]
-    distance = [] 
-    for i in range(len(nn_out)):
-        distanceRow=[]
-        for j in range(len(nn_out)):
-            first_box = nn_out[i]["centroidReal"]
-            second_box = nn_out[j]["centroidReal"]
-            [xc1, yc1, w1, h1] = first_box
-            [xc2, yc2, w2, h2] = second_box
-
-            Dx = xc2 - xc1
-            Dy = yc2 - yc1
-            Lx = Dx * 170 * (1/h1 + 1/h2)/2
-            Ly = Dy * 170 * (1/h1 + 1/h2)/2
-            L=math.sqrt(Lx**2+Ly**2)
-            distanceRow.append(L)
-        distance.append(distanceRow)
- 
-    return distance 
-
 def visualization_preparation(nn_out, distances, dist_threshold):
     """
     prepare the objects boxes and id in order to visualize
@@ -439,14 +407,13 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     detection_scores = []
     detection_boxes = []
     colors = []
-
-    # distance = np.amin(distances + np.identity(len(distances)) * 2., 0)
-    distances = checkDistance(nn_out)
+    
     distance = np.amin(distances + np.identity(len(distances)) * 1000, 0)
     for i, obj in enumerate(nn_out):
         # Colorizing bounding box based on the distances between them
         # R = 255 when dist=0 and R = 0 when dist > dist_threshold
-        r_channel = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0)
+        redness_factor = 1.5
+        r_channel = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0) * redness_factor
         g_channel = 255 - r_channel
         b_channel = 0
         # Create a tuple object of colors

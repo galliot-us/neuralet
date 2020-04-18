@@ -30,7 +30,7 @@ class WebGUI:
         self._host = self.config.get_section_dict("App")["Host"]
         self._port = int(self.config.get_section_dict("App")["Port"])
         self.app = self.create_flask_app()
-        self._dist_threshold = float(self.config.get_section_dict("Detector")["DistThreshold"])
+        self._dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
 
     def update(self, input_frame, nn_out, distances):
         """
