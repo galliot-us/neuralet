@@ -79,15 +79,12 @@ class Distancing:
             return
 
         self.running_video = True
-        out = cv.VideoWriter('outpy.avi',cv.VideoWriter_fourcc('H','2','6','4'), 20, (640, 480))
 
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             cv_image, objects, distancings = self.__process(cv_image)
-            out.write(cv_image)
 
             self.ui.update(cv_image, objects, distancings)
-        out.release()
         input_cap.release()
         self.running_video = False
 
