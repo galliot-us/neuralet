@@ -83,4 +83,3 @@ class Logger:
         violating_objects = np.argwhere(
             triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
         return violating_objects
-
