@@ -7,6 +7,7 @@ from flask import render_template
 from flask import Response
 
 from .utils import visualization_utils as vis_util
+from tools.objects_post_process import extract_violating_objects
 
 category_index = {0: {
     "id": 0,
@@ -33,7 +34,7 @@ class WebGUI:
         self._port = int(self.config.get_section_dict("App")["Port"])
         self.app = self.create_flask_app()
         self._dist_threshold = float(self.config.get_section_dict("Detector")["DistThreshold"])
-        self._displayed_items = {}  # all items here will be used at ui webpage
+        self._displayed_items = {}  # All items here will be used at ui webpage
 
         # TODO: read from config file
         file_name = str(date.today()) + '.csv'
@@ -74,10 +75,20 @@ class WebGUI:
         # Put fps to the frame
         # region
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
-        txt = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps)
+        txt_fps = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps)
         # (0, 0) is the top-left (x,y)
         origin = (10, 470)
-        vis_util.text_putter(input_frame, txt, origin)
+        vis_util.text_putter(input_frame, txt_fps, origin)
+        # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
+        # endregion
+
+        # Put environment score to the frame
+        # region
+        # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
+        env_score = extract_violating_objects(nn_out, distances)
+        txt_env_score = 'Env Score = ' + str(env_score)  # Env Score = 0.7
+        origin = (10, 490)
+        vis_util.text_putter(input_frame, txt_env_score, origin)
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
         # endregion
 
