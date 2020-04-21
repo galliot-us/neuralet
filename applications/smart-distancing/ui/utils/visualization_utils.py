@@ -407,6 +407,7 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     detection_classes = []
     detection_scores = []
     detection_boxes = []
+    is_violating = []
     colors = []
 
     distance = np.amin(distances + np.identity(len(distances)) * 2., 0)
@@ -432,9 +433,11 @@ def visualization_preparation(nn_out, distances, dist_threshold):
         detection_scores.append(score)
         detection_boxes.append(box)
         colors.append(color)
+        is_violating.append(True) if distance[i] < dist_threshold else is_violating.append(False)
     output_dict["detection_boxes"] = np.array(detection_boxes)
     output_dict["detection_scores"] = detection_scores
     output_dict["detection_classes"] = detection_classes
+    output_dict["violating_objects"] = is_violating
     output_dict["detection_colors"] = colors
     return output_dict
 
