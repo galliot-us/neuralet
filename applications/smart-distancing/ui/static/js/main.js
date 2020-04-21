@@ -16,14 +16,14 @@ function processData(allRows) {
     makePlotlyEnvScore(x1, env_score)
 }
 function makePlotlyEnvScore(x, y) {
-    var score = {
+	var score = {
         x: x,
         y: y,
         fill: 'tozeroy',
         type: 'scatter',
         name: 'Environment Score'
     };
-        Plotly.newPlot('envScore', score,
+        Plotly.newPlot('envScore', [score],
         {title: 'Plotting log data Physical Distancing - Environment Score'});
 }
 function makePlotly(x1, y1, y2) {
