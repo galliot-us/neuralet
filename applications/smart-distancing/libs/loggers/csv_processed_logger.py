@@ -2,6 +2,7 @@ import csv
 import os
 from datetime import date, datetime
 from tools.environment_score import mx_environment_scoring_consider_crowd
+from tools.objects_post_process import extract_violating_objects
 
 import numpy as np
 
@@ -22,6 +23,7 @@ class Logger:
         self.log_directory = config.get_section_dict("Logger")["LogDirectory"]
         # A directory inside the log_directory that stores object log files.
         self.objects_log_directory = os.path.join(self.log_directory, "objects_log")
+        self.dist_threshold = config.get_section_dict("Detector")["DistThreshold"]
 
         if not os.path.exists(self.log_directory):
             os.mkdir(self.log_directory)
@@ -54,7 +56,7 @@ class Logger:
 
         """
 
-        violating_objects = self.extract_violating_objects(distances)
+        violating_objects = extract_violating_objects(distances, self.dist_threshold)
         # Get the number of violating objects (people)
         no_violating_objects = len(violating_objects)
         # Get the number of detected objects (people)
@@ -75,18 +77,3 @@ class Logger:
             writer.writerow(
                 {'Timestamp': current_time, 'DetectedObjects': no_detected_objects,
                  'ViolatingObjects': no_violating_objects, 'EnvironmentScore': environment_score})
-
-    def extract_violating_objects(self, distances):
-        """Extract pair of objects that are closer than the distance threshold.
-
-        Args:
-            distances: A 2-d numpy array that stores distance between each pair of objects.
-
-        Returns:
-            violating_objects: A 2-d numpy array where each row is the ids of the objects that violated the social distancing.
-
-        """
-        triu_distances = np.triu(distances) + np.tril(10 * np.ones(distances.shape))
-        violating_objects = np.argwhere(
-            triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
-        return violating_objects
