@@ -79,7 +79,6 @@ class Distancing:
             return
 
         self.running_video = True
-
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             cv_image, objects, distancings = self.__process(cv_image)
@@ -203,16 +202,18 @@ class Distancing:
     def calculate_distance_of_two_points_of_boxes(self,first_point, second_point):
     
         """
-        this function calculates a distance L for two input corresponding points of two detected bounding boxes.
+        This function calculates a distance L for two input corresponding points of two detected bounding boxes.
         it is assumed that each person is H = 170 cm tall in real scene to map the distances in the image (in pixels) to 
         physical distance measures (in meters). 
 
         params:
-        first_point: a tuple of x,y of a point of bbox (center or each of 4 corners) and h which height of bbox.
-        second_point: same as first_point for the corresponding point of other box 
+        first_point: (x, y, h)-tuple, where x,y is the location of a point (center or each of 4 corners of a bounding box)
+        and h is the height of the bounding box. 
+        second_point: same tuple as first_point for the corresponding point of other box 
 
         returns:
-        L:  estimated distance between corresponding points of i-th and j-th bounding box in real scene (cm)
+        L:  Estimated physical distance (in centimeters) between first_point and second_point.
+
 
         """
 
@@ -234,8 +235,8 @@ class Distancing:
     def calculate_box_distances(self, nn_out):
         
         """
-        this function calculates a distance matrix for detected bounding boxes.
-        two methods are implemented to calculate the distances, first one estimates distance of center points of the
+        This function calculates a distance matrix for detected bounding boxes.
+        Two methods are implemented to calculate the distances, first one estimates distance of center points of the
         boxes and second one uses minimum distance of each of 4 points of bounding boxes.
 
         params:

@@ -408,7 +408,7 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     detection_boxes = []
     colors = []
     
-    distance = np.amin(distances + np.identity(len(distances)) * 1000, 0)
+    distance = np.amin(distances + np.identity(len(distances)) * dist_threshold * 2, 0)
     for i, obj in enumerate(nn_out):
         # Colorizing bounding box based on the distances between them
         # R = 255 when dist=0 and R = 0 when dist > dist_threshold
