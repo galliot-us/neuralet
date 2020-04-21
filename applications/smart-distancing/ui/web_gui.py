@@ -1,6 +1,7 @@
 import threading
 import time
 import cv2 as cv
+from datetime import date
 from flask import Flask
 from flask import render_template
 from flask import Response
@@ -19,7 +20,8 @@ class WebGUI:
     Once it is created it will act as a central application for viewing outputs.
 
     :param config: Is a ConfigEngine instance which provides necessary parameters.
-    :param engine_instance:
+    :param engine_instance:  A ConfigEngine object which store all of the config parameters. Access to any parameter
+        is possible by calling get_section_dict method.
     """
 
     def __init__(self, config, engine_instance):
@@ -33,11 +35,15 @@ class WebGUI:
         self._dist_threshold = float(self.config.get_section_dict("Detector")["DistThreshold"])
         self._displayed_items = {}  # all items here will be used at ui webpage
 
+        # TODO: read from config file
+        file_name = str(date.today()) + '.csv'
+        self.objects_log = './static/data/objects_log/' + file_name
+
     def update(self, input_frame, nn_out, distances):
         """
         Args:
             input_frame: uint8 numpy array with shape (img_height, img_width, 3)
-            nn_out: a list of dicionary contains normalized numbers of bounding boxes 
+            nn_out: List of dicionary contains normalized numbers of bounding boxes
             {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
             distances: a symmetric matrix of normalized distances
 
@@ -68,7 +74,7 @@ class WebGUI:
         # Put fps to the frame
         # region
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
-        txt = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps) 
+        txt = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps)
         # (0, 0) is the top-left (x,y)
         origin = (10, 470)
         vis_util.text_putter(input_frame, txt, origin)
@@ -95,6 +101,12 @@ class WebGUI:
             return Response(
                 self._generate(), mimetype="multipart/x-mixed-replace; boundary=frame"
             )
+
+        @app.route("/visualize_logs", methods=['GET'])
+        def visualizer_page():
+            # Render a html file located at templates as home page
+            path = [self.objects_log]
+            return render_template("visualizer.html", csv_path=path)
 
         return app
 
