@@ -53,7 +53,7 @@ class WebGUI:
         Returns:
             draw the bounding boxes to an output frame
         """
-        birds_eye_window = np.zeros((200, 150, 3), dtype = "uint8")
+        birds_eye_window = np.zeros((200, 150, 3), dtype="uint8")
         # Get a proper dictionary of bounding boxes and colors for visualizing_boxes_and_labels_on_image_array function
         output_dict = vis_util.visualization_preparation(nn_out, distances, self._dist_threshold)
         # Draw bounding boxes and other visualization factors on input_frame
@@ -68,8 +68,8 @@ class WebGUI:
             use_normalized_coordinates=True,
             line_thickness=3,
         )
-        print(output_dict["violating_objects"])
-        print(output_dict["detection_boxes"])
+
+        vis_util.birds_eye_view(birds_eye_window, output_dict["detection_boxes"], output_dict["violating_objects"])
         try:
             self._displayed_items['fps'] = self.__ENGINE_INSTANCE.detector.fps
         except:
