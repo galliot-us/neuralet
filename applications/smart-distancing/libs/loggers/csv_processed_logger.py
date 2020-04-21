@@ -1,6 +1,7 @@
 import csv
 import os
 from datetime import date, datetime
+from libs.tools.environment_score import mx_environment_scoring_consider_crowd
 
 import numpy as np
 
@@ -54,20 +55,26 @@ class Logger:
         """
 
         violating_objects = self.extract_violating_objects(distances)
+        # Get the number of violating objects (people)
+        no_violating_objects = len(violating_objects)
+        # Get the number of detected objects (people)
+        no_detected_objects = len(objects_list)
+        # Get environment score
+        environment_score = mx_environment_scoring_consider_crowd(no_detected_objects, no_violating_objects)
         # Get timeline which is used for as Timestamp
         now = datetime.now()
         current_time = now.strftime("%Y-%m-%d %H:%M:%S")
         file_exists = os.path.isfile(file_path)
         with open(file_path, "a") as csvfile:
-            headers = ["Timestamp", "DetectedObjects", "ViolatingObjects"]
+            headers = ["Timestamp", "DetectedObjects", "ViolatingObjects", "EnvironmentScore"]
             writer = csv.DictWriter(csvfile, fieldnames=headers)
 
             if not file_exists:
                 writer.writeheader()
 
             writer.writerow(
-                {'Timestamp': current_time, 'DetectedObjects': len(objects_list),
-                 'ViolatingObjects': len(violating_objects)})
+                {'Timestamp': current_time, 'DetectedObjects': no_detected_objects,
+                 'ViolatingObjects': no_violating_objects, 'EnvironmentScore': environment_score})
 
     def extract_violating_objects(self, distances):
         """Extract pair of objects that are closer than the distance threshold.
