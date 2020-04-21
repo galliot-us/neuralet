@@ -1,7 +1,7 @@
 import csv
 import os
 from datetime import date, datetime
-from libs.tools.environment_score import mx_environment_scoring_consider_crowd
+from tools.environment_score import mx_environment_scoring_consider_crowd
 
 import numpy as np
 
