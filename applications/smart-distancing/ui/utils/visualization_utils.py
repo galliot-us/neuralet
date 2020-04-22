@@ -445,12 +445,12 @@ def visualization_preparation(nn_out, distances, dist_threshold):
 def birds_eye_view(input_frame, boxes, is_violating):
     h, w = input_frame.shape[0:2]
     for i, box in enumerate(boxes):
-        center_x = int((box[0] + box[2]) / 2) * w
-        center_y = int((box[1] + box[3]) / 2) * h
+        center_x = int((box[0] * w + box[2] * w) / 2)
+        center_y = int((box[1] * h + box[3] * h) / 2)
         center_coordinates = (center_x, center_y)
         color = (0, 0, 255) if is_violating[i] else (0, 255, 0)
-        cv.circle(input_frame, center_coordinates, 2, color, 2)
-
+        input_frame = cv.circle(input_frame, center_coordinates, 2, color, 2)
+    return input_frame
 
 def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), thickness=2):
     """
