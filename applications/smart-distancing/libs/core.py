@@ -4,6 +4,7 @@ import numpy as np
 import math
 from libs.centroid_object_tracker import CentroidTracker
 from scipy.spatial import distance as dist
+from libs.loggers.loggers import Logger
 
 
 class Distancing:
@@ -16,6 +17,7 @@ class Distancing:
         self.running_video = False
         self.tracker = CentroidTracker(
             max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
+        self.logger = Logger(self.config)
         if self.device == 'Jetson':
             from libs.detectors.jetson.detector import Detector
             self.detector = Detector(self.config)
@@ -82,7 +84,7 @@ class Distancing:
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             cv_image, objects, distancings = self.__process(cv_image)
-
+            self.logger.update(objects, distancings)
             self.ui.update(cv_image, objects, distancings)
         input_cap.release()
         self.running_video = False
@@ -194,7 +196,7 @@ class Distancing:
             overlap = (w * h) / area[idxs[:last]]
             # delete all indexes from the index list that have
             idxs = np.delete(idxs, np.concatenate(([last],
-                                                  np.where(overlap > overlapThresh)[0])))
+                                                   np.where(overlap > overlapThresh)[0])))
         updated_object_list = [j for i, j in enumerate(object_list) if i in pick]
         return updated_object_list
 
@@ -251,7 +253,7 @@ class Distancing:
 
         distances = []
         for i in range(len(nn_out)):
-            distanceRow=[]
+            distance_row=[]
             for j in range(len(nn_out)):
                 if i == j:
                     L = 0
@@ -278,9 +280,10 @@ class Distancing:
                         center_of_second_box = [nn_out[j]["centroidReal"][0],nn_out[j]["centroidReal"][1],nn_out[j]["centroidReal"][3]]
 
                         L = self.calculate_distance_of_two_points_of_boxes(center_of_first_box, center_of_second_box) 
-                distanceRow.append(L)    
-            distances.append(distanceRow)
-        return distances 
+                distance_row.append(L)    
+            distances.append(distance_row)
+        distances_asarray = np.asarray(distances, dtype=np.float32)
+        return distances_asarray
 
 
 

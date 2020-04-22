@@ -23,7 +23,7 @@ class Detector:
         self.model_name = self.config.get_section_dict('Detector')['Name']
         # Frames Per Second
         self.fps = None
-        self.model_file = 'mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
+        self.model_file = 'ped_ssdlite_mobilenet_v2_quantized_edgetpu.tflite'
         self.model_path = 'libs/detectors/edgetpu/data/' + self.model_file
 
         # Get the model .tflite file path from the config.
