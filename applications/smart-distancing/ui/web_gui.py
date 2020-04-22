@@ -31,6 +31,7 @@ class WebGUI:
         self.config = config
         self.__ENGINE_INSTANCE = engine_instance
         self._output_frame = None
+        self._birds_view = None
         self._lock = threading.Lock()
         self._host = self.config.get_section_dict("App")["Host"]
         self._port = int(self.config.get_section_dict("App")["Port"])
@@ -69,7 +70,7 @@ class WebGUI:
             line_thickness=3,
         )
 
-        vis_util.birds_eye_view(birds_eye_window, output_dict["detection_boxes"], output_dict["violating_objects"])
+        birds_eye_window = vis_util.birds_eye_view(birds_eye_window, output_dict["detection_boxes"], output_dict["violating_objects"])
         try:
             self._displayed_items['fps'] = self.__ENGINE_INSTANCE.detector.fps
         except:
@@ -100,6 +101,7 @@ class WebGUI:
         # Lock the main thread and copy input_frame to output_frame
         with self._lock:
             self._output_frame = input_frame.copy()
+            self._birds_view = birds_eye_window.copy()
 
     def create_flask_app(self):
         # Create and return a flask instance named 'app'
@@ -115,7 +117,15 @@ class WebGUI:
             # Return the response generated along with the specific media
             # Type (mime type)
             return Response(
-                self._generate(), mimetype="multipart/x-mixed-replace; boundary=frame"
+                self._generate(1), mimetype="multipart/x-mixed-replace; boundary=frame"
+            )
+
+        @app.route("/birds_view_feed")
+        def birds_view_feed():
+            # Return the response generated along with the specific media
+            # Type (mime type)
+            return Response(
+                self._generate(2), mimetype="multipart/x-mixed-replace; boundary=frame"
             )
 
         @app.route("/visualize_logs", methods=['GET'])
@@ -126,7 +136,7 @@ class WebGUI:
 
         return app
 
-    def _generate(self):
+    def _generate(self,i):
         # Yield and encode output_frame for flask the response object that is used by default in Flask
 
         while True:
@@ -135,17 +145,23 @@ class WebGUI:
                 # The iteration of the loop
                 if self._output_frame is None:
                     continue
-                # Encode the frame in JPEG format
-                (flag, encodedImage) = cv.imencode(".jpeg", self._output_frame)
+                # Encode the frames in JPEG format
+                (flag, encoded_birds_eye_img) = cv.imencode(".jpeg", self._birds_view)
+                (flag, encoded_input_img) = cv.imencode(".jpeg", self._output_frame)
                 # Ensure the frame was successfully encoded
                 if not flag:
                     continue
 
             # Yield the output frame in the byte format
-            yield (
+            encoded_input_frame = (
                     b"--frame\r\n"
-                    b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encodedImage) + b"\r\n"
-            )
+                    b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_input_img) + b"\r\n")
+            
+            encoded_birds_eye_frame = (
+                    b"--frame\r\n"
+                    b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_birds_eye_img) + b"\r\n")
+            
+            yield encoded_input_frame if i == 1 else  encoded_birds_eye_frame
 
     def _run(self):
         self.app.run(
