@@ -54,7 +54,8 @@ class WebGUI:
         Returns:
             draw the bounding boxes to an output frame
         """
-        birds_eye_window = np.zeros((200, 150, 3), dtype="uint8")
+        # Create a black window for birds' eye view the size of window is constant (300, 200, 3)
+        birds_eye_window = np.zeros((300, 200, 3), dtype="uint8")
         # Get a proper dictionary of bounding boxes and colors for visualizing_boxes_and_labels_on_image_array function
         output_dict = vis_util.visualization_preparation(nn_out, distances, self._dist_threshold)
         # Draw bounding boxes and other visualization factors on input_frame
@@ -70,7 +71,8 @@ class WebGUI:
             line_thickness=3,
         )
 
-        birds_eye_window = vis_util.birds_eye_view(birds_eye_window, output_dict["detection_boxes"], output_dict["violating_objects"])
+        birds_eye_window = vis_util.birds_eye_view(birds_eye_window, output_dict["detection_boxes"],
+                                                   output_dict["violating_objects"])
         try:
             self._displayed_items['fps'] = self.__ENGINE_INSTANCE.detector.fps
         except:
@@ -136,9 +138,15 @@ class WebGUI:
 
         return app
 
-    def _generate(self,i):
-        # Yield and encode output_frame for flask the response object that is used by default in Flask
+    def _generate(self, out_frame: int):
+        """
+        Args:
+            out_frame: The name of required frame. out_frame = 1 encoded camera/video frame otherwise
+            encoded birds-eye window
 
+        Returns:
+            Yield and encode output_frame for flask the response object that is used by default in Flask
+        """
         while True:
             with self._lock:
                 # Check if the output frame is available, otherwise skip
@@ -160,8 +168,8 @@ class WebGUI:
             encoded_birds_eye_frame = (
                     b"--frame\r\n"
                     b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_birds_eye_img) + b"\r\n")
-            
-            yield encoded_input_frame if i == 1 else  encoded_birds_eye_frame
+
+            yield encoded_input_frame if out_frame == 1 else encoded_birds_eye_frame
 
     def _run(self):
         self.app.run(
