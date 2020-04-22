@@ -36,8 +36,6 @@ class Logger:
 
         Args:
             objects_list: List of dictionary where each dictionary stores information of an object (person) in a frame.
-            Distances: A 2-d numpy array that stores distance between each
-        pair of objects.
             distances: A 2-d numpy array that stores distance between each pair of objects.
         """
         file_name = str(date.today())
