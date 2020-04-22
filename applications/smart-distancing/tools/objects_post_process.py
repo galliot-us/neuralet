@@ -1,5 +1,5 @@
 """
-Documentation after implementing
+This module includes set of functions that apply as a post-processing to the detectors output
 """
 import numpy as np
 
@@ -16,6 +16,5 @@ def extract_violating_objects(distances, dist_threshold):
 
     """
     triu_distances = np.triu(distances) + np.tril(10 * np.ones(distances.shape))
-    violating_objects = np.argwhere(
-        triu_distances < float(dist_threshold))
+    violating_objects = np.argwhere(triu_distances < float(dist_threshold))
     return violating_objects
