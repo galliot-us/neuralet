@@ -8,7 +8,9 @@ MAX_ACCEPTABLE_CAPACITY = 20  # The maximum number of people that can stand as f
 MAX_CAPACITY = 60  # The maximum number of people in the environment
 
 
-def mx_environment_scoring_consider_crowd(detected_pedestrians: int, violated_pedestrians: int) -> np.float64:
+def mx_environment_scoring_consider_crowd(
+    detected_pedestrians: int, violated_pedestrians: int
+) -> np.float64:
     """
     This function calculates the environment score based on the crowd and acceptable number of objects, and violating
     objects. The maximum capacity is considered for determining how the environment situation is critical.
@@ -22,7 +24,12 @@ def mx_environment_scoring_consider_crowd(detected_pedestrians: int, violated_pe
 
     """
     env_score = 1 - np.minimum(
-        ((violated_pedestrians + detected_pedestrians) / (MAX_CAPACITY + MAX_ACCEPTABLE_CAPACITY)), 1)
+        (
+            (violated_pedestrians + detected_pedestrians)
+            / (MAX_CAPACITY + MAX_ACCEPTABLE_CAPACITY)
+        ),
+        1,
+    )
     env_score = np.round(env_score, 2)
     return env_score
 
