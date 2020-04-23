@@ -204,7 +204,7 @@ class Distancing:
     def calculate_distance_of_two_points_of_boxes(self,first_point, second_point):
     
         """
-        This function calculates a distance L for two input corresponding points of two detected bounding boxes.
+        This function calculates a distance l for two input corresponding points of two detected bounding boxes.
         it is assumed that each person is H = 170 cm tall in real scene to map the distances in the image (in pixels) to 
         physical distance measures (in meters). 
 
@@ -214,7 +214,7 @@ class Distancing:
         second_point: same tuple as first_point for the corresponding point of other box 
 
         returns:
-        L:  Estimated physical distance (in centimeters) between first_point and second_point.
+        l:  Estimated physical distance (in centimeters) between first_point and second_point.
 
 
         """
@@ -223,15 +223,15 @@ class Distancing:
         [xc1, yc1, h1] = first_point
         [xc2, yc2, h2] = second_point
         
-        Dx = xc2 - xc1
-        Dy = yc2 - yc1
+        dx = xc2 - xc1
+        dy = yc2 - yc1
         
-        Lx = Dx * 170 * (1/h1 + 1/h2)/2
-        Ly = Dy * 170 * (1/h1 + 1/h2)/2
+        lx = dx * 170 * (1/h1 + 1/h2)/2
+        ly = dy * 170 * (1/h1 + 1/h2)/2
         
-        L=math.sqrt(Lx**2+Ly**2)
+        l=math.sqrt(lx**2+ly**2)
         
-        return L 
+        return l 
 
 
     def calculate_box_distances(self, nn_out):
@@ -256,31 +256,31 @@ class Distancing:
             distance_row=[]
             for j in range(len(nn_out)):
                 if i == j:
-                    L = 0
+                    l = 0
                 else:
-                    if ( int(self.dist_method) == 2 ):
-                        first_point_of_first_box = [nn_out[i]["bboxReal"][0],nn_out[i]["bboxReal"][1],nn_out[i]["bboxReal"][3]-nn_out[i]["bboxReal"][1]]
-                        second_point_of_first_box = [nn_out[i]["bboxReal"][2],nn_out[i]["bboxReal"][1],nn_out[i]["bboxReal"][3]-nn_out[i]["bboxReal"][1]]
-                        third_point_of_first_box = [nn_out[i]["bboxReal"][0],nn_out[i]["bboxReal"][3],nn_out[i]["bboxReal"][3]-nn_out[i]["bboxReal"][1]]
-                        forth_point_of_first_box = [nn_out[i]["bboxReal"][2],nn_out[i]["bboxReal"][3],nn_out[i]["bboxReal"][3]-nn_out[i]["bboxReal"][1]]
+                    if ( self.dist_method == 'FourCornerPointsDistance' ):
+                        lower_left_of_first_box = [nn_out[i]["bboxReal"][0],nn_out[i]["bboxReal"][1],nn_out[i]["centroidReal"][3]]
+                        lower_right_of_first_box = [nn_out[i]["bboxReal"][2],nn_out[i]["bboxReal"][1],nn_out[i]["centroidReal"][3]]
+                        upper_left_of_first_box = [nn_out[i]["bboxReal"][0],nn_out[i]["bboxReal"][3],nn_out[i]["centroidReal"][3]]
+                        upper_right_of_first_box = [nn_out[i]["bboxReal"][2],nn_out[i]["bboxReal"][3],nn_out[i]["centroidReal"][3]]
                         
-                        first_point_of_second_box = [nn_out[j]["bboxReal"][0],nn_out[j]["bboxReal"][1],nn_out[j]["bboxReal"][3]-nn_out[j]["bboxReal"][1]]
-                        second_point_of_second_box = [nn_out[j]["bboxReal"][2],nn_out[j]["bboxReal"][1],nn_out[j]["bboxReal"][3]-nn_out[j]["bboxReal"][1]]
-                        third_point_of_second_box = [nn_out[j]["bboxReal"][0],nn_out[j]["bboxReal"][3],nn_out[j]["bboxReal"][3]-nn_out[j]["bboxReal"][1]]
-                        forth_point_of_second_box = [nn_out[j]["bboxReal"][2],nn_out[j]["bboxReal"][3],nn_out[j]["bboxReal"][3]-nn_out[j]["bboxReal"][1]]
+                        lower_left_of_second_box = [nn_out[j]["bboxReal"][0],nn_out[j]["bboxReal"][1],nn_out[j]["centroidReal"][3]]
+                        lower_right_of_second_box = [nn_out[j]["bboxReal"][2],nn_out[j]["bboxReal"][1],nn_out[j]["centroidReal"][3]]
+                        upper_left_of_second_box = [nn_out[j]["bboxReal"][0],nn_out[j]["bboxReal"][3],nn_out[j]["centroidReal"][3]]
+                        upper_right_of_second_box = [nn_out[j]["bboxReal"][2],nn_out[j]["bboxReal"][3],nn_out[j]["centroidReal"][3]]
 
-                        L1 = self.calculate_distance_of_two_points_of_boxes(first_point_of_first_box, first_point_of_second_box)
-                        L2 = self.calculate_distance_of_two_points_of_boxes(second_point_of_first_box, second_point_of_second_box)
-                        L3 = self.calculate_distance_of_two_points_of_boxes(third_point_of_first_box, third_point_of_second_box)
-                        L4 = self.calculate_distance_of_two_points_of_boxes(forth_point_of_first_box, forth_point_of_second_box)
+                        l1 = self.calculate_distance_of_two_points_of_boxes(lower_left_of_first_box, lower_left_of_second_box)
+                        l2 = self.calculate_distance_of_two_points_of_boxes(lower_right_of_first_box, lower_right_of_second_box)
+                        l3 = self.calculate_distance_of_two_points_of_boxes(upper_left_of_first_box, upper_left_of_second_box)
+                        l4 = self.calculate_distance_of_two_points_of_boxes(upper_right_of_first_box, upper_right_of_second_box)
                         
-                        L = min(L1, L2, L3, L4)
-                    elif ( int(self.dist_method) == 1 ):
+                        l = min(l1, l2, l3, l4)
+                    elif ( self.dist_method == 'CenterPointsDistance' ):
                         center_of_first_box = [nn_out[i]["centroidReal"][0],nn_out[i]["centroidReal"][1],nn_out[i]["centroidReal"][3]]
                         center_of_second_box = [nn_out[j]["centroidReal"][0],nn_out[j]["centroidReal"][1],nn_out[j]["centroidReal"][3]]
 
-                        L = self.calculate_distance_of_two_points_of_boxes(center_of_first_box, center_of_second_box) 
-                distance_row.append(L)    
+                        l = self.calculate_distance_of_two_points_of_boxes(center_of_first_box, center_of_second_box) 
+                distance_row.append(l)    
             distances.append(distance_row)
         distances_asarray = np.asarray(distances, dtype=np.float32)
         return distances_asarray
