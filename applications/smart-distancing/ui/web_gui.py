@@ -70,7 +70,7 @@ class WebGUI:
             use_normalized_coordinates=True,
             line_thickness=3,
         )
-
+        # TODO: Implement perspective view for objects
         birds_eye_window = vis_util.birds_eye_view(birds_eye_window, output_dict["detection_boxes"],
                                                    output_dict["violating_objects"])
         try:
@@ -164,7 +164,7 @@ class WebGUI:
             encoded_input_frame = (
                     b"--frame\r\n"
                     b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_input_img) + b"\r\n")
-            
+
             encoded_birds_eye_frame = (
                     b"--frame\r\n"
                     b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_birds_eye_img) + b"\r\n")
