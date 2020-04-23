@@ -57,7 +57,7 @@ def mx_environment_scoring(violating_pedestrians: int) -> np.float64:
     This function calculates the environment score based on acceptable number of object in an environment,
     and the violating objects.
     This function returns 0 if the number of violating people will be equal to MAX_ACCEPTABLE_CAPACITY
-    
+
     Args:
         violating_pedestrians: Number of violating objects (people)
 
