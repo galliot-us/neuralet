@@ -25,6 +25,9 @@ class Distancing:
             self.detector = Detector(self.config)
         elif self.device == 'Dummy':
             self.detector = None
+        elif self.device == 'x86':
+            from libs.detectors.x86.detector import Detector
+            self.detector = Detector(self.config)
 
         self.image_size = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
 

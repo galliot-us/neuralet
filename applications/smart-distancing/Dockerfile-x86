@@ -1,0 +1,15 @@
+FROM tensorflow/tensorflow:latest-py3
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev
+
+COPY requirements.txt .
+RUN pip install --upgrade pip setuptools==41.0.0 && pip install -r requirements.txt
+
+COPY . /app
+
+EXPOSE 8000
+
+ENTRYPOINT ["python", "neuralet-distancing.py"]
+CMD ["--config", "config-x86.ini"]
