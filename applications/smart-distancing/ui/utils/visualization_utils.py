@@ -473,11 +473,13 @@ def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), th
     Args:
         input_frame: The source image, is an RGB image.
         txt: The specific text string for drawing.
-        origin: Top-left corner of the text string in the image.
+        origin: Top-left corner of the text string in the image. The resolution should be normalized between 0-1
         fontscale: Font scale factor that is multiplied by the font-specific base size.
         color: Text Color. (BGR format)
         thickness: Thickness of the lines used to draw a text.
     """
+    resolution = input_frame.shape
+    origin = int(resolution[0] * origin[0]), int(resolution[1] * origin[1])
     font = cv.FONT_HERSHEY_SIMPLEX
     cv.putText(input_frame, txt, origin, font, fontscale,
                color, thickness, cv.LINE_AA)
