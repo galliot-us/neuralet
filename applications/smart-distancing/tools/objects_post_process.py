@@ -15,6 +15,6 @@ def extract_violating_objects(distances, dist_threshold):
         violating_objects: A 2-d numpy array where each row is the ids of the objects that violated the social distancing.
 
     """
-    triu_distances = np.triu(distances) + np.tril(10 * np.ones(distances.shape))
+    triu_distances = np.triu(distances) + np.tril((float(dist_threshold) + 1) * np.ones(distances.shape))
     violating_objects = np.argwhere(triu_distances < float(dist_threshold))
     return violating_objects
