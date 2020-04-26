@@ -1,12 +1,15 @@
 import threading
 import time
 import cv2 as cv
+import numpy as np
 from datetime import date
 from flask import Flask
 from flask import render_template
 from flask import Response
 
 from .utils import visualization_utils as vis_util
+from tools.objects_post_process import extract_violating_objects
+from tools.environment_score import mx_environment_scoring_consider_crowd
 
 category_index = {0: {
     "id": 0,
@@ -28,6 +31,7 @@ class WebGUI:
         self.config = config
         self.__ENGINE_INSTANCE = engine_instance
         self._output_frame = None
+        self._birds_view = None
         self._lock = threading.Lock()
         self._host = self.config.get_section_dict("App")["Host"]
         self._port = int(self.config.get_section_dict("App")["Port"])
@@ -50,6 +54,8 @@ class WebGUI:
         Returns:
             draw the bounding boxes to an output frame
         """
+        # Create a black window for birds' eye view the size of window is constant (300, 200, 3)
+        birds_eye_window = np.zeros((300, 200, 3), dtype="uint8")
         # Get a proper dictionary of bounding boxes and colors for visualizing_boxes_and_labels_on_image_array function
         output_dict = vis_util.visualization_preparation(nn_out, distances, self._dist_threshold)
         # Draw bounding boxes and other visualization factors on input_frame
@@ -64,7 +70,9 @@ class WebGUI:
             use_normalized_coordinates=True,
             line_thickness=3,
         )
-
+        # TODO: Implement perspective view for objects
+        birds_eye_window = vis_util.birds_eye_view(birds_eye_window, output_dict["detection_boxes"],
+                                                   output_dict["violating_objects"])
         try:
             self._displayed_items['fps'] = self.__ENGINE_INSTANCE.detector.fps
         except:
@@ -74,16 +82,28 @@ class WebGUI:
         # Put fps to the frame
         # region
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
-        txt = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps)
-        # (0, 0) is the top-left (x,y)
-        origin = (10, 470)
-        vis_util.text_putter(input_frame, txt, origin)
+        txt_fps = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps)
+        # (0, 0) is the top-left (x,y); normalized number between 0-1
+        origin = (0.15, 0.93)
+        vis_util.text_putter(input_frame, txt_fps, origin)
+        # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
+        # endregion
+
+        # Put environment score to the frame
+        # region
+        # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
+        violating_objects = extract_violating_objects(distances, self._dist_threshold)
+        env_score = mx_environment_scoring_consider_crowd(len(nn_out), len(violating_objects))
+        txt_env_score = 'Env Score = ' + str(env_score)  # Env Score = 0.7
+        origin = (0.15, 0.98)
+        vis_util.text_putter(input_frame, txt_env_score, origin)
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
         # endregion
 
         # Lock the main thread and copy input_frame to output_frame
         with self._lock:
             self._output_frame = input_frame.copy()
+            self._birds_view = birds_eye_window.copy()
 
     def create_flask_app(self):
         # Create and return a flask instance named 'app'
@@ -99,7 +119,15 @@ class WebGUI:
             # Return the response generated along with the specific media
             # Type (mime type)
             return Response(
-                self._generate(), mimetype="multipart/x-mixed-replace; boundary=frame"
+                self._generate(1), mimetype="multipart/x-mixed-replace; boundary=frame"
+            )
+
+        @app.route("/birds_view_feed")
+        def birds_view_feed():
+            # Return the response generated along with the specific media
+            # Type (mime type)
+            return Response(
+                self._generate(2), mimetype="multipart/x-mixed-replace; boundary=frame"
             )
 
         @app.route("/visualize_logs", methods=['GET'])
@@ -110,26 +138,38 @@ class WebGUI:
 
         return app
 
-    def _generate(self):
-        # Yield and encode output_frame for flask the response object that is used by default in Flask
+    def _generate(self, out_frame: int):
+        """
+        Args:
+            out_frame: The name of required frame. out_frame = 1 encoded camera/video frame otherwise
+            encoded birds-eye window
 
+        Returns:
+            Yield and encode output_frame for flask the response object that is used by default in Flask
+        """
         while True:
             with self._lock:
                 # Check if the output frame is available, otherwise skip
                 # The iteration of the loop
                 if self._output_frame is None:
                     continue
-                # Encode the frame in JPEG format
-                (flag, encodedImage) = cv.imencode(".jpeg", self._output_frame)
+                # Encode the frames in JPEG format
+                (flag, encoded_birds_eye_img) = cv.imencode(".jpeg", self._birds_view)
+                (flag, encoded_input_img) = cv.imencode(".jpeg", self._output_frame)
                 # Ensure the frame was successfully encoded
                 if not flag:
                     continue
 
             # Yield the output frame in the byte format
-            yield (
+            encoded_input_frame = (
                     b"--frame\r\n"
-                    b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encodedImage) + b"\r\n"
-            )
+                    b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_input_img) + b"\r\n")
+
+            encoded_birds_eye_frame = (
+                    b"--frame\r\n"
+                    b"Content-Type: image/jpeg\r\n\r\n" + bytearray(encoded_birds_eye_img) + b"\r\n")
+
+            yield encoded_input_frame if out_frame == 1 else encoded_birds_eye_frame
 
     def _run(self):
         self.app.run(

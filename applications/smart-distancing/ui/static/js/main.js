@@ -5,15 +5,27 @@ function makeplot(objects_log_path) {
 }
 
 function processData(allRows) {
-    var x1 = [], y1 = [], y2 = [];
+    var x1 = [], y1 = [], y2 = [], env_score = [];
     allRows.forEach(function (element) {
         x1.push(element['Timestamp']);
         y1.push(element['DetectedObjects']);
-        y2.push(element['ViolatingObjects'])
+        y2.push(element['ViolatingObjects']);
+        env_score.push((element['EnvironmentScore']))
     });
     makePlotly(x1, y1, y2)
+    makePlotlyEnvScore(x1, env_score)
 }
-
+function makePlotlyEnvScore(x, y) {
+	var score = {
+        x: x,
+        y: y,
+        fill: 'tozeroy',
+        type: 'scatter',
+        name: 'Environment Score'
+    };
+        Plotly.newPlot('envScore', [score],
+        {title: 'Plotting log data Physical Distancing - Environment Score'});
+}
 function makePlotly(x1, y1, y2) {
     var detected_pedestrians = {
         x: x1,
