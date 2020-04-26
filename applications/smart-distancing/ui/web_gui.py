@@ -36,8 +36,8 @@ class WebGUI:
         self._host = self.config.get_section_dict("App")["Host"]
         self._port = int(self.config.get_section_dict("App")["Port"])
         self.app = self.create_flask_app()
-        self._dist_threshold = float(self.config.get_section_dict("Detector")["DistThreshold"])
-        self._displayed_items = {}  # All items here will be used at ui webpage
+        self._dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
+        self._displayed_items = {}  # all items here will be used at ui webpage
 
         # TODO: read from config file
         file_name = str(date.today()) + '.csv'
@@ -83,8 +83,8 @@ class WebGUI:
         # region
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
         txt_fps = 'Frames rate = ' + str(self._displayed_items['fps']) + '(fps)'  # Frames rate = 95 (fps)
-        # (0, 0) is the top-left (x,y)
-        origin = (10, 450)
+        # (0, 0) is the top-left (x,y); normalized number between 0-1
+        origin = (0.15, 0.93)
         vis_util.text_putter(input_frame, txt_fps, origin)
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
         # endregion
@@ -95,7 +95,7 @@ class WebGUI:
         violating_objects = extract_violating_objects(distances, self._dist_threshold)
         env_score = mx_environment_scoring_consider_crowd(len(nn_out), len(violating_objects))
         txt_env_score = 'Env Score = ' + str(env_score)  # Env Score = 0.7
-        origin = (10, 475)
+        origin = (0.15, 0.98)
         vis_util.text_putter(input_frame, txt_env_score, origin)
         # -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_- -_-
         # endregion
