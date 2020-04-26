@@ -73,5 +73,6 @@ class Logger:
                 writer.writeheader()
 
             writer.writerow(
+
                 {'Timestamp': current_time, 'DetectedObjects': no_detected_objects,
                  'ViolatingObjects': no_violating_objects, 'EnvironmentScore': environment_score})

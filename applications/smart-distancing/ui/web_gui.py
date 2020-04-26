@@ -36,8 +36,8 @@ class WebGUI:
         self._host = self.config.get_section_dict("App")["Host"]
         self._port = int(self.config.get_section_dict("App")["Port"])
         self.app = self.create_flask_app()
-        self._dist_threshold = float(self.config.get_section_dict("Detector")["DistThreshold"])
-        self._displayed_items = {}  # All items here will be used at ui webpage
+        self._dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
+        self._displayed_items = {}  # all items here will be used at ui webpage
 
         # TODO: read from config file
         file_name = str(date.today()) + '.csv'
