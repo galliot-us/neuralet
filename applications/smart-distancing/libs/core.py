@@ -120,7 +120,11 @@ class Distancing:
             item["id"] = item["id"].split("-")[0] + "-" + str(i)
 
         centroids = np.array([obj["centroid"] for obj in new_objects_list])
-        distances = dist.cdist(centroids, centroids)
+        try:  # TODO
+            distances = dist.cdist(centroids, centroids)
+            print(distances)
+        except:
+            distances = [0]
         return new_objects_list, distances
 
     @staticmethod

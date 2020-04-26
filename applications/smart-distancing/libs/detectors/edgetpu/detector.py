@@ -11,6 +11,7 @@ class Detector:
         self.config = config
         self.net = None
         self.fps = None
+        self.frame_no = 0
         # Get model name from the config
         self.name = self.config.get_section_dict('Detector')['Name']
         if self.name == 'mobilenet_ssd_v2':  # or mobilenet_ssd_v1
@@ -38,4 +39,6 @@ class Detector:
         """
         self.fps = self.net.fps
         output = self.net.inference(resized_rgb_image)
+        print(self.frame_no)
+        self.frame_no +=1
         return output
