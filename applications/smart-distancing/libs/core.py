@@ -83,7 +83,10 @@ class Distancing:
         self.running_video = True
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
-            cv_image, objects, distancings = self.__process(cv_image)
+            if np.shape(cv_image) != ():
+                cv_image, objects, distancings = self.__process(cv_image)
+            else:
+                continue
             self.logger.update(objects, distancings)
             self.ui.update(cv_image, objects, distancings)
         input_cap.release()
