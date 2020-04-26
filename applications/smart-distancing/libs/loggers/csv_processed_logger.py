@@ -23,7 +23,7 @@ class Logger:
         self.log_directory = config.get_section_dict("Logger")["LogDirectory"]
         # A directory inside the log_directory that stores object log files.
         self.objects_log_directory = os.path.join(self.log_directory, "objects_log")
-        self.dist_threshold = config.get_section_dict("Detector")["DistThreshold"]
+        self.dist_threshold = config.get_section_dict("PostProcessor")["DistThreshold"]
 
         if not os.path.exists(self.log_directory):
             os.mkdir(self.log_directory)
