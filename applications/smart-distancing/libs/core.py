@@ -2,6 +2,9 @@ import time
 import cv2 as cv
 import numpy as np
 import math
+import os
+import json
+
 from libs.centroid_object_tracker import CentroidTracker
 from scipy.spatial import distance as dist
 from libs.loggers.loggers import Logger
@@ -56,7 +59,6 @@ class Distancing:
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         tmp_objects_list = self.detector.inference(rgb_resized_image)
         [w,h] = resolution
-
         for obj in tmp_objects_list:
             box = obj["bbox"]
             x0 = box[1]
@@ -69,7 +71,7 @@ class Distancing:
             obj["bboxReal"]=[x0*w,y0*h,x1*w,y1*h]
  
         objects_list, distancings = self.calculate_distancing(tmp_objects_list)
-        return cv_image, objects_list, distancings
+        return cv_image, objects_list, distancings, tmp_objects_list  # TODO
 
     def process_video(self, video_uri):
         input_cap = cv.VideoCapture(video_uri)
@@ -94,9 +96,40 @@ class Distancing:
 
     def process_image(self, image_path):
         # Process and pass the image to ui modules
-        cv_image = cv.imread(image_path)
-        cv_image, objects, distancings = self.__process(cv_image)
-        self.ui.update(cv_image, objects, distancings)
+        results = []
+        w = 960
+        h = 540
+        for filename in os.listdir(image_path):
+            if not (filename.endswith('.jpg') or filename.endswith('jpeg')): continue
+            img_path = os.path.join(image_path, filename)
+            cv_image = cv.imread(img_path)
+            cv_image, objects, distancings, original_boxes = self.__process(cv_image)
+            #print(original_boxes)
+            image_id = filename.split('.')[0]
+            for obj in original_boxes:
+                category_id = obj['id'].split('-')[0]
+                bbox = obj['bbox']
+                x0 = bbox[1]
+                y0 = bbox[0]
+                x1 = bbox[3]
+                y1 = bbox[2]
+                x_abs = x0 * w
+                y_abs = y0 * w
+                width = (x1 * w) - x_abs
+                height = (y1 * h) - y_abs
+                bbox = [x_abs, y_abs, width, height]
+                score = obj['score']
+                results.append({
+                    "image_id": int(image_id),
+                    "category_id": int(category_id),
+                    "bbox": bbox,
+                    "score": float(score)
+                    })
+                
+            self.ui.update(cv_image, objects, distancings)
+        with open('results.json', 'w') as outfile:
+            json.dump(results, outfile)
+            print('result is created! Done')
 
     def calculate_distancing(self, objects_list):
         """
