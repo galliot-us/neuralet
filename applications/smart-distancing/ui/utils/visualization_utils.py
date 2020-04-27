@@ -410,7 +410,7 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     is_violating = []
     colors = []
     
-    distance = np.amin(distances + np.identity(len(distances)) * dist_threshold * 2, 0)
+    distance = np.amin(distances + np.identity(len(distances)) * dist_threshold * 2, 0) if distances !=[] else [0]
     for i, obj in enumerate(nn_out):
         # Colorizing bounding box based on the distances between them
         # R = 255 when dist=0 and R = 0 when dist > dist_threshold
@@ -480,7 +480,7 @@ def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), th
         thickness: Thickness of the lines used to draw a text.
     """
     resolution = input_frame.shape
-    origin = int(resolution[0] * origin[0]), int(resolution[1] * origin[1])
+    origin = int(resolution[1] * origin[0]), int(resolution[0] * origin[1])
     font = cv.FONT_HERSHEY_SIMPLEX
     cv.putText(input_frame, txt, origin, font, fontscale,
                color, thickness, cv.LINE_AA)
