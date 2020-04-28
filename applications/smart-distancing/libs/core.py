@@ -95,41 +95,46 @@ class Distancing:
         self.running_video = False
 
     def process_image(self, image_path):
-        # Process and pass the image to ui modules
-        results = []
+        # Process and pass the image to ui module
         w = 960
         h = 540
+        path = 'detections_results'  #TODO: add to config
+        if not os.path.exists(path):
+            os.mkdir(path)
+
         for filename in os.listdir(image_path):
+            results = ''
             if not (filename.endswith('.jpg') or filename.endswith('jpeg')): continue
             img_path = os.path.join(image_path, filename)
             cv_image = cv.imread(img_path)
             cv_image, objects, distancings, original_boxes = self.__process(cv_image)
             #print(original_boxes)
-            image_id = filename.split('.')[0]
+            image_name = filename.split('.')[0]
             for obj in original_boxes:
-                category_id = obj['id'].split('-')[0]
+                #category_id = obj['id'].split('-')[0]
+                class_name = 'pedestrian'  # TODO: category json
                 bbox = obj['bbox']
-                x0 = bbox[1]
-                y0 = bbox[0]
-                x1 = bbox[3]
-                y1 = bbox[2]
+                # Do modifications
+                if bbox[0] < 0: bbox[0] = 0
+                if bbox[1] < 0: bbox[1] = 0
+                if bbox[2] > w: bbox[2] = w
+                if bbox[3] > h: bbox[3] = h
+                x0 = bbox[0]
+                y0 = bbox[1]
+                x1 = bbox[2]
+                y1 = bbox[3]
                 x_abs = x0 * w
-                y_abs = y0 * w
+                y_abs = y0 * h
                 width = (x1 * w) - x_abs
                 height = (y1 * h) - y_abs
-                bbox = [x_abs, y_abs, width, height]
                 score = obj['score']
-                results.append({
-                    "image_id": int(image_id),
-                    "category_id": int(category_id),
-                    "bbox": bbox,
-                    "score": float(score)
-                    })
+                results += str(class_name) + ' ' +str(score) + ' ' + str(x_abs) + ' ' + str(y_abs) + ' ' + str(width) + ' ' + str(height) + '\n'
                 
             self.ui.update(cv_image, objects, distancings)
-        with open('results.json', 'w') as outfile:
-            json.dump(results, outfile)
-            print('result is created! Done')
+            out_file = os.path.join(path, image_name + '.txt')
+            with open(out_file, 'w') as file:
+                file.write(results)
+        print('result is created! Done')
 
     def calculate_distancing(self, objects_list):
         """
