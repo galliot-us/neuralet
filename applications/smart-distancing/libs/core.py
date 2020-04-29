@@ -72,7 +72,7 @@ class Distancing:
             obj["bboxReal"] = [x0 * w, y0 * h, x1 * w, y1 * h]
 
         objects_list, distancings = self.calculate_distancing(tmp_objects_list)
-        return cv_image, objects_list, distancings, tmp_objects_list  # TODO
+        return cv_image, objects_list, distancings
 
     def process_video(self, video_uri):
         input_cap = cv.VideoCapture(video_uri)
@@ -87,7 +87,7 @@ class Distancing:
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             if np.shape(cv_image) != ():
-                cv_image, objects, distancings, _ = self.__process(cv_image)
+                cv_image, objects, distancings = self.__process(cv_image)
             else:
                 continue
             self.logger.update(objects, distancings)
@@ -98,7 +98,7 @@ class Distancing:
     def process_image(self, image_path):
         # Process and pass the image to ui modules
         cv_image = cv.imread(image_path)
-        cv_image, objects, distancings, _ = self.__process(cv_image)
+        cv_image, objects, distancings = self.__process(cv_image)
         self.ui.update(cv_image, objects, distancings)
 
     def process_image_export_results(self, image_path):
@@ -116,10 +116,10 @@ class Distancing:
             if not (filename.endswith('.jpg') or filename.endswith('jpeg')): continue
             img_path = os.path.join(image_path, filename)
             cv_image = cv.imread(img_path)
-            cv_image, objects, distancings, original_boxes = self.__process(cv_image)
+            cv_image, objects, distancings = self.__process(cv_image)
             # print(original_boxes)
             image_name = filename.split('.')[0]
-            for obj in original_boxes:
+            for obj in objects:
                 # category_id = obj['id'].split('-')[0]
                 class_name = 'pedestrian'  # TODO: category json
                 bbox = obj['bbox']
