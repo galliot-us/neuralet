@@ -30,7 +30,13 @@ def read_content(xml_file: str):
         list_with_all_boxes.append(list_with_single_boxes)
         list_with_classes_name.append(class_name)
 
-    return filename, list_with_all_boxes, list_with_classes_name, int(width), int(height)
+    return (
+        filename,
+        list_with_all_boxes,
+        list_with_classes_name,
+        int(width),
+        int(height),
+    )
 
 
 def create_annot_custom_format(args):
@@ -43,20 +49,26 @@ def create_annot_custom_format(args):
         fullname = os.path.join(path, filename)
         name, boxes, classes, img_width, img_height = read_content(fullname)
         image_name = name.split(".")[0]
-        annot = ''
+        annot = ""
+        gt_fromat = "{0} {1} {2} {3} {4}"  # class_name x, y, w, h
         for i, box in enumerate(boxes):
             # Do modifications
-            if box[0] < 0: box[0] = 0
-            if box[1] < 0: box[1] = 0
-            if box[2] > img_width: box[2] = img_width
-            if box[3] > img_height: box[3] = img_height
+            if box[0] < 0:
+                box[0] = 0
+            if box[1] < 0:
+                box[1] = 0
+            if box[2] > img_width:
+                box[2] = img_width
+            if box[3] > img_height:
+                box[3] = img_height
 
             bx_width = box[2] - box[0]
             bx_height = box[3] - box[1]
-            annot += classes[i] + ' ' + str(box[0]) + ' ' + str(box[1]) + ' ' + str(bx_width) + ' ' + str(
-                bx_height) + '\n'  # x, y, w, h
+            annot += gt_fromat.format(
+                classes[i], str(box[0]), str(box[1]), str(bx_width), str(bx_height)
+            )
 
-        out_file = os.path.join(output, image_name + '.txt')
+        out_file = os.path.join(output, image_name + ".txt")
         with open(out_file, "w") as file:
             file.write(annot)
 

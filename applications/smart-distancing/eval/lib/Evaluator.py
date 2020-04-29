@@ -21,10 +21,12 @@ from utils import *
 
 
 class Evaluator:
-    def GetPascalVOCMetrics(self,
-                            boundingboxes,
-                            IOUThreshold=0.5,
-                            method=MethodAveragePrecision.EveryPointInterpolation):
+    def GetPascalVOCMetrics(
+        self,
+        boundingboxes,
+        IOUThreshold=0.5,
+        method=MethodAveragePrecision.EveryPointInterpolation,
+    ):
         """Get the metrics used by the VOC Pascal 2012 challenge.
         Get
         Args:
@@ -49,7 +51,9 @@ class Evaluator:
             dict['total TP']: total number of True Positive detections;
             dict['total FP']: total number of False Negative detections;
         """
-        ret = []  # list containing metrics (precision, recall, average precision) of each class
+        ret = (
+            []
+        )  # list containing metrics (precision, recall, average precision) of each class
         # List with all ground truths (Ex: [imageName,class,confidence=1, (bb coordinates XYX2Y2)])
         groundTruths = []
         # List with all detections (Ex: [imageName,class,confidence,(bb coordinates XYX2Y2)])
@@ -60,18 +64,23 @@ class Evaluator:
         for bb in boundingboxes.getBoundingBoxes():
             # [imageName, class, confidence, (bb coordinates XYX2Y2)]
             if bb.getBBType() == BBType.GroundTruth:
-                groundTruths.append([
-                    bb.getImageName(),
-                    bb.getClassId(), 1,
-                    bb.getAbsoluteBoundingBox(BBFormat.XYX2Y2)
-                ])
+                groundTruths.append(
+                    [
+                        bb.getImageName(),
+                        bb.getClassId(),
+                        1,
+                        bb.getAbsoluteBoundingBox(BBFormat.XYX2Y2),
+                    ]
+                )
             else:
-                detections.append([
-                    bb.getImageName(),
-                    bb.getClassId(),
-                    bb.getConfidence(),
-                    bb.getAbsoluteBoundingBox(BBFormat.XYX2Y2)
-                ])
+                detections.append(
+                    [
+                        bb.getImageName(),
+                        bb.getClassId(),
+                        bb.getConfidence(),
+                        bb.getAbsoluteBoundingBox(BBFormat.XYX2Y2),
+                    ]
+                )
             # get class
             if bb.getClassId() not in classes:
                 classes.append(bb.getClassId())
@@ -132,27 +141,29 @@ class Evaluator:
                 [ap, mpre, mrec, _] = Evaluator.ElevenPointInterpolatedAP(rec, prec)
             # add class result in the dictionary to be returned
             r = {
-                'class': c,
-                'precision': prec,
-                'recall': rec,
-                'AP': ap,
-                'interpolated precision': mpre,
-                'interpolated recall': mrec,
-                'total positives': npos,
-                'total TP': np.sum(TP),
-                'total FP': np.sum(FP)
+                "class": c,
+                "precision": prec,
+                "recall": rec,
+                "AP": ap,
+                "interpolated precision": mpre,
+                "interpolated recall": mrec,
+                "total positives": npos,
+                "total TP": np.sum(TP),
+                "total FP": np.sum(FP),
             }
             ret.append(r)
         return ret
 
-    def PlotPrecisionRecallCurve(self,
-                                 boundingBoxes,
-                                 IOUThreshold=0.5,
-                                 method=MethodAveragePrecision.EveryPointInterpolation,
-                                 showAP=False,
-                                 showInterpolatedPrecision=False,
-                                 savePath=None,
-                                 showGraphic=True):
+    def PlotPrecisionRecallCurve(
+        self,
+        boundingBoxes,
+        IOUThreshold=0.5,
+        method=MethodAveragePrecision.EveryPointInterpolation,
+        showAP=False,
+        showInterpolatedPrecision=False,
+        savePath=None,
+        showGraphic=True,
+    ):
         """PlotPrecisionRecallCurve
         Plot the Precision x Recall curve for a given class.
         Args:
@@ -189,22 +200,24 @@ class Evaluator:
         # Each resut represents a class
         for result in results:
             if result is None:
-                raise IOError('Error: Class %d could not be found.' % classId)
+                raise IOError("Error: Class %d could not be found." % classId)
 
-            classId = result['class']
-            precision = result['precision']
-            recall = result['recall']
-            average_precision = result['AP']
-            mpre = result['interpolated precision']
-            mrec = result['interpolated recall']
-            npos = result['total positives']
-            total_tp = result['total TP']
-            total_fp = result['total FP']
+            classId = result["class"]
+            precision = result["precision"]
+            recall = result["recall"]
+            average_precision = result["AP"]
+            mpre = result["interpolated precision"]
+            mrec = result["interpolated recall"]
+            npos = result["total positives"]
+            total_tp = result["total TP"]
+            total_fp = result["total FP"]
 
             plt.close()
             if showInterpolatedPrecision:
                 if method == MethodAveragePrecision.EveryPointInterpolation:
-                    plt.plot(mrec, mpre, '--r', label='Interpolated precision (every point)')
+                    plt.plot(
+                        mrec, mpre, "--r", label="Interpolated precision (every point)"
+                    )
                 elif method == MethodAveragePrecision.ElevenPointInterpolation:
                     # Uncomment the line below if you want to plot the area
                     # plt.plot(mrec, mpre, 'or', label='11-point interpolated precision')
@@ -217,16 +230,19 @@ class Evaluator:
                             idxEq = np.argwhere(mrec == r)
                             nrec.append(r)
                             nprec.append(max([mpre[int(id)] for id in idxEq]))
-                    plt.plot(nrec, nprec, 'or', label='11-point interpolated precision')
-            plt.plot(recall, precision, label='Precision')
-            plt.xlabel('recall')
-            plt.ylabel('precision')
+                    plt.plot(nrec, nprec, "or", label="11-point interpolated precision")
+            plt.plot(recall, precision, label="Precision")
+            plt.xlabel("recall")
+            plt.ylabel("precision")
             if showAP:
                 ap_str = "{0:.2f}%".format(average_precision * 100)
                 # ap_str = "{0:.4f}%".format(average_precision * 100)
-                plt.title('Precision x Recall curve \nClass: %s, AP: %s' % (str(classId), ap_str))
+                plt.title(
+                    "Precision x Recall curve \nClass: %s, AP: %s"
+                    % (str(classId), ap_str)
+                )
             else:
-                plt.title('Precision x Recall curve \nClass: %s' % str(classId))
+                plt.title("Precision x Recall curve \nClass: %s" % str(classId))
             plt.legend(shadow=True)
             plt.grid()
             ############################################################
@@ -281,7 +297,7 @@ class Evaluator:
             #                 arrowprops=dict(arrowstyle="->", connectionstyle="arc3"),
             #                 bbox=box)
             if savePath is not None:
-                plt.savefig(os.path.join(savePath, classId + '.png'))
+                plt.savefig(os.path.join(savePath, classId + ".png"))
             if showGraphic is True:
                 plt.show()
                 # plt.waitforbuttonpress()
@@ -308,7 +324,7 @@ class Evaluator:
         for i in ii:
             ap = ap + np.sum((mrec[i] - mrec[i - 1]) * mpre[i])
         # return [ap, mpre[1:len(mpre)-1], mrec[1:len(mpre)-1], ii]
-        return [ap, mpre[0:len(mpre) - 1], mrec[0:len(mpre) - 1], ii]
+        return [ap, mpre[0 : len(mpre) - 1], mrec[0 : len(mpre) - 1], ii]
 
     @staticmethod
     # 11-point interpolated average precision
@@ -333,7 +349,7 @@ class Evaluator:
             pmax = 0
             # If there are recalls above r
             if argGreaterRecalls.size != 0:
-                pmax = max(mpre[argGreaterRecalls.min():])
+                pmax = max(mpre[argGreaterRecalls.min() :])
             recallValid.append(r)
             rhoInterp.append(pmax)
         # By definition AP = sum(max(precision whose recall is above r))/11
@@ -376,7 +392,9 @@ class Evaluator:
         # cv2.imshow("comparing",img)
         # cv2.waitKey(0)
         # cv2.destroyWindow("comparing")
-        return sorted(ret, key=lambda i: i[0], reverse=True)  # sort by iou (from highest to lowest)
+        return sorted(
+            ret, key=lambda i: i[0], reverse=True
+        )  # sort by iou (from highest to lowest)
 
     @staticmethod
     def iou(boxA, boxB):

@@ -11,6 +11,7 @@ class MethodAveragePrecision(Enum):
         Developed by: Rafael Padilla
         Last modification: Apr 28 2018
     """
+
     EveryPointInterpolation = 1
     ElevenPointInterpolation = 2
 
@@ -23,6 +24,7 @@ class CoordinatesType(Enum):
         Developed by: Rafael Padilla
         Last modification: Apr 28 2018
     """
+
     Relative = 1
     Absolute = 2
 
@@ -34,6 +36,7 @@ class BBType(Enum):
         Developed by: Rafael Padilla
         Last modification: May 24 2018
     """
+
     GroundTruth = 1
     Detected = 2
 
@@ -47,6 +50,7 @@ class BBFormat(Enum):
         Developed by: Rafael Padilla
         Last modification: May 24 2018
     """
+
     XYWH = 1
     XYX2Y2 = 2
 
@@ -54,8 +58,8 @@ class BBFormat(Enum):
 # size => (width, height) of the image
 # box => (X1, X2, Y1, Y2) of the bounding box
 def convertToRelativeValues(size, box):
-    dw = 1. / (size[0])
-    dh = 1. / (size[1])
+    dw = 1.0 / (size[0])
+    dh = 1.0 / (size[1])
     cx = (box[1] + box[0]) / 2.0
     cy = (box[3] + box[2]) / 2.0
     w = box[1] - box[0]
@@ -117,9 +121,21 @@ def add_bb_into_image(image, bb, color=(255, 0, 0), thickness=2, label=None):
         r_Xin = x1 - int(thickness / 2)
         r_Yin = y1 - th - int(thickness / 2)
         # Draw filled rectangle to put the text in it
-        cv2.rectangle(image, (r_Xin, r_Yin - thickness),
-                      (r_Xin + tw + thickness * 3, r_Yin + th + int(12.5 * fontScale)), (b, g, r),
-                      -1)
-        cv2.putText(image, label, (xin_bb, yin_bb), font, fontScale, (0, 0, 0), fontThickness,
-                    cv2.LINE_AA)
+        cv2.rectangle(
+            image,
+            (r_Xin, r_Yin - thickness),
+            (r_Xin + tw + thickness * 3, r_Yin + th + int(12.5 * fontScale)),
+            (b, g, r),
+            -1,
+        )
+        cv2.putText(
+            image,
+            label,
+            (xin_bb, yin_bb),
+            font,
+            fontScale,
+            (0, 0, 0),
+            fontThickness,
+            cv2.LINE_AA,
+        )
     return image
