@@ -38,10 +38,11 @@ class WebGUI:
         self.app = self.create_flask_app()
         self._dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
         self._displayed_items = {}  # all items here will be used at ui webpage
-
+        self._infs_mode = self.config.get_section_dict("App")["InferenceMode"]
         # TODO: read from config file
         file_name = str(date.today()) + '.csv'
         self.objects_log = './static/data/objects_log/' + file_name
+        print('App is started at "%s" mode...' % self._infs_mode)
 
     def update(self, input_frame, nn_out, distances):
         """
@@ -184,8 +185,12 @@ class WebGUI:
         """
         threading.Thread(target=self._run).start()
         time.sleep(1)
-        # Get video file path from the config
-        # video_path = self.config.get_section_dict("App")["VideoPath"]
-        image_path = self.config.get_section_dict("Evaluation")["ImagesPath"]
-        self.__ENGINE_INSTANCE.process_image_export_results(image_path)
-        # self.__ENGINE_INSTANCE.process_video(video_path)
+        if self._infs_mode == 'EVAL':
+            image_path = self.config.get_section_dict("Evaluation")["ImagesPath"]
+            self.__ENGINE_INSTANCE.process_image_export_results(image_path)
+        elif self._infs_mode == 'VIDEO':
+            # Get video file path from the config
+            video_path = self.config.get_section_dict("App")["VideoPath"]
+            self.__ENGINE_INSTANCE.process_video(video_path)
+        else:
+            raise ValueError('Not supported InferenceMode: ', self.name)
