@@ -186,6 +186,6 @@ class WebGUI:
         time.sleep(1)
         # Get video file path from the config
         # video_path = self.config.get_section_dict("App")["VideoPath"]
-        image_path = self.config.get_section_dict("App")["ImagesPath"]
-        self.__ENGINE_INSTANCE.process_image(image_path)
+        image_path = self.config.get_section_dict("Evaluation")["ImagesPath"]
+        self.__ENGINE_INSTANCE.process_image_export_results(image_path)
         # self.__ENGINE_INSTANCE.process_video(video_path)
