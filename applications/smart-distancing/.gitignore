@@ -8,3 +8,7 @@ __pycache__/
 *.caffemodel
 *.uff
 *.avi
+/eval/groundtruth/*
+data/images/
+/eval/detections_results/
+*.swo
