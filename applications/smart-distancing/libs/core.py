@@ -112,6 +112,7 @@ class Distancing:
 
         for filename in os.listdir(image_path):
             results = ''
+            dt_fromat = "{0} {1} {2} {3} {4} {5} \n"
             if not (filename.endswith('.jpg') or filename.endswith('jpeg')): continue
             img_path = os.path.join(image_path, filename)
             cv_image = cv.imread(img_path)
@@ -123,10 +124,14 @@ class Distancing:
                 class_name = 'pedestrian'  # TODO: category json
                 bbox = obj['bbox']
                 # Do modifications
-                if bbox[0] < 0: bbox[0] = 0
-                if bbox[1] < 0: bbox[1] = 0
-                if bbox[2] > w: bbox[2] = w
-                if bbox[3] > h: bbox[3] = h
+                if bbox[0] < 0:
+                    bbox[0] = 0
+                if bbox[1] < 0:
+                    bbox[1] = 0
+                if bbox[2] > w:
+                    bbox[2] = w
+                if bbox[3] > h:
+                    bbox[3] = h
                 x0 = bbox[0]
                 y0 = bbox[1]
                 x1 = bbox[2]
@@ -136,8 +141,8 @@ class Distancing:
                 width = (x1 * w) - x_abs
                 height = (y1 * h) - y_abs
                 score = obj['score']
-                results += str(class_name) + ' ' + str(score) + ' ' + str(x_abs) + ' ' + str(y_abs) + ' ' + str(
-                    width) + ' ' + str(height) + '\n'
+                results += dt_fromat.format(str(class_name), str(score), str(x_abs), str(y_abs), str(width),
+                                            str(height))
 
             self.ui.update(cv_image, objects, distancings)
             out_file = os.path.join(path, image_name + '.txt')
