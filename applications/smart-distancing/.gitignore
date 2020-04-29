@@ -9,6 +9,6 @@ __pycache__/
 *.uff
 *.avi
 /eval/groundtruth/*
-data/images/
+data/test_images
 /eval/detections_results/
 *.swo
