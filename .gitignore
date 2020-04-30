@@ -4,4 +4,4 @@
 *.tflite
 *.csv
 *.idea
-
+venv
