@@ -105,7 +105,10 @@ class Distancing:
         # Process and pass the image to ui module plus export results for evaluating
         w = self.gt_image_size[0]
         h = self.gt_image_size[1]
-        path = os.path.join(self.config.get_section_dict('Evaluation')['ResultDir'],
+        results_directory = self.config.get_section_dict('Evaluation')['ResultDir']
+        if not os.path.exists(results_directory):
+            os.mkdir(results_directory)
+        path = os.path.join(results_directory,
                             self.device + '-' + self.config.get_section_dict('Detector')['Name'])
         if not os.path.exists(path):
             os.mkdir(path)
