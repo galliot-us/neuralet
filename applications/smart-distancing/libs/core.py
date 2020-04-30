@@ -1,12 +1,9 @@
-import time
 import cv2 as cv
 import numpy as np
 import math
 import os
-import json
 
 from libs.centroid_object_tracker import CentroidTracker
-from scipy.spatial import distance as dist
 from libs.loggers.loggers import Logger
 
 
@@ -127,14 +124,10 @@ class Distancing:
                 class_name = 'pedestrian'  # TODO: category json
                 bbox = obj['bbox']
                 # Do modifications
-                if bbox[0] < 0:
-                    bbox[0] = 0
-                if bbox[1] < 0:
-                    bbox[1] = 0
-                if bbox[2] > w:
-                    bbox[2] = w
-                if bbox[3] > h:
-                    bbox[3] = h
+                bbox[0] = np.maximum(0, bbox[0])
+                bbox[1] = np.maximum(0, bbox[1])
+                bbox[2] = np.minimum(w, bbox[2])
+                bbox[3] = np.minimum(h, bbox[3])
                 x0 = bbox[0]
                 y0 = bbox[1]
                 x1 = bbox[2]
