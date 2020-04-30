@@ -16,6 +16,12 @@ class Detector:
         if self.name == 'mobilenet_ssd_v2':  # or mobilenet_ssd_v1
             from . import mobilenet_ssd
             self.net = mobilenet_ssd.Detector(self.config)
+        elif self.name == "pedestrian_ssd_mobilenet_v2":
+            from . import pedestrian_ssd_mobilenet_v2
+            self.net = pedestrian_ssd_mobilenet_v2.Detector(self.config)
+        elif self.name == "pedestrian_ssdlite_mobilenet_v2":
+            from . import pedestrian_ssdlite_mobilenet_v2
+            self.net = pedestrian_ssdlite_mobilenet_v2.Detector(self.config)
         else:
             raise ValueError('Not supported network named: ', self.name)
 
@@ -33,4 +39,3 @@ class Detector:
         self.fps = self.net.fps
         output = self.net.inference(resized_rgb_image)
         return output
-
