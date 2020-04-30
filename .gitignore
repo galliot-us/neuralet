@@ -5,3 +5,4 @@
 *.csv
 *.idea
 venv
+.vscode
