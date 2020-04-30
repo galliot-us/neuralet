@@ -1,9 +1,9 @@
-Model                                            Device                    IOU       mAP           FPS
--------------------------------------------------------------------------------------------------------
-Mobilenet_SSD_V2                    | AMD64-Coral USB Accelerator |      | 0.5 |  | 34.91% |     | 94  |
-Pedestrian_SSD_MobileNet_V2         | AMD64-Coral USB Accelerator |      | 0.5 |  | 84.01% |     | 151 |
-Pedestrian_SSDLite_MobileNet_V2     | AMD64-Coral USB Accelerator |      | 0.5 |  | 84.29% |     | 141 |
-Mobilenet_SSD_V2                    |       Coral Dev Board       |      | 0.5 |  | 34.91% |     | 70  |
-Pedestrian_SSD_MobileNet_V2         |       Coral Dev Board       |      | 0.5 |  | 84.01% |     | 180 |
-Pedestrian_SSDLite_MobileNet_V2     |       Coral Dev Board       |      | 0.5 |  | 84.29% |     | 170 |
+Model                                            Device                    IOU       mAP            FPS
+------------------------------------------------------------------------------------------------------------
+Mobilenet_SSD_V2                    | AMD64-Coral USB Accelerator |      | 0.5 |  | 34.91% |     |  94   |
+Pedestrian_SSD_MobileNet_V2         | AMD64-Coral USB Accelerator |      | 0.5 |  | 84.01% |     |  151  |
+Pedestrian_SSDLite_MobileNet_V2     | AMD64-Coral USB Accelerator |      | 0.5 |  | 84.29% |     |  141  |
+Mobilenet_SSD_V2                    |       Coral Dev Board       |      | 0.5 |  | 34.91% |     |  ~70  |
+Pedestrian_SSD_MobileNet_V2         |       Coral Dev Board       |      | 0.5 |  | 84.01% |     |  ~180 |
+Pedestrian_SSDLite_MobileNet_V2     |       Coral Dev Board       |      | 0.5 |  | 84.29% |     |  ~170 |
  
