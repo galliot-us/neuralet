@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 import argparse
+import numpy as np
 
 
 def read_content(xml_file: str):
@@ -86,15 +87,10 @@ def create_annot_custom_format(args):
         gt_fromat = "{0} {1} {2} {3} {4} \n"  # Class_name x, y, w, h
         for i, box in enumerate(boxes):
             # Do modifications
-            if box[0] < 0:
-                box[0] = 0
-            if box[1] < 0:
-                box[1] = 0
-            if box[2] > img_width:
-                box[2] = img_width
-            if box[3] > img_height:
-                box[3] = img_height
-
+            box[0] = np.maximum(0, box[0])
+            box[1] = np.maximum(0, box[1])
+            box[2] = np.minimum(img_width, box[2])
+            box[3] = np.minimum(img_height, box[3])
             bx_width = box[2] - box[0]
             bx_height = box[3] - box[1]
             # Each line of the annot represents a ground truth bounding box
