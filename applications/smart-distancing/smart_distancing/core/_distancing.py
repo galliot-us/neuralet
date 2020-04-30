@@ -2,8 +2,6 @@
 import abc
 import logging
 
-import smart_distancing as sd
-
 from typing import (
     Dict,
 )
@@ -17,14 +15,12 @@ class BaseDistancing(abc.ABC):
     ui = None  # type: sd.ui.WebGUI
     detector = None  # type: sd.detectors.BaseDetector
 
-    def __init__(self, config: sd.core.ConfigEngine):
+    def __init__(self, config):
         # set up the object's logger
         self.logger = logging.getLogger(self.__name__)
         self.logger.debug('__init__ start')
 
         # assign the config
-        if not isinstance(config, sd.core.ConfigEngine):
-            config = sd.core.ConfigEngine(config)
         self.config = config
 
         # log the device type

@@ -5,17 +5,18 @@ import logging
 import cv2 as cv
 import numpy as np
 
-import smart_distancing as sd
+from smart_distancing.core._distancing import BaseDistancing
+from smart_distancing.core._centroid_object_tracker import CentroidTracker
 
 __all__ = ['CvDistancing']
 
-class CvDistancing(sd.core.BaseDistancing):
+class CvDistancing(BaseDistancing):
     """OpenCV implementation of Distancing"""
 
     def __init__(self, config):
         super().__init__(config)
         self.running_video = False
-        self.tracker = sd.core.CentroidTracker(
+        self.tracker = CentroidTracker(
             max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
         if self.device == 'Jetson':
             from smart_distancing.detectors.jetson import MobilenetSsdDetector
