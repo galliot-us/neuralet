@@ -40,7 +40,7 @@ class Detector:
         # Frames Per Second
         self.fps = None
 
-        self.detection_model = load_model(self.model_name)
+        self.detection_model = load_model('ssd_mobilenet_v2_coco_2018_03_29')
 
     def inference(self, resized_rgb_image):
         """

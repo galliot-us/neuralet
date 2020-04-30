@@ -1,5 +1,0 @@
-opencv-python
-wget
-flask
-scipy
-image
