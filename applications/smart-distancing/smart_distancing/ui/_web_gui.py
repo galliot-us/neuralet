@@ -8,8 +8,8 @@ from flask import render_template
 from flask import Response
 
 from .utils import visualization_utils as vis_util
-from tools.objects_post_process import extract_violating_objects
-from tools.environment_score import mx_environment_scoring_consider_crowd
+from smart_distancing.tools.objects_post_process import extract_violating_objects
+from smart_distancing.tools.environment_score import mx_environment_scoring_consider_crowd
 
 category_index = {0: {
     "id": 0,
