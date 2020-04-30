@@ -16,6 +16,7 @@ category_index = {0: {
     "name": "Pedestrian",
 }}  # TODO: json file for detector config
 
+__all__ = ['WebGUI']
 
 class WebGUI:
     """
