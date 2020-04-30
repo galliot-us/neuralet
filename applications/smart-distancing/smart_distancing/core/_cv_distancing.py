@@ -1,44 +1,32 @@
-import time
+"""OpenCV Distancing implementation"""
+import math
+import logging
+
 import cv2 as cv
 import numpy as np
-import math
-from libs.centroid_object_tracker import CentroidTracker
-from scipy.spatial import distance as dist
-from libs.loggers.loggers import Logger
 
+import smart_distancing as sd
 
-class Distancing:
+__all__ = ['CvDistancing']
+
+class CvDistancing(sd.core.BaseDistancing):
+    """OpenCV implementation of Distancing"""
 
     def __init__(self, config):
-        self.config = config
-        self.ui = None
-        self.detector = None
-        self.device = self.config.get_section_dict('Detector')['Device']
+        super().__init__(config)
         self.running_video = False
-        self.tracker = CentroidTracker(
+        self.tracker = sd.core.CentroidTracker(
             max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
-        self.logger = Logger(self.config)
         if self.device == 'Jetson':
-            from libs.detectors.jetson.detector import Detector
-            self.detector = Detector(self.config)
+            from smart_distancing.detectors.jetson import MobilenetSsdDetector
+            self.detector = MobilenetSsdDetector(self.config)
         elif self.device == 'EdgeTPU':
-            from libs.detectors.edgetpu.detector import Detector
-            self.detector = Detector(self.config)
+            from smart_distancing.detectors.edgetpu import MobilenetSsdDetector
+            self.detector = MobilenetSsdDetector(self.config)
         elif self.device == 'Dummy':
             self.detector = None
 
         self.image_size = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
-
-        if self.device != 'Dummy':
-            print('Device is: ', self.device)
-            print('Detector is: ', self.detector.name)
-            print('image size: ', self.image_size)
-
-        self.dist_method = self.config.get_section_dict("PostProcessor")["DistMethod"]
-        self.dist_threshold = self.config.get_section_dict("PostProcessor")["DistThreshold"]
-
-    def set_ui(self, ui):
-        self.ui = ui
 
     def __process(self, cv_image):
         """
@@ -55,7 +43,7 @@ class Distancing:
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         tmp_objects_list = self.detector.inference(rgb_resized_image)
-        [w,h] = resolution
+        [w, h] = resolution
 
         for obj in tmp_objects_list:
             box = obj["bbox"]
@@ -65,16 +53,16 @@ class Distancing:
             y1 = box[2]
             obj["centroid"] = [(x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0]
             obj["bbox"] = [x0, y0, x1, y1]
-            obj["centroidReal"]=[(x0 + x1)*w / 2, (y0 + y1)*h / 2, (x1 - x0)*w, (y1 - y0)*h]
-            obj["bboxReal"]=[x0*w,y0*h,x1*w,y1*h]
- 
+            obj["centroidReal"] = [(x0 + x1) * w / 2, (y0 + y1) * h / 2, (x1 - x0) * w, (y1 - y0) * h]
+            obj["bboxReal"] = [x0 * w, y0 * h, x1 * w, y1 * h]
+
         objects_list, distancings = self.calculate_distancing(tmp_objects_list)
         return cv_image, objects_list, distancings
 
     def process_video(self, video_uri):
         input_cap = cv.VideoCapture(video_uri)
 
-        if (input_cap.isOpened()):
+        if input_cap.isOpened():
             print('opened video ', video_uri)
         else:
             print('failed to load video ', video_uri)
@@ -87,7 +75,12 @@ class Distancing:
                 cv_image, objects, distancings = self.__process(cv_image)
             else:
                 continue
-            self.logger.update(objects, distancings)
+            # TODO(mdegans): test these are serializable
+            record = {
+                'objects': objects,
+                'distancings': distancings,
+            }
+            self.logger.debug(sd.loggers.serialize(record))
             self.ui.update(cv_image, objects, distancings)
         input_cap.release()
         self.running_video = False
@@ -126,7 +119,7 @@ class Distancing:
         for i, item in enumerate(new_objects_list):
             item["id"] = item["id"].split("-")[0] + "-" + str(i)
 
-        centroids = np.array( [obj["centroid"] for obj in new_objects_list] )
+        centroids = np.array([obj["centroid"] for obj in new_objects_list])
         distances = self.calculate_box_distances(new_objects_list)
 
         return new_objects_list, distances
@@ -203,18 +196,17 @@ class Distancing:
         updated_object_list = [j for i, j in enumerate(object_list) if i in pick]
         return updated_object_list
 
+    def calculate_distance_of_two_points_of_boxes(self, first_point, second_point):
 
-    def calculate_distance_of_two_points_of_boxes(self,first_point, second_point):
-    
         """
         This function calculates a distance l for two input corresponding points of two detected bounding boxes.
-        it is assumed that each person is H = 170 cm tall in real scene to map the distances in the image (in pixels) to 
-        physical distance measures (in meters). 
+        it is assumed that each person is H = 170 cm tall in real scene to map the distances in the image (in pixels) to
+        physical distance measures (in meters).
 
         params:
         first_point: (x, y, h)-tuple, where x,y is the location of a point (center or each of 4 corners of a bounding box)
-        and h is the height of the bounding box. 
-        second_point: same tuple as first_point for the corresponding point of other box 
+        and h is the height of the bounding box.
+        second_point: same tuple as first_point for the corresponding point of other box
 
         returns:
         l:  Estimated physical distance (in centimeters) between first_point and second_point.
@@ -225,20 +217,19 @@ class Distancing:
         # estimate corresponding points distance
         [xc1, yc1, h1] = first_point
         [xc2, yc2, h2] = second_point
-        
+
         dx = xc2 - xc1
         dy = yc2 - yc1
-        
-        lx = dx * 170 * (1/h1 + 1/h2)/2
-        ly = dy * 170 * (1/h1 + 1/h2)/2
-        
-        l=math.sqrt(lx**2+ly**2)
-        
-        return l 
 
+        lx = dx * 170 * (1 / h1 + 1 / h2) / 2
+        ly = dy * 170 * (1 / h1 + 1 / h2) / 2
+
+        l = math.sqrt(lx ** 2 + ly ** 2)
+
+        return l
 
     def calculate_box_distances(self, nn_out):
-        
+
         """
         This function calculates a distance matrix for detected bounding boxes.
         Two methods are implemented to calculate the distances, first one estimates distance of center points of the
@@ -256,37 +247,48 @@ class Distancing:
 
         distances = []
         for i in range(len(nn_out)):
-            distance_row=[]
+            distance_row = []
             for j in range(len(nn_out)):
                 if i == j:
                     l = 0
                 else:
-                    if ( self.dist_method == 'FourCornerPointsDistance' ):
-                        lower_left_of_first_box = [nn_out[i]["bboxReal"][0],nn_out[i]["bboxReal"][1],nn_out[i]["centroidReal"][3]]
-                        lower_right_of_first_box = [nn_out[i]["bboxReal"][2],nn_out[i]["bboxReal"][1],nn_out[i]["centroidReal"][3]]
-                        upper_left_of_first_box = [nn_out[i]["bboxReal"][0],nn_out[i]["bboxReal"][3],nn_out[i]["centroidReal"][3]]
-                        upper_right_of_first_box = [nn_out[i]["bboxReal"][2],nn_out[i]["bboxReal"][3],nn_out[i]["centroidReal"][3]]
-                        
-                        lower_left_of_second_box = [nn_out[j]["bboxReal"][0],nn_out[j]["bboxReal"][1],nn_out[j]["centroidReal"][3]]
-                        lower_right_of_second_box = [nn_out[j]["bboxReal"][2],nn_out[j]["bboxReal"][1],nn_out[j]["centroidReal"][3]]
-                        upper_left_of_second_box = [nn_out[j]["bboxReal"][0],nn_out[j]["bboxReal"][3],nn_out[j]["centroidReal"][3]]
-                        upper_right_of_second_box = [nn_out[j]["bboxReal"][2],nn_out[j]["bboxReal"][3],nn_out[j]["centroidReal"][3]]
+                    if (self.dist_method == 'FourCornerPointsDistance'):
+                        lower_left_of_first_box = [nn_out[i]["bboxReal"][0], nn_out[i]["bboxReal"][1],
+                                                   nn_out[i]["centroidReal"][3]]
+                        lower_right_of_first_box = [nn_out[i]["bboxReal"][2], nn_out[i]["bboxReal"][1],
+                                                    nn_out[i]["centroidReal"][3]]
+                        upper_left_of_first_box = [nn_out[i]["bboxReal"][0], nn_out[i]["bboxReal"][3],
+                                                   nn_out[i]["centroidReal"][3]]
+                        upper_right_of_first_box = [nn_out[i]["bboxReal"][2], nn_out[i]["bboxReal"][3],
+                                                    nn_out[i]["centroidReal"][3]]
 
-                        l1 = self.calculate_distance_of_two_points_of_boxes(lower_left_of_first_box, lower_left_of_second_box)
-                        l2 = self.calculate_distance_of_two_points_of_boxes(lower_right_of_first_box, lower_right_of_second_box)
-                        l3 = self.calculate_distance_of_two_points_of_boxes(upper_left_of_first_box, upper_left_of_second_box)
-                        l4 = self.calculate_distance_of_two_points_of_boxes(upper_right_of_first_box, upper_right_of_second_box)
-                        
+                        lower_left_of_second_box = [nn_out[j]["bboxReal"][0], nn_out[j]["bboxReal"][1],
+                                                    nn_out[j]["centroidReal"][3]]
+                        lower_right_of_second_box = [nn_out[j]["bboxReal"][2], nn_out[j]["bboxReal"][1],
+                                                     nn_out[j]["centroidReal"][3]]
+                        upper_left_of_second_box = [nn_out[j]["bboxReal"][0], nn_out[j]["bboxReal"][3],
+                                                    nn_out[j]["centroidReal"][3]]
+                        upper_right_of_second_box = [nn_out[j]["bboxReal"][2], nn_out[j]["bboxReal"][3],
+                                                     nn_out[j]["centroidReal"][3]]
+
+                        l1 = self.calculate_distance_of_two_points_of_boxes(lower_left_of_first_box,
+                                                                            lower_left_of_second_box)
+                        l2 = self.calculate_distance_of_two_points_of_boxes(lower_right_of_first_box,
+                                                                            lower_right_of_second_box)
+                        l3 = self.calculate_distance_of_two_points_of_boxes(upper_left_of_first_box,
+                                                                            upper_left_of_second_box)
+                        l4 = self.calculate_distance_of_two_points_of_boxes(upper_right_of_first_box,
+                                                                            upper_right_of_second_box)
+
                         l = min(l1, l2, l3, l4)
-                    elif ( self.dist_method == 'CenterPointsDistance' ):
-                        center_of_first_box = [nn_out[i]["centroidReal"][0],nn_out[i]["centroidReal"][1],nn_out[i]["centroidReal"][3]]
-                        center_of_second_box = [nn_out[j]["centroidReal"][0],nn_out[j]["centroidReal"][1],nn_out[j]["centroidReal"][3]]
+                    elif (self.dist_method == 'CenterPointsDistance'):
+                        center_of_first_box = [nn_out[i]["centroidReal"][0], nn_out[i]["centroidReal"][1],
+                                               nn_out[i]["centroidReal"][3]]
+                        center_of_second_box = [nn_out[j]["centroidReal"][0], nn_out[j]["centroidReal"][1],
+                                                nn_out[j]["centroidReal"][3]]
 
-                        l = self.calculate_distance_of_two_points_of_boxes(center_of_first_box, center_of_second_box) 
-                distance_row.append(l)    
+                        l = self.calculate_distance_of_two_points_of_boxes(center_of_first_box, center_of_second_box)
+                distance_row.append(l)
             distances.append(distance_row)
         distances_asarray = np.asarray(distances, dtype=np.float32)
         return distances_asarray
-
-
-

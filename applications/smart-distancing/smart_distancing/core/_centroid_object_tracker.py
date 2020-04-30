@@ -4,6 +4,7 @@ from collections import OrderedDict
 import numpy as np
 from scipy.spatial import distance as dist
 
+__all__ = ['CentroidTracker']
 
 class CentroidTracker:
     """
