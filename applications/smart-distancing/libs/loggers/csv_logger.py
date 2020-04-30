@@ -1,6 +1,7 @@
 import csv
 import os
 from datetime import date
+from tools.objects_post_process import extract_violating_objects
 
 import numpy as np
 
@@ -44,20 +45,18 @@ class Logger:
     This logger creates two csv file every day in two different directory, one for logging detected objects
     and one for logging violated social distancing incidents. The file names are the same as recording date.
 
-        :param config: A ConfigEngine object which store all of the config parameters. Access to any parameter
+    :param config: A ConfigEngine object which store all of the config parameters. Access to any parameter
         is possible by calling get_section_dict method.
-        :param log_directory: The parent directory that stores all log file.
-        :param objects_log_directory: A directory inside the log_directory that stores object log files.
-        :param distances_log_directory: A directory inside the log_directory that stores violated distances log files.
-
-
     """
 
     def __init__(self, config):
         self.config = config
+        # The parent directory that stores all log file.
         self.log_directory = config.get_section_dict("Logger")["LogDirectory"]
+        # A directory inside the log_directory that stores object log files.
         self.objects_log_directory = os.path.join(self.log_directory, "objects_log")
         self.distances_log_directory = os.path.join(self.log_directory, "distances_log")
+        self.dist_threshold = config.get_section_dict("PostProcessor")["DistThreshold"]
         if not os.path.exists(self.log_directory):
             os.mkdir(self.log_directory)
         if not os.path.exists(self.objects_log_directory):
@@ -110,9 +109,9 @@ class Logger:
         Args:
             distances: A 2-d numpy array that stores distance between each pair of objects.
             frame_number: current frame number
-            file_path: log file path
+            file_path: The path for storing log files
         """
-        violating_objects = self.extract_violating_objects(distances)
+        violating_objects = extract_violating_objects(distances, self.dist_threshold)
         if not os.path.exists(file_path):
             with open(file_path, "w", newline="") as csvfile:
                 field_names = ["frame_number", "object_0", "object_1", "distance"]
@@ -125,18 +124,3 @@ class Logger:
                                "object_0": indices[0],
                                "object_1": indices[1],
                                "distance": distances[indices[0], indices[1]]} for indices in violating_objects])
-
-    def extract_violating_objects(self, distances):
-        """Extract pair of objects that are closer than the distance threshold.
-
-        Args:
-            distances: A 2-d numpy array that stores distance between each pair of objects.
-
-        Returns:
-            violating_objects: A 2-d numpy array where each row is the ids of the objects that violated the social distancing.
-
-        """
-        triu_distances = np.triu(distances) + np.tril(10 * np.ones(distances.shape))
-        violating_objects = np.argwhere(
-            triu_distances < float(self.config.get_section_dict("Detector")["DistThreshold"]))
-        return violating_objects

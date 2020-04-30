@@ -407,13 +407,15 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     detection_classes = []
     detection_scores = []
     detection_boxes = []
+    is_violating = []
     colors = []
-
-    distance = np.amin(distances + np.identity(len(distances)) * 2., 0)
+    
+    distance = np.amin(distances + np.identity(len(distances)) * dist_threshold * 2, 0) if distances !=[] else [0]
     for i, obj in enumerate(nn_out):
         # Colorizing bounding box based on the distances between them
         # R = 255 when dist=0 and R = 0 when dist > dist_threshold
-        r_channel = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0)
+        redness_factor = 1.5
+        r_channel = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0) * redness_factor
         g_channel = 255 - r_channel
         b_channel = 0
         # Create a tuple object of colors
@@ -432,11 +434,36 @@ def visualization_preparation(nn_out, distances, dist_threshold):
         detection_scores.append(score)
         detection_boxes.append(box)
         colors.append(color)
+        is_violating.append(True) if distance[i] < dist_threshold else is_violating.append(False)
     output_dict["detection_boxes"] = np.array(detection_boxes)
     output_dict["detection_scores"] = detection_scores
     output_dict["detection_classes"] = detection_classes
+    output_dict["violating_objects"] = is_violating
     output_dict["detection_colors"] = colors
     return output_dict
+
+
+def birds_eye_view(input_frame, boxes, is_violating):
+    """
+    This function receives a black window and draw circles (based on boxes) at the frame.
+    Args:
+        input_frame: uint8 numpy array with shape (img_height, img_width, 3)
+        boxes: A numpy array of shape [N, 4]
+        is_violating: List of boolean (True/False) which indicates the correspond object at boxes is
+        a violating object or not
+
+    Returns:
+        input_frame: Frame with red and green circles
+
+    """
+    h, w = input_frame.shape[0:2]
+    for i, box in enumerate(boxes):
+        center_x = int((box[0] * w + box[2] * w) / 2)
+        center_y = int((box[1] * h + box[3] * h) / 2)
+        center_coordinates = (center_x, center_y)
+        color = (0, 0, 255) if is_violating[i] else (0, 255, 0)
+        input_frame = cv.circle(input_frame, center_coordinates, 2, color, 2)
+    return input_frame
 
 
 def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), thickness=2):
@@ -447,11 +474,13 @@ def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), th
     Args:
         input_frame: The source image, is an RGB image.
         txt: The specific text string for drawing.
-        origin: Top-left corner of the text string in the image.
+        origin: Top-left corner of the text string in the image. The resolution should be normalized between 0-1
         fontscale: Font scale factor that is multiplied by the font-specific base size.
         color: Text Color. (BGR format)
         thickness: Thickness of the lines used to draw a text.
     """
+    resolution = input_frame.shape
+    origin = int(resolution[1] * origin[0]), int(resolution[0] * origin[1])
     font = cv.FONT_HERSHEY_SIMPLEX
     cv.putText(input_frame, txt, origin, font, fontscale,
                color, thickness, cv.LINE_AA)
