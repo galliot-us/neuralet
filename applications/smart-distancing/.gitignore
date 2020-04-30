@@ -10,5 +10,5 @@ __pycache__/
 *.avi
 /eval/groundtruth/*
 data/test_images
-/eval/detections_results/
+/eval/detections_results/*
 *.swo
