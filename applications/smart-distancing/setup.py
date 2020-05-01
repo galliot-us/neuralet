@@ -4,6 +4,8 @@ import setuptools
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 with open(os.path.join(THIS_DIR, 'README.md')) as readme:
+with open(os.path.join(THIS_DIR, 'requirements.in')) as requirements:
+    INSTALL_REQUIRES = [l.strip() for l in requirements]
 with open(os.path.join(PACKAGE_DIR, 'VERSION')) as version_file:
     VERSION = version_file.readline().strip()[:16]
 
@@ -27,6 +29,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.8',
     ],
     python_requires='>=3.6',
+    install_requires=INSTALL_REQUIRES,
     packages=['smart_distancing'],
     package_data={
         'smart_distancing': [
