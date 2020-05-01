@@ -27,11 +27,16 @@ setuptools.setup(
         'Programming Language :: Python :: 3.8',
     ],
     python_requires='>=3.6',
-    install_requires=[
-        'flask',
-        'numpy',
-    ],
     packages=['smart_distancing'],
+    package_data={
+        'smart_distancing': [
+            'VERSION',
+            'data/logs',
+            'data/config/*.ini',
+            'data/models/jetson',
+            'data/models/edgetpu',
+    ],
+    },
     entry_points={
         'console_scripts': ['smart-distancing=smart_distancing.__main__:cli_main'],
     },
