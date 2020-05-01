@@ -14,6 +14,7 @@ from typing import (
     Sequence,
     Tuple,
     Dict,
+    Optional,
 )
 
 __all__ = ['BaseDetector', ]
@@ -63,7 +64,7 @@ class BaseDetector(abc.ABC):
         return self.detector_config['Name']
 
     @property
-    def model_path(self) -> str:
+    def model_path(self) -> Optional[str]:
         """:return: the folder containing the model."""
         try:
             cfg_model_path = self.detector_config['ModelPath']
@@ -74,7 +75,7 @@ class BaseDetector(abc.ABC):
         return os.path.join(sd.MODEL_DIR, self.PLATFORM)
 
     @property
-    def model_file(self) -> str:
+    def model_file(self) -> Optional[str]:
         """:return: the model filename."""
         return os.path.join(self.model_path, self.DEFAULT_MODEL_FILE)
 
