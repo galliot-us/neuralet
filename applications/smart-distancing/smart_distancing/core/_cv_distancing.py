@@ -5,6 +5,7 @@ import logging
 import cv2 as cv
 import numpy as np
 
+from smart_distancing.loggers import serialize
 from smart_distancing.core._distancing import BaseDistancing
 from smart_distancing.core._centroid_object_tracker import CentroidTracker
 
@@ -26,6 +27,9 @@ class CvDistancing(BaseDistancing):
             self.detector = MobilenetSsdDetector(self.config)
         elif self.device == 'Dummy':
             self.detector = None
+        elif self.device == 'x86':
+            from smart_distancing.detectors.x86.detector import Detector
+            self.detector = Detector(self.config)
 
         self.image_size = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
 
@@ -81,7 +85,7 @@ class CvDistancing(BaseDistancing):
                 'objects': objects,
                 'distancings': distancings,
             }
-            self.logger.debug(sd.loggers.serialize(record))
+            self.logger.debug(serialize(record))
             self.ui.update(cv_image, objects, distancings)
         input_cap.release()
         self.running_video = False
