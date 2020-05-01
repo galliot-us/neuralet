@@ -11,6 +11,7 @@ class CsvHandler(logging.handlers.TimedRotatingFileHandler):
     See logging.handlers.TimedRotatingFileHandler for full documentation.
 
     Example usage/test:
+
     >>> filename = '/tmp/test.log.csv'
     >>> logger = logging.getLogger(__name__)
     >>> ch = CsvHandler(filename)

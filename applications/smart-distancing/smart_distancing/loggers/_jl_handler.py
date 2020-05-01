@@ -10,8 +10,9 @@ class JsonLinesHandler(logging.handlers.TimedRotatingFileHandler):
     Json lines (.jl .jsonl) format TimedRotatingFileHandler.
 
     See logging.handlers.TimedRotatingFileHandler for full documentation.
-
+   
     Example usage/test:
+
     >>> filename = '/tmp/test.log.jl'
     >>> logger = logging.getLogger(__name__)
     >>> jh = JsonLinesHandler(filename)
