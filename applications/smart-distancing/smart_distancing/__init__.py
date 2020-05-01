@@ -3,30 +3,23 @@ Top level for smart_distancing.
 
 Contains typing types and some globals.
 
-.. py:data:: PACKAGE_ROOT
-
-    Absolute path to the package root.
-
-.. py:data:: PACKAGE_DATA_ROOT
-
-    Absolute path to package data dir.
-
-.. py:data:: PACKAGE_MODEL_ROOT
-
-    Absolute path to model dir.
-
-.. py:data:: USER_ROOT
-
-    Absolute path to user root (~/.smart_distancing).
-
-.. py:data:: USER_CONFIG_DIR
-
-    Absolute path to user config dir (under USER_ROOT).
-
-.. py:data:: USER_MODEL_DIR
-
-    Absolute path to user model dir (under USER_ROOT).
-
+Attributes:
+    PACKAGE_ROOT (str):
+        Absolute path to the package root.
+    PACKAGE_DATA_ROOT (str):
+        Absolute path to package data dir.
+    PACKAGE_MODEL_ROOT (str):
+        Absolute path to model dir.
+    USER_ROOT (str):
+        Absolute path to user root (~/.smart_distancing).
+    USER_CONFIG_DIR (str):
+        Absolute path to user config dir (under USER_ROOT).
+    USER_MODEL_DIR (str):
+        Absolute path to user model dir (under USER_ROOT).
+    Detection (:obj:`typing.Type`):
+        Typing module Type of a detection (a dict of str:Any).
+    Detections (:obj:`typing.Type`):
+        Typing module type of a Sequence (eg. tuple, list) of Detection.
 """
 import os
 
