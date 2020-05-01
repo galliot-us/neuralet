@@ -51,6 +51,7 @@ class TfDetector(sd.detectors.BaseDetector):
         self.model_path = os.path.join(keras_dl_root, "saved_model")
 
         self.model = tf.saved_model.load(self.model_path)
+        # FIXME?: This looks wrong but IDK enought about TF to say for sure - mdegans
         self.model = self.model.signatures['serving_default']
 
 
