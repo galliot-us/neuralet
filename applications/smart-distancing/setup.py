@@ -39,7 +39,19 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=INSTALL_REQUIRES,
-    packages=setuptools.find_namespace_packages(),
+    packages=[
+        'smart_distancing',
+        'smart_distancing.core',
+        'smart_distancing.detectors',
+        'smart_distancing.detectors.edgetpu',
+        'smart_distancing.detectors.jetson',
+        'smart_distancing.detectors.x86',
+        'smart_distancing.loggers',
+        'smart_distancing.tools',
+        'smart_distancing.ui',
+        'smart_distancing.ui.utils',
+        'smart_distancing.utils',
+    ],
     package_data={
         'smart_distancing': [
             'VERSION',
