@@ -1,13 +1,12 @@
 """Contains Detector, the base class for all detectors."""
 import abc
-import os
 import logging
+import os
+import sys
 import urllib.parse
 import urllib.request
 
 import smart_distancing as sd
-
-
 
 from typing import (
     List,
