@@ -3,9 +3,9 @@ import os
 import json
 import logging.handlers
 
-__all__ = ['JsonLinesLogger']
+__all__ = ['JsonLinesHandler']
 
-class JsonLinesLogger(logging.handlers.TimedRotatingFileHandler):
+class JsonLinesHandler(logging.handlers.TimedRotatingFileHandler):
     """
     Json lines (.jl .jsonl) format TimedRotatingFileHandler.
 
@@ -14,7 +14,7 @@ class JsonLinesLogger(logging.handlers.TimedRotatingFileHandler):
     Example usage/test:
     >>> filename = '/tmp/test.log.jl'
     >>> logger = logging.getLogger(__name__)
-    >>> jh = JsonLinesLogger(filename)
+    >>> jh = JsonLinesHandler(filename)
     >>> logger.addHandler(jh)
     >>> logger.error("test")
     >>> with open(filename) as f:

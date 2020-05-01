@@ -5,7 +5,7 @@ from smart_distancing.loggers._jl_handler import *
 
 __all__ = [
     'CsvHandler',
-    'JsonLinesLogger',
+    'JsonLinesHandler',
     'serialize',
     'serialize_iter',
 ]
