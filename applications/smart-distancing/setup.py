@@ -35,7 +35,7 @@ setuptools.setup(
     ],
     packages=['smart_distancing'],
     entry_points={
-        'console_scripts': ['smart-distancing=smart_distancing.__main__:main'],
+        'console_scripts': ['smart-distancing=smart_distancing.__main__:cli_main'],
     },
     author='neuralet team',
     project_urls={

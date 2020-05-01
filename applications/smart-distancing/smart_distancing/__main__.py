@@ -18,8 +18,8 @@ def main(config: Union[str, sd.core.ConfigEngine]) -> int:
     app.ui.start()
     return 0
 
-if __name__ == '__main__':
-    import sys
+
+def cli_main() -> int:
     import argparse
 
     parser = argparse.ArgumentParser()
@@ -30,4 +30,9 @@ if __name__ == '__main__':
     # allowing easier reuse of main without argparse
     # it also has the side benefit of enforcing:
     # argparse arguments == main arguments
-    sys.exit(main(**vars(args)))
+    return main(**vars(args))
+
+
+if __name__ == '__main__':
+    import sys
+    sys.exit(cli_main())
