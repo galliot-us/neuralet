@@ -60,6 +60,10 @@ setuptools.setup(
             'data/models/jetson',
             'data/models/edgetpu',
         ],
+        'smart_distancing.ui': [
+            'static',
+            'templates',
+        ],
     },
     entry_points={
         'console_scripts': ['smart-distancing=smart_distancing.__main__:cli_main'],
