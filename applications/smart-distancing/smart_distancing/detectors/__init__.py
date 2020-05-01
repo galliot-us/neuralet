@@ -35,7 +35,6 @@ class BaseDetector(abc.ABC):
 
     SUPPORTED_PLATFORMS = None  # type: Tuple
     DEFAULT_MODEL_FILE = None  # type: str
-    DEFAULT_MODEL_PATH = None  # type: str
     DEFAULT_MODEL_URL = None  # type: str
 
     def __init__(self, config):
@@ -72,8 +71,7 @@ class BaseDetector(abc.ABC):
                 return cfg_model_path
         except KeyError:
             pass
-        # TODO(mdegans) this needs to be absolute:
-        return self.DEFAULT_MODEL_PATH
+        return os.path.join(sd.MODEL_DIR, self.PLATFORM)
 
     @property
     def model_file(self) -> str:
