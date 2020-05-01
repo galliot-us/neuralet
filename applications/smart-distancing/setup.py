@@ -39,7 +39,7 @@ setuptools.setup(
     ],
     python_requires='>=3.6',
     install_requires=INSTALL_REQUIRES,
-    packages=['smart_distancing'],
+    packages=setuptools.find_namespace_packages(),
     package_data={
         'smart_distancing': [
             'VERSION',
