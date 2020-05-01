@@ -118,7 +118,7 @@ class WebGUI:
             return render_template("index.html")
 
         @app.route("/video_feed")
-        def video_feed():
+        def video_feed():  # pylint: disable=unused-variable
             # Return the response generated along with the specific media
             # Type (mime type)
             return Response(
@@ -126,7 +126,7 @@ class WebGUI:
             )
 
         @app.route("/birds_view_feed")
-        def birds_view_feed():
+        def birds_view_feed():  # pylint: disable=unused-variable
             # Return the response generated along with the specific media
             # Type (mime type)
             return Response(
@@ -134,7 +134,7 @@ class WebGUI:
             )
 
         @app.route("/visualize_logs", methods=['GET'])
-        def visualizer_page():
+        def visualizer_page():  # pylint: disable=unused-variable
             # Render a html file located at templates as home page
             path = [self.objects_log]
             return render_template("visualizer.html", csv_path=path)
