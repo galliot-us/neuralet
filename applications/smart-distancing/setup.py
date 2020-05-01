@@ -1,16 +1,25 @@
 import os
 import setuptools
 
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+PACKAGE_NAME = 'smart_distancing'
+DESCRIPTION = 'Smart Distancing App'
 
+THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+PACKAGE_DIR = os.path.join(THIS_DIR, PACKAGE_NAME)
+
+# get some setup variables from files
 with open(os.path.join(THIS_DIR, 'README.md')) as readme:
+    LONG_DESCRIPTION = readme.read()
 with open(os.path.join(THIS_DIR, 'requirements.in')) as requirements:
     INSTALL_REQUIRES = [l.strip() for l in requirements]
 with open(os.path.join(PACKAGE_DIR, 'VERSION')) as version_file:
     VERSION = version_file.readline().strip()[:16]
 
 setuptools.setup(
+    name=PACKAGE_NAME,
     version=VERSION,
+    description=DESCRIPTION,
+    long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 3 - Alpha',
@@ -38,7 +47,7 @@ setuptools.setup(
             'data/config/*.ini',
             'data/models/jetson',
             'data/models/edgetpu',
-    ],
+        ],
     },
     entry_points={
         'console_scripts': ['smart-distancing=smart_distancing.__main__:cli_main'],
