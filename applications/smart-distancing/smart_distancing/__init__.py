@@ -1,3 +1,33 @@
+"""
+Top level for smart_distancing.
+
+Contains typing types and some globals.
+
+.. py:data:: PACKAGE_ROOT
+
+    Absolute path to the package root.
+
+.. py:data:: PACKAGE_DATA_ROOT
+
+    Absolute path to package data dir.
+
+.. py:data:: PACKAGE_MODEL_ROOT
+
+    Absolute path to model dir.
+
+.. py:data:: USER_ROOT
+
+    Absolute path to user root (~/.smart_distancing).
+
+.. py:data:: USER_CONFIG_DIR
+
+    Absolute path to user config dir (under USER_ROOT).
+
+.. py:data:: USER_MODEL_DIR
+
+    Absolute path to user model dir (under USER_ROOT).
+
+"""
 import os
 
 from typing import (

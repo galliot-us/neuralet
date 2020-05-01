@@ -10,8 +10,7 @@ Welcome to Smart Distancing's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-.. automodule:: smart_distancing
-   :members:
+   smart_distancing
 
 
 Indices and tables
