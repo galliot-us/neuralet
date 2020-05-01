@@ -14,6 +14,8 @@ def main(config: Union[str, sd.core.ConfigEngine]) -> int:
     :param config: path to a config file or a ConfigEngine instance.
     :return: an integer return code for sys.exit()
     """
+    if not isinstance(config, sd.core.ConfigEngine):
+        config = sd.core.ConfigEngine(config)
     app = sd.core.DefaultDistancing(config)
     app.ui.start()
     return 0
