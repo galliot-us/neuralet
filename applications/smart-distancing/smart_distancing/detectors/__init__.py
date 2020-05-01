@@ -33,7 +33,7 @@ class BaseDetector(abc.ABC):
     Something should also call on_frame() with a sequence of sd.Detection
     """
 
-    SUPPORTED_PLATFORMS = None  # type: Tuple
+    PLATFORM = None  # type: Tuple
     DEFAULT_MODEL_FILE = None  # type: str
     DEFAULT_MODEL_URL = None  # type: str
 
