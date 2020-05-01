@@ -11,11 +11,6 @@ from .utils import visualization_utils as vis_util
 from tools.objects_post_process import extract_violating_objects
 from tools.environment_score import mx_environment_scoring_consider_crowd
 
-category_index = {0: {
-    "id": 0,
-    "name": "Pedestrian",
-}}  # TODO: json file for detector config
-
 
 class WebGUI:
     """
@@ -58,6 +53,13 @@ class WebGUI:
         birds_eye_window = np.zeros((300, 200, 3), dtype="uint8")
         # Get a proper dictionary of bounding boxes and colors for visualizing_boxes_and_labels_on_image_array function
         output_dict = vis_util.visualization_preparation(nn_out, distances, self._dist_threshold)
+
+        class_id = int(self.config.get_section_dict('Detector')['ClassID'])
+
+        category_index = {class_id: {
+            "id": class_id,
+            "name": "Pedestrian",
+        }}  # TODO: json file for detector config
         # Draw bounding boxes and other visualization factors on input_frame
         vis_util.visualize_boxes_and_labels_on_image_array(
             input_frame,
