@@ -37,7 +37,14 @@ import smart_distancing.loggers
 import smart_distancing.ui
 import smart_distancing.core
 
-__version__ = '0.1.0'
+
+# module/system level variables
+PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
+try:
+    with open(os.path.join(PACKAGE_ROOT, 'VERSION')) as version_file:
+        __version__ = version_file.readline().strip()[:16]
+except OSError:
+    __version__ = 'fallback (VERSION file missing from package root?)'
 __all__ = [
     'Detection',
     'Detections',

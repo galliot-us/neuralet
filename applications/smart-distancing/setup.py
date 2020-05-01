@@ -4,13 +4,11 @@ import setuptools
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 with open(os.path.join(THIS_DIR, 'README.md')) as readme:
-    long_description = readme.read()
+with open(os.path.join(PACKAGE_DIR, 'VERSION')) as version_file:
+    VERSION = version_file.readline().strip()[:16]
 
 setuptools.setup(
-    name='jetstreamer',
-    version='0.1.0',  # TODO(mdegans): single source of truth for this
-    description='Smart Distancing App',
-    long_description=long_description,
+    version=VERSION,
     long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 3 - Alpha',
