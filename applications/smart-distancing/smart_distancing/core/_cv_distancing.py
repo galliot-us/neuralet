@@ -31,8 +31,6 @@ class CvDistancing(BaseDistancing):
             from smart_distancing.detectors.x86 import TfDetector
             self.detector = TfDetector(self.config)
 
-        self.image_size = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
-
     def __process(self, cv_image):
         """
         return object_list list of  dict for each obj,
