@@ -70,7 +70,7 @@ def cli_main() -> int:
     # load the config from file
     config = load_config(args.config)
 
-    # override the handler class if set
+    # override the handler class if set in the config.
     handler_cls = sd.loggers.CsvHandler
     try:
         logger_name = config.get_section_dict('Logger')['Name']
