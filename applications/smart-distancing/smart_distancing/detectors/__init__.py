@@ -45,7 +45,7 @@ class BaseDetector(abc.ABC):
         if not os.path.isfile(self.model_file):
             logger.info(
                 f'model does not exist under: "{self.model_path}" '
-                f'downloading from  "{self.DEFAULT_MODEL_URL}"')
+                f'downloading from  "{self.model_url}"')
             os.makedirs(self.model_path, mode=0o755, exist_ok=True)
             urllib.request.urlretrieve(self.model_url, self.model_file)
 
