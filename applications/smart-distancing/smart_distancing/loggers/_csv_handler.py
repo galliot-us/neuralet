@@ -10,6 +10,10 @@ class CsvHandler(logging.handlers.TimedRotatingFileHandler):
 
     See logging.handlers.TimedRotatingFileHandler for full documentation.
 
+    Attributes:
+        EXT (str): the file extension.
+            Should be on any handler used by smart_distancing.
+
     Example usage/test:
 
     >>> filename = '/tmp/test.log.csv'
@@ -22,11 +26,15 @@ class CsvHandler(logging.handlers.TimedRotatingFileHandler):
     ...     for line in f:
     ...         assert 'ERROR' in line
     ...         assert 'test' in line
+    >>> CsvHandler.EXT = ".csv"
+    True
     """
+
     # TODO(mdegans): change the above test to use a random filename
     #  right now it's too brittle if run multiple times
 
     FIELD_NAMES = ('time', 'level', 'msg')
+    EXT = ".csv"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -10,6 +10,10 @@ class JsonLinesHandler(logging.handlers.TimedRotatingFileHandler):
     Json lines (.jl .jsonl) format TimedRotatingFileHandler.
 
     See logging.handlers.TimedRotatingFileHandler for full documentation.
+
+    Attributes:
+        EXT (str): the file extension.
+            Should be on any handler used by smart_distancing.
    
     Example usage/test:
 
@@ -23,7 +27,12 @@ class JsonLinesHandler(logging.handlers.TimedRotatingFileHandler):
     ...         rec = json.loads(line)
     ...         assert rec['level'] == 'ERROR'
     ...         assert rec['msg'] == 'test'
+    >>> JsonLinesHandler.EXT = '.jl'
+    True
     """
+
+    EXT = '.jl'
+
     # TODO(mdegans): change the above test to use a random filename
     #  right now it's too brittle if run multiple times
 

@@ -87,7 +87,8 @@ def cli_main() -> int:
         pass   
 
     # instantiate the handler
-    file_handler = handler_cls(os.path.join(logger_path, 'smart_distancing'))
+    file_handler = handler_cls(
+        os.path.join(logger_path, 'smart_distancing' + handler_cls.EXT))
     stream_handler = logging.StreamHandler()
 
     # tell logging to use the appropriate level and stream handler
