@@ -61,8 +61,8 @@ setuptools.setup(
             'data/models/edgetpu',
         ],
         'smart_distancing.ui': [
-            'static',
-            'templates',
+            'static/*.js',
+            'templates/*.html',
         ],
     },
     entry_points={
