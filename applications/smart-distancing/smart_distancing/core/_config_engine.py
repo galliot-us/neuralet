@@ -29,11 +29,15 @@ class ConfigEngine:
             self.config.clear()
             self.config_file_path = path
             self._load()
+        except OSError:
+            logger.debug(f'{path} not found')
+            raise
         finally:
             self.lock.release()
 
     def _load(self):
-        self.config.read(self.config_file_path)
+        with open(self.config_file_path) as f:
+            self.config.read_file(f)
         for section in self.config.sections():
             self.section_options_dict[section] = {}
             options = self.config.options(section)
