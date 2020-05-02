@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 import configparser
 import threading
+import logging
 
 __all__ = ['ConfigEngine']
+
+logger = logging.getLogger(__name__)
 
 class ConfigEngine:
     """
@@ -14,6 +17,7 @@ class ConfigEngine:
     """
 
     def __init__(self, config_path='./config-skeleton.ini'):
+        logger.debug(f'{self.__class__.__name__}:loading config from {config_path}')
         self.config = configparser.ConfigParser()
         self.config.optionxform = str
         self.config_file_path = config_path
