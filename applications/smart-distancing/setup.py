@@ -57,6 +57,7 @@ setuptools.setup(
             'VERSION',
             'data/logs',
             'data/config/*.ini',
+            'data/config/*.in',
             'data/models/jetson',
             'data/models/edgetpu',
         ],
