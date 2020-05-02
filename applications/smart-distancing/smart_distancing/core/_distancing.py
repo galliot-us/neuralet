@@ -58,3 +58,7 @@ class BaseDistancing(abc.ABC):
     @property
     def device(self) -> str:
         return self.detector_config['Device']
+
+    @property
+    def image_size(self) -> Tuple[int, int]:
+        return tuple(int(i) for i in self.detector_config['ImageSize'].split(','))
