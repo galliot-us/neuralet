@@ -43,6 +43,13 @@ class TfDetector(sd.detectors.BaseDetector):
         self.load_model()
 
     def load_model(self):
+        """
+        Download self.DEFAULT_MODEL_URL + self.name + '.tar.gz' model from:
+
+        https://download.tensorflow.org/models/object_detection/
+
+        ... or load one from file if it exists.
+        """
         keras_dl_root = tf.keras.utils.get_file(
             fname=self.name,
             origin=self.DEFAULT_MODEL_URL + self.name + '.tar.gz',
@@ -51,7 +58,6 @@ class TfDetector(sd.detectors.BaseDetector):
         self.model_path = os.path.join(keras_dl_root, "saved_model")
 
         self.model = tf.saved_model.load(self.model_path)
-        # FIXME?: This looks wrong but IDK enought about TF to say for sure - mdegans
         self.model = self.model.signatures['serving_default']
 
 
@@ -59,6 +65,7 @@ class TfDetector(sd.detectors.BaseDetector):
         """
         inference function sets input tensor to input image and gets the output.
         The interpreter instance provides corresponding detection output which is used for creating result
+
         Args:
             resized_rgb_image: uint8 numpy array with shape (img_height, img_width, channels)
 
@@ -91,7 +98,7 @@ class TfDetector(sd.detectors.BaseDetector):
     @property
     def sources(self):
         return None
-    
+
     @sources.setter
     def sources(self, _):
         pass

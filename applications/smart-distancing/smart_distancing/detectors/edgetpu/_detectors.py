@@ -67,15 +67,16 @@ class EdgeTpuDetector(sd.detectors.BaseDetector):
         self.interpreter = Interpreter(self.model_path, experimental_delegates=[load_delegate("libedgetpu.so.1")])
         self.interpreter.allocate_tensors()
 
-    def inference(self, resized_rgb_image):
+    def inference(self, resized_rgb_image: np.ndarray):
         """
-        inference function sets input tensor to input image and gets the output.
+        Sets input tensor to input resized_rgb_image and gets the output.
         The interpreter instance provides corresponding detection output which is used for creating result
+
         Args:
-            resized_rgb_image: uint8 numpy array with shape (img_height, img_width, channels)
+            resized_rgb_image (:obj:`np.ndarray`): uint8 ndarray with shape (img_height, img_width, channels) (HWC)
 
         Returns:
-            result: a dictionary contains of [{"id": 0, "bbox": [x1, y1, x2, y2], "score":s%}, {...}, {...}, ...]
+            result(:obj:`dict`): a dictionary contains of [{"id": 0, "bbox": [x1, y1, x2, y2], "score":s%}, {...}, {...}, ...]
         """
         input_image = np.expand_dims(resized_rgb_image, axis=0)
         # Fill input tensor with input_image
