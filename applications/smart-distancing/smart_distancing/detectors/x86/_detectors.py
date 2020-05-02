@@ -86,3 +86,12 @@ class TfDetector(sd.detectors.BaseDetector):
                 result.append({"id": str(class_id) + '-' + str(i), "bbox": boxes[0, i, :], "score": scores[0, i]})
 
         self.on_frame(result)
+
+    #TODO(mdegans): implement
+    @property
+    def sources(self):
+        return None
+    
+    @sources.setter
+    def sources(self, _):
+        pass
