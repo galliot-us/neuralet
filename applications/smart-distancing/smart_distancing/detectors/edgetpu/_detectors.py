@@ -27,7 +27,7 @@ class EdgeTpuDetector(sd.detectors.BaseDetector):
     A base class for edgetpu (Coral) Detectors. The following should be
     overridden:
 
-    DEFAULT_MODEL_FILE with the desired model basename
+    DEFAULT_MODEL_FILE with the desired model filename
     """
 
     PLATFORM = 'edgetpu'

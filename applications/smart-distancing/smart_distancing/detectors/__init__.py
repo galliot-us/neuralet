@@ -25,7 +25,7 @@ class BaseDetector(abc.ABC):
     A base class for all Detectors. The following should be overridden:
 
     PLATFORM the model platform (eg. edgetpu, jetson, x86)
-    DEFAULT_MODEL_FILE with the desired model basename
+    DEFAULT_MODEL_FILE with the desired model filename
     DEFAULT_MODEL_URL with the url path minus filename of the model
 
     load_model() to load the model. This is called for you on __init__.
