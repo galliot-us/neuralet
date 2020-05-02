@@ -1,7 +1,7 @@
 """DeepStream Distancing implementation and related functions."""
 import logging
 
-# import pyds
+import pyds
 
 from smart_distancing.core._distancing import BaseDistancing
 
