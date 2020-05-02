@@ -5,7 +5,4 @@ __all__ = [
     'MobilenetSsdDetector',
     'PedestrianSsdDetector',
     'PedestrianSsdLiteDetector',
-    'PLATFORM_STRING',
 ]
-
-PLATFORM_STRING = 'edgetpu'

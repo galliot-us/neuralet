@@ -7,6 +7,7 @@ import numpy as np
 
 from tflite_runtime.interpreter import load_delegate
 from tflite_runtime.interpreter import Interpreter
+
 from smart_distancing.utils.fps_calculator import convert_infr_time_to_fps
 
 import smart_distancing as sd
@@ -29,7 +30,7 @@ class EdgeTpuDetector(sd.detectors.BaseDetector):
     DEFAULT_MODEL_FILE with the desired model basename
     """
 
-    PLATFORM = sd.detectors.edgetpu.PLATFORM_STRING
+    PLATFORM = 'edgetpu'
     DEFAULT_MODEL_URL = 'https://raw.githubusercontent.com/neuralet/neuralet-models/master/edge-tpu/'
 
     # set on load_model()

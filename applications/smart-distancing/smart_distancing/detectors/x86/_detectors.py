@@ -21,7 +21,7 @@ class TfDetector(sd.detectors.BaseDetector):
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
 
-    SUPPORTED_PLATFORMS = sd.detectors.x86.PLATFORM_STRING
+    PLATFORM = 'x86'
     DEFAULT_MODEL_URL = "http://download.tensorflow.org/models/object_detection/"
 
     # these properties are not used on this detector

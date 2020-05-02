@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class JetsonDetector(sd.detectors.BaseDetector):
     """Jetson sublcass of BaseDetector"""
 
-    SUPPORTED_PLATFORMS = (sd.detectors.jetson.PLATFORM_STRING,)
+    PLATFORM = 'jetson'
     # TODO(mdegans): secure hash verification of all models
     DEFAULT_MODEL_URL = 'https://github.com/Tony607/jetson_nano_trt_tf_ssd/raw/master/packages/jetpack4.3/'
 
