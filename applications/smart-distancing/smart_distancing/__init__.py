@@ -33,6 +33,8 @@ Attributes:
         Default data root.
     CONFIG_DIR (str):
         Default config dir.
+    FALLBACK_CONFIG_DIR (str):
+        Config dir to use if a requested .ini not found in CONFIG_DIR.
     MODEL_DIR (str):
         Default model dir.
     LOG_DIR (str):
@@ -119,5 +121,6 @@ if not _make_paths(USER_PATHS if DEFAULT_TO_USER_PATHS else PACKAGE_PATHS):
 # set the global default paths acordingly
 DATA_ROOT = USER_ROOT if DEFAULT_TO_USER_PATHS else PACKAGE_DATA_ROOT
 CONFIG_DIR = USER_CONFIG_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_CONFIG_DIR
+FALLBACK_CONFIG_DIR = USER_CONFIG_DIR if not DEFAULT_TO_USER_PATHS else PACKAGE_CONFIG_DIR
 MODEL_DIR = USER_MODEL_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_MODEL_DIR
 LOG_DIR = USER_LOG_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_LOG_DIR
