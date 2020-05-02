@@ -42,6 +42,10 @@ class BaseDistancing(abc.ABC):
         self.ui = sd.ui.WebGUI(self.config, self)
 
     @property
+    def distancing_config(self) -> Dict:
+        return self.config.get_section_dict('App')
+
+    @property
     def detector_config(self) -> Dict:
         """:return: the Detector section from the .ini config"""
         return self.config.get_section_dict('Detector')
