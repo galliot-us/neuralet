@@ -59,6 +59,7 @@ import smart_distancing.detectors
 import smart_distancing.loggers
 import smart_distancing.ui
 import smart_distancing.core
+import smart_distancing.utils
 
 
 # module/system level variables
