@@ -31,7 +31,7 @@ class EdgeTpuDetector(sd.detectors.BaseDetector):
     """
 
     PLATFORM = 'edgetpu'
-    DEFAULT_MODEL_URL = 'https://raw.githubusercontent.com/neuralet/neuralet-models/master/edge-tpu/'
+    DEFAULT_MODEL_URL = 'https://github.com/google-coral/edgetpu/raw/master/test_data/'
 
     # set on load_model()
     interpreter = None  # type: Interpreter
