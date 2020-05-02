@@ -64,7 +64,7 @@ class EdgeTpuDetector(sd.detectors.BaseDetector):
 
     def load_model(self):
         # Load TFLite model and allocate tensors
-        self.interpreter = Interpreter(self.model_path, experimental_delegates=[load_delegate("libedgetpu.so.1")])
+        self.interpreter = Interpreter(self.model_file, experimental_delegates=[load_delegate("libedgetpu.so.1")])
         self.interpreter.allocate_tensors()
 
     def inference(self, resized_rgb_image: np.ndarray):
