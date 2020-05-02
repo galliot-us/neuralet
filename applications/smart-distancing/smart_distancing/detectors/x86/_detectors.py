@@ -45,7 +45,7 @@ class TfDetector(sd.detectors.BaseDetector):
     def load_model(self):
         keras_dl_root = tf.keras.utils.get_file(
             fname=self.name,
-            origin=self.DEFAULT_MODEL_URL + self.DEFAULT_MODEL_FILE,
+            origin=self.DEFAULT_MODEL_URL + self.name + '.tar.gz',
             untar=True)
 
         self.model_path = os.path.join(keras_dl_root, "saved_model")
