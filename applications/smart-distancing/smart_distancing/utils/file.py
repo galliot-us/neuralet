@@ -15,7 +15,7 @@ def get_ini_files(dir_) -> Iterator[str]:
     Does not recurse through subdirs.
 
     >>> list(get_ini_files(sd.PACKAGE_CONFIG_DIR))
-    ['skeleton.ini', 'x86.ini', 'jetson.ini']
+    ['edgetpu.ini', 'x86.ini', 'jetson.ini']
     """
     _, _, filenames = next(os.walk(dir_))
     for filename in filenames:
@@ -30,7 +30,7 @@ def config_files(include_fallback=True) -> List[str]:
     :param include_fallback: if True, includes sd.FALLBACK_CONFIG_DIR
 
     >>> config_files()
-    ['jetson.ini', 'skeleton.ini', 'x86.ini']
+    ['edgetpu.ini', 'jetson.ini', 'x86.ini']
     """
     inis = set(get_ini_files(sd.CONFIG_DIR))
     if include_fallback:
