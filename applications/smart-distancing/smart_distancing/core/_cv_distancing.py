@@ -1,6 +1,7 @@
 """OpenCV Distancing implementation"""
 import math
 import logging
+import itertools
 
 import cv2 as cv
 import numpy as np
@@ -11,12 +12,18 @@ from smart_distancing.core._centroid_object_tracker import CentroidTracker
 
 __all__ = ['CvDistancing']
 
+
 class CvDistancing(BaseDistancing):
     """OpenCV implementation of Distancing"""
+
+    # TODO(mdegans): this is a hacky way of passing the frame around. rethink.
+    _cv_img_tmp = None
 
     def __init__(self, config):
         super().__init__(config)
         self.running_video = False
+        self.logger = logging.getLogger(__class__.__name__)
+        self.frame_counter = itertools.count(0)
         self.tracker = CentroidTracker(
             max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
         if self.device == 'Jetson':
@@ -30,25 +37,35 @@ class CvDistancing(BaseDistancing):
         elif self.device == 'x86':
             from smart_distancing.detectors.x86 import TfDetector
             self.detector = TfDetector(self.config)
+        
+        # set the callback on the detector process, so it's called 
+        self.detector.on_frame = self._on_detections
+
+
+    def _resize(self, cv_image):
+        cv_image = cv.resize(cv_image, self.resolution)
+        resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
+        return cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
 
     def __process(self, cv_image):
-        """
-        return object_list list of  dict for each obj,
-        obj["bbox"] is normalized coordinations for [x0, y0, x1, y1] of box
-        """
         if self.device == 'Dummy':
             return cv_image, [], None
 
-        # Resize input image to resolution
-        resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
-        cv_image = cv.resize(cv_image, tuple(resolution))
+        # Resize input image to display resolution
+        cv_image = self._resize(cv_image)
 
-        resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
-        rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
-        tmp_objects_list = self.detector.inference(rgb_resized_image)
-        [w, h] = resolution
+        # store the frame temporarily for display:
+        self._cv_img_tmp = cv_image
 
-        for obj in tmp_objects_list:
+        # run the Detector, which calls _on_detections when it's done
+        self.detector.inference(cv_image)
+
+    def _on_detections(self, detections):
+        # TODO(mdegans): move to Detector class instead of setting it as on_frame callback on init?
+        # it does what's described in the Detector interface.
+        w, h = self.resolution
+
+        for obj in detections:
             box = obj["bbox"]
             x0 = box[1]
             y0 = box[0]
@@ -59,8 +76,14 @@ class CvDistancing(BaseDistancing):
             obj["centroidReal"] = [(x0 + x1) * w / 2, (y0 + y1) * h / 2, (x1 - x0) * w, (y1 - y0) * h]
             obj["bboxReal"] = [x0 * w, y0 * h, x1 * w, y1 * h]
 
-        objects_list, distancings = self.calculate_distancing(tmp_objects_list)
-        return cv_image, objects_list, distancings
+        objects, distancings = self.calculate_distancing(detections)
+        record = {
+            # TODO(mdegans): fix serialization if desired. seems a lot to log.
+            'fnum': next(self.frame_counter),
+            'objects': len(objects),
+        }
+        self.logger.debug(serialize(record))
+        self.ui.update(self._cv_img_tmp, objects, distancings)
 
     def process_video(self, video_uri):
         input_cap = cv.VideoCapture(video_uri)
@@ -74,24 +97,17 @@ class CvDistancing(BaseDistancing):
         self.running_video = True
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
-            if np.shape(cv_image) != ():
-                cv_image, objects, distancings = self.__process(cv_image)
-            else:
+            if np.shape(cv_image) == ():
                 continue
-            # TODO(mdegans): test these are serializable
-            record = {
-                'objects': objects,
-                'distancings': distancings,
-            }
-            self.logger.debug(serialize(record))
-            self.ui.update(cv_image, objects, distancings)
+            self.__process(cv_image)
+
         input_cap.release()
         self.running_video = False
 
     def process_image(self, image_path):
         # Process and pass the image to ui modules
         cv_image = cv.imread(image_path)
-        cv_image, objects, distancings = self.__process(cv_image)
+        cv_image, objects, distancings = self.detector.inference(cv_image)
         self.ui.update(cv_image, objects, distancings)
 
     def calculate_distancing(self, objects_list):
