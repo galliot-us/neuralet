@@ -90,6 +90,8 @@ def cli_main() -> int:
     file_handler = handler_cls(
         os.path.join(logger_path, 'smart_distancing' + handler_cls.EXT))
     stream_handler = logging.StreamHandler()
+    file_handler.addFilter(sd.loggers.spam_filter)
+    stream_handler.addFilter(sd.loggers.spam_filter)
 
     # tell logging to use the appropriate level and stream handler
     logging.basicConfig(
