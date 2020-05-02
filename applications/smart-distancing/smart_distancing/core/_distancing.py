@@ -32,6 +32,10 @@ class BaseDistancing(abc.ABC):
             logger.info(f'device is: {self.device}')
             logger.info(f'image size: {self.image_size}')
 
+        # set the output resolution
+        self.resolution = tuple(int(i) for i in self.distancing_config['Resolution'].split(','))
+        logger.debug(f'{self.__class__.__name__}:resolution set to:{self.resolution}')
+
         # create the ui
         # there is a self reference issue here that could become
         # a problem if the engine needs to be restarted repeatedly
