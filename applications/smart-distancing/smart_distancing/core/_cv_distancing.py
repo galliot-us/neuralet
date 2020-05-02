@@ -28,8 +28,8 @@ class CvDistancing(BaseDistancing):
         elif self.device == 'Dummy':
             self.detector = None
         elif self.device == 'x86':
-            from smart_distancing.detectors.x86.detector import Detector
-            self.detector = Detector(self.config)
+            from smart_distancing.detectors.x86 import TfDetector
+            self.detector = TfDetector(self.config)
 
         self.image_size = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
 
