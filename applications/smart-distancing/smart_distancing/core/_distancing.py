@@ -4,9 +4,14 @@ import logging
 
 from typing import (
     Dict,
+    Tuple,
 )
 
+import smart_distancing as sd
+
 __all__ = ['BaseDistancing']
+
+logger = logging.getLogger(__name__)
 
 class BaseDistancing(abc.ABC):
     """Distancing base class"""
@@ -17,17 +22,15 @@ class BaseDistancing(abc.ABC):
 
     def __init__(self, config):
         # set up the object's logger
-        self.logger = logging.getLogger(self.__name__)
-        self.logger.debug('__init__ start')
+        logger.debug('__init__ start')
 
         # assign the config
         self.config = config
 
         # log the device type
         if self.device != 'Dummy':
-            self.logger.info(f'Device is: {self.device}')
-            self.logger.info(f'Detector is: {self.detector.name}')
-            self.logger.info(f'image size: {self.image_size}')
+            logger.info(f'device is: {self.device}')
+            logger.info(f'image size: {self.image_size}')
 
         # create the ui
         # there is a self reference issue here that could become
