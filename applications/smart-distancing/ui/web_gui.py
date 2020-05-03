@@ -188,7 +188,7 @@ class WebGUI:
         if self._infs_mode == 'EVAL':
             image_path = self.config.get_section_dict("Evaluation")["ImagesPath"]
             self.__ENGINE_INSTANCE.process_image_export_results(image_path)
-        elif self._infs_mode == 'VIDEO':
+        elif self._infs_mode == 'INFERENCE':
             # Get video file path from the config
             video_path = self.config.get_section_dict("App")["VideoPath"]
             self.__ENGINE_INSTANCE.process_video(video_path)
