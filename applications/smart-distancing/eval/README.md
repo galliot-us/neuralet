@@ -42,7 +42,7 @@ To evaluate **Smart Social Distancing** models, you should change the applicatio
 ```
 # Open applications/smart-distancing/[CONFIG.ini] ('config-skeleton.ini' for edgetpu device, 'config-jetson.ini' for jetson device) and set the parameters as follows
 [APP]
-InferenceMode: EVAL
+InferenceMode: IMG_EVAL
 [Evaluation]
 ImagesPath: /repo/applications/smart-distancing/data/test_images
 GtImageSize: 960,540,3
