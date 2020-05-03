@@ -187,10 +187,10 @@ class WebGUI:
         """
         threading.Thread(target=self._run).start()
         time.sleep(1)
-        if self._infs_mode == 'EVAL':
+        if self._infs_mode == 'IMG_EVAL':
             image_path = self.config.get_section_dict("Evaluation")["ImagesPath"]
             self.__ENGINE_INSTANCE.process_image_export_results(image_path)
-        elif self._infs_mode == 'INFERENCE':
+        elif self._infs_mode == 'VIDEO':
             # Get video file path from the config
             video_path = self.config.get_section_dict("App")["VideoPath"]
             self.__ENGINE_INSTANCE.process_video(video_path)
