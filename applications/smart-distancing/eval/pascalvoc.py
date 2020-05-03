@@ -214,6 +214,7 @@ parser.add_argument(
     metavar="",
     help="folder containing your detected bounding boxes",
 )
+# TODO: add multiple threshold ex: [0.5 0.6 0.7 0.8]
 # Optional
 parser.add_argument(
     "-t",
