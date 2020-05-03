@@ -72,6 +72,7 @@ The table below shows the performance of **Smart Social Distancing App** with se
 | Mobilenet_SSD_V2 |  Coral Dev Board   | 0.5 | 34.91% | ~70 |
 | Pedestrian_SSD_MobileNet_V2 |  Coral Dev Board   | 0.5 | 84.01% | ~180 |
 | Pedestrian_SSDLite_MobileNet_V2 |  Coral Dev Board   | 0.5 | 84.29% | ~170 |
+
 [More details of how mAP is calculated](https://github.com/rafaelpadilla/Object-Detection-Metrics/blob/master/README.md).[[1]](#1)
 
 ## References
