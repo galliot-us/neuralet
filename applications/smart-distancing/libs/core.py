@@ -28,7 +28,6 @@ class Distancing:
             self.detector = None
 
         self.image_size = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
-        self.gt_image_size = [int(i) for i in self.config.get_section_dict('Evaluation')['GtImageSize'].split(',')]
 
         if self.device != 'Dummy':
             print('Device is: ', self.device)
@@ -100,8 +99,6 @@ class Distancing:
 
     def process_image_export_results(self, image_path):
         # Process and pass the image to ui module plus export results for evaluating
-        w = self.gt_image_size[0]
-        h = self.gt_image_size[1]
         results_directory = self.config.get_section_dict('Evaluation')['ResultDir']
         if not os.path.exists(results_directory):
             os.mkdir(results_directory)
@@ -132,12 +129,10 @@ class Distancing:
                 y0 = bbox[1]
                 x1 = bbox[2]
                 y1 = bbox[3]
-                x_abs = x0 * w
-                y_abs = y0 * h
-                width = (x1 * w) - x_abs
-                height = (y1 * h) - y_abs
+                width = x1 - x0
+                height = y1 - y0
                 score = obj['score']
-                results += dt_fromat.format(str(class_name), str(score), str(x_abs), str(y_abs), str(width),
+                results += dt_fromat.format(str(class_name), str(score), str(x0), str(y0), str(width),
                                             str(height))
 
             self.ui.update(cv_image, objects, distancings)

@@ -54,7 +54,7 @@ Follow the instructions [here](https://github.com/neuralet/neuralet/blob/master/
 **Step 7: Calculate mAP**
 ```
 cd neuralet/applications/smart-distancing/eval
-python pascalvoc.py -gt groundtruth/ --det detections_results/[DeviceName]-[ModeName]/ -t 0.5
+python pascalvoc.py -gt groundtruth/ --det detections_results/[DeviceName]-[ModeName]/ -t 0.5 -gtcoords abs -detcoords rel -imgsize (960,540)
 #E.g. python pascalvoc.py -gt groundtruths/ --det detections_results/EdgeTPU-pedestrian_ssd_mobilenet_v2/ -t 0.5
 
 ```
