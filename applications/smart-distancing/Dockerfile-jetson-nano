@@ -1,5 +1,4 @@
-# docker can be installed on the dev board following these instructions:
-# https://docs.docker.com/install/linux/docker-ce/debian/#install-using-the-repository , step 4: arm64
+# docker is pre-installed on Tegra devices
 # 1) build: docker build -f Dockerfile-jetson-nano -t "neuralet/jetson-nano:applications-smart-distancing" .
 # 2) run: docker run -it --runtime nvidia --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
 
