@@ -81,6 +81,15 @@ docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:applications-smart-di
 docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:applications-smart-distancing
 ```
 
+**Run on x86**
+```
+cd neuralet/applications/smart-distancing/
+
+# 1) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
+docker build -f Dockerfile-x86 -t "neuralet/x86_64:applications-smart-distancing" .
+# 2) Run Docker container:
+docker run -it -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/x86_64:applications-smart-distancing
+```
 
 ### Configurations
 You can read and modify the configurations in `config-jetson.ini` file for Jetson Nano and `config-skeleton.ini` file for Coral.
