@@ -1,26 +1,43 @@
 # docker is pre-installed on Tegra devices
-# 1) build: (sudo) docker build -f Dockerfile-jetson-nano -t "neuralet/jetson-nano:applications-smart-distancing" .
-# 2) run: (sudo) docker run -it --runtime nvidia -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
+# 1) build: (sudo) docker build -f tegra.Dockerfile -t "neuralet/smart_distancing:tegra" .
+# 2) run: (sudo) docker run -it --user $(id -u):$(id -g) --runtime nvidia -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
 
-FROM nvcr.io/nvidia/l4t-base:r32.3.1
+# this is l4t-base with the apt sources enabled
+# the lack of apt sources seems to be an oversight on the part of Nvidia
+# it should be unnecessary to do this in later releases.
+FROM registry.hub.docker.com/mdegans/l4t-base:latest
 
-ENV TZ=US/Pacific
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ARG DEBIAN_FRONTEND=noninteractive
 
-VOLUME /repo
+# install runtime depdenencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3-flask \
+        python3-opencv \
+        python3-scipy \
+        python3-matplotlib \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://github.com/Tony607/jetson_nano_trt_tf_ssd/raw/master/packages/jetpack4.3/tensorrt.tar.gz -O /opt/tensorrt.tar.gz
-RUN tar -xzf /opt/tensorrt.tar.gz -C /usr/local/lib/python3.6/dist-packages/
+# install build deps for pycuda, install pycuda, remove build deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3-pip \
+        python3-dev \
+        python3-setuptools \
+        cuda-minimal-build-10-0 \
+    && pip3 install pycuda \
+    && apt-get purge -y --autoremove \
+        python3-pip \
+        python3-dev \
+        python3-setuptools \
+        cuda-minimal-build-10-0 \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://github.com/Tony607/jetson_nano_trt_tf_ssd/raw/master/packages/jetpack4.3/libflattenconcat.so -O /opt/libflattenconcat.so
+# copy source last, so it can be modified easily without rebuilding everything.
+COPY . /repo/
+WORKDIR /repo/
 
-RUN apt-get update && apt-get install -y python3-pip pkg-config
-
-RUN apt-get install -y python3-flask python3-opencv python3-scipy python3-matplotlib
-
-RUN pip3 install pycuda
-
-WORKDIR /repo/applications/smart-distancing
+# the apt packages are build dependencies, but not runtime dependencies
+# since --runtime nvidia bind mounts libs at runtime, so we can purge
+# these packages after we're done installing pycuda
 
 EXPOSE 8000
 
