@@ -20,5 +20,5 @@ RUN apt-get install -y python3-flask python3-opencv python3-scipy
 
 WORKDIR /repo/applications/smart-distancing
 
-ENTRYPOINT ["python3", "neuralet-distancing.py"]
+ENTRYPOINT ["python3", "-m", "smart_distancing", "--verbose"]
 CMD ["--config", "config-skeleton.ini"]

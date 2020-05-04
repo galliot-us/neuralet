@@ -27,5 +27,5 @@ RUN apt-get install -y python3-flask python3-opencv python3-scipy
 WORKDIR /repo/applications/smart-distancing
 # Also if you use opencv: LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0"
 
-ENTRYPOINT ["python3", "neuralet-distancing.py"]
+ENTRYPOINT ["python3", "-m", "smart_distancing", "--verbose"]
 CMD ["--config", "config-skeleton.ini"]

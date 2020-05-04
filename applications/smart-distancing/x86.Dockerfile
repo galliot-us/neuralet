@@ -9,5 +9,5 @@ RUN pip install --upgrade pip setuptools==41.0.0 && pip install opencv-python wg
 
 EXPOSE 8000
 
-ENTRYPOINT ["python", "neuralet-distancing.py"]
+ENTRYPOINT ["python3", "-m", "smart_distancing", "--verbose"]
 CMD ["--config", "config-x86.ini"]
