@@ -1,6 +1,6 @@
 # docker is pre-installed on Tegra devices
 # 1) build: (sudo) docker build -f tegra.Dockerfile -t "neuralet/jetson-nano:applications-smart-distancing" .
-# 2) run: (sudo) docker run -it --user $(id -u):$(id -g) --runtime nvidia -p HOST_PORT:8000 neuralet/jetson-nano:applications-smart-distancing
+# 2) run: (sudo) docker run -it --runtime nvidia -p HOST_PORT:8000 neuralet/jetson-nano:applications-smart-distancing
 
 # this is l4t-base with the apt sources enabled
 # the lack of apt sources seems to be an oversight on the part of Nvidia
@@ -31,14 +31,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-setuptools \
         cuda-minimal-build-10-0 \
     && rm -rf /var/lib/apt/lists/*
+# the apt packages are build dependencies, but not runtime dependencies
+# since --runtime nvidia bind mounts libs at runtime, so we can purge
+# these packages after we're done installing pycuda
+
 
 # copy source last, so it can be modified easily without rebuilding everything.
 COPY . /repo/
 WORKDIR /repo/
 
-# the apt packages are build dependencies, but not runtime dependencies
-# since --runtime nvidia bind mounts libs at runtime, so we can purge
-# these packages after we're done installing pycuda
+# create a regular user to run the app instead of default (root)
+# /home/dir is /var/smart_distancing
+# video group is required to access the GPU without root
+RUN useradd -G video -mrd /var/smart_distancing smart_distancing
+USER smart_distancing:smart_distancing
 
 EXPOSE 8000
 
