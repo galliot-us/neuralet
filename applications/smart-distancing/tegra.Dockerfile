@@ -1,6 +1,6 @@
 # docker is pre-installed on Tegra devices
 # 1) build: (sudo) docker build -f tegra.Dockerfile -t "neuralet/smart_distancing:tegra" .
-# 2) run: (sudo) docker run -it --user $(id -u):$(id -g) --runtime nvidia -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
+# 2) run: (sudo) docker run -it --user $(id -u):$(id -g) --runtime nvidia -p HOST_PORT:8000 neuralet/smart_distancing:tegra
 
 # this is l4t-base with the apt sources enabled
 # the lack of apt sources seems to be an oversight on the part of Nvidia
