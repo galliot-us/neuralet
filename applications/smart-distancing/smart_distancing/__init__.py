@@ -39,6 +39,10 @@ Attributes:
         Default model dir.
     LOG_DIR (str):
         Default log dir.
+    PLUGIN_DIR ():
+        Root plugin path.
+    SCRIPT_DIR (str):
+        Path to various bash scripts (mostly used to build plugins).
 
     Detection (:obj:`typing.Type`):
         Typing module Type of a detection (a dict of str:Any).
@@ -75,9 +79,13 @@ __all__ = [
     'Detection',
     'Detections',
     'PACKAGE_ROOT',
-    'USER_ROOT',
-    'USER_CONFIG_DIR',
-    'USER_MODEL_DIR',
+    'DATA_ROOT',
+    'CONFIG_DIR',
+    'PLUGIN_DIR',
+    'FALLBACK_CONFIG_DIR',
+    'MODEL_DIR',
+    'LOG_DIR',
+    'SCRIPT_DIR',
 ]
 
 # Default paths to try:
@@ -86,21 +94,24 @@ DEFAULT_TO_USER_PATHS = True
 # Where data can go if the path is writable
 PACKAGE_DATA_ROOT = os.path.join(PACKAGE_ROOT, 'data')
 PACKAGE_CONFIG_DIR = os.path.join(PACKAGE_DATA_ROOT, 'config')
+PACKAGE_PLUGIN_DIR = os.path.join(PACKAGE_DATA_ROOT, 'plugins')
 PACKAGE_MODEL_DIR = os.path.join(PACKAGE_DATA_ROOT, 'models')
 PACKAGE_LOG_DIR = os.path.join(PACKAGE_DATA_ROOT, 'logs')
+PACKAGE_SCRIPT_DIR = os.path.join(PACKAGE_DATA_ROOT, 'scripts')
 
 PACKAGE_PATHS = (
-    PACKAGE_DATA_ROOT, PACKAGE_CONFIG_DIR, PACKAGE_MODEL_DIR, PACKAGE_LOG_DIR,
+    PACKAGE_DATA_ROOT, PACKAGE_CONFIG_DIR, PACKAGE_PLUGIN_DIR, PACKAGE_MODEL_DIR, PACKAGE_LOG_DIR,
 )
 
 # Where data can go if the path is not writable
 USER_ROOT = os.path.join(os.path.expanduser('~'), '.smart_distancing')
 USER_CONFIG_DIR = os.path.join(USER_ROOT, 'configs')
+USER_PLUGIN_DIR = os.path.join(USER_ROOT, 'plugins')
 USER_MODEL_DIR = os.path.join(USER_ROOT, 'models')
 USER_LOG_DIR = os.path.join(USER_ROOT, 'logs')
 
 USER_PATHS = (
-    USER_ROOT, USER_CONFIG_DIR, USER_MODEL_DIR, USER_LOG_DIR,
+    USER_ROOT, USER_CONFIG_DIR, USER_MODEL_DIR, USER_PLUGIN_DIR, USER_LOG_DIR,
 )
 
 def _make_paths(paths: Sequence[str]):
@@ -121,6 +132,8 @@ if not _make_paths(USER_PATHS if DEFAULT_TO_USER_PATHS else PACKAGE_PATHS):
 # set the global default paths acordingly
 DATA_ROOT = USER_ROOT if DEFAULT_TO_USER_PATHS else PACKAGE_DATA_ROOT
 CONFIG_DIR = USER_CONFIG_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_CONFIG_DIR
+PLUGIN_DIR = USER_PLUGIN_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_PLUGIN_DIR
 FALLBACK_CONFIG_DIR = USER_CONFIG_DIR if not DEFAULT_TO_USER_PATHS else PACKAGE_CONFIG_DIR
 MODEL_DIR = USER_MODEL_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_MODEL_DIR
 LOG_DIR = USER_LOG_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_LOG_DIR
+SCRIPT_DIR = PACKAGE_SCRIPT_DIR

@@ -56,6 +56,7 @@ setuptools.setup(
         'smart_distancing': [
             'VERSION',
             'data/logs',
+            'data/scripts/*.sh',
             'data/config/*.ini',
             'data/config/*.in',
             'data/models/jetson',

@@ -2,6 +2,7 @@
 import ctypes
 import logging
 import time
+import os
 
 import numpy as np
 import tensorrt as trt
@@ -22,6 +23,23 @@ __all__ = [
 ]
 
 logger = logging.getLogger(__name__)
+
+
+def build_libflattenconcat(plugin_dir):
+    """Build libflattenconcat.so and install at plugin_dir"""
+    import itertools
+    import subprocess
+    script_name = 'build_libflattenconcat.sh'
+    script_path = os.path.join(sd.SCRIPT_DIR, script_name)
+    command = (script_path, plugin_dir)
+    p = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    logger.info(f"building libflattenconcat.so...")
+    for stdout, stderr in itertools.zip_longest(p.stdout, p.stderr):
+        if stdout:
+            logger.debug(stdout.decode().strip())
+        if stderr:
+            logger.error(stderr.decode().strip())
 
 
 def preprocess_trt(img):
@@ -76,6 +94,7 @@ class JetsonDetector(sd.detectors.BaseDetector):
     """
 
     PLATFORM = 'jetson'
+    PLUGIN = os.path.join(sd.PLUGIN_DIR, 'trt', 'libflattenconcat.so')
     # TODO(mdegans): secure hash verification of all models
     DEFAULT_MODEL_URL = 'https://github.com/Tony607/jetson_nano_trt_tf_ssd/raw/master/packages/jetpack4.3/'
 
@@ -85,7 +104,6 @@ class JetsonDetector(sd.detectors.BaseDetector):
     # TODO(mdegans): Documentation says this is a singleton, so this should be fine,
     #  but it's still a good idea to test this.
     logger = LoggingModuleTrtLogger(trt.Logger.INFO)
-    libflattenconcat_so = "/opt/libflattenconcat.so"
 
     def __init__(self, config, output_layout=7):
         self.output_layout = output_layout
@@ -112,8 +130,13 @@ class JetsonDetector(sd.detectors.BaseDetector):
 
     def _load_plugins(self):
         """Required as Flattenconcat is not natively supported in TensorRT."""
-        logger.debug(f"loading {self.libflattenconcat_so}")
-        ctypes.CDLL(self.libflattenconcat_so)
+        logger.debug(f"loading {self.PLUGIN}")
+        try:
+            ctypes.CDLL(self.PLUGIN)
+        except OSError:
+            logger.info(f"could not find {self.PLUGIN}")
+            build_libflattenconcat(sd.PLUGIN_DIR)
+            ctypes.CDLL(self.PLUGIN)
         trt.init_libnvinfer_plugins(self.logger, '')
 
     def _create_context(self):
