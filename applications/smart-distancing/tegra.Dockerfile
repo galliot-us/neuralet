@@ -23,4 +23,4 @@ RUN pip3 install pycuda
 WORKDIR /repo/applications/smart-distancing
 
 ENTRYPOINT ["python3", "-m", "smart_distancing", "--verbose"]
-CMD ["--config", "config-jetson.ini"]
+CMD ["--config", "jetson.ini"]
