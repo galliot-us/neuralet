@@ -19,6 +19,8 @@ from typing import (
 
 __all__ = [
     'JetsonDetector',
+    'build_libflattenconcat',
+    'preprocess_trt',
     'MobilenetSsdDetector',
 ]
 
