@@ -5,7 +5,7 @@
 # this is l4t-base with the apt sources enabled
 # the lack of apt sources seems to be an oversight on the part of Nvidia
 # it should be unnecessary to do this in later releases.
-FROM registry.hub.docker.com/mdegans/l4t-base:latest
+FROM registry.hub.docker.com/mdegans/l4t-base:r32.3.1
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -18,33 +18,42 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-pillow \
     && rm -rf /var/lib/apt/lists/*
 
-# install build deps for pycuda, install pycuda, remove build deps
+# copy just libflattenconcat build script initially
+COPY smart_distancing/data/scripts/build_libflattenconcat.sh /tmp/
+
+# install build deps for stuff that needs building, remove build deps
+# libnvinfer-samples provides /usr/src/tensorrt for libflattenconcat.so
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        python3-pip \
-        python3-dev \
-        python3-setuptools \
+        cmake \
         cuda-minimal-build-10-0 \
+        libnvinfer-samples \
+        python3-dev \
+        python3-pip \
+        python3-setuptools \
     && pip3 install pycuda \
+    && useradd -mrd /var/smart_distancing smart_distancing \
+    && mkdir -p /var/smart_distancing/.smart_distancing/plugins/ \
+    && chown -R smart_distancing:smart_distancing /var/smart_distancing/.smart_distancing \
+    && /tmp/build_libflattenconcat.sh /var/smart_distancing/.smart_distancing/plugins/ \
     && apt-get purge -y --autoremove \
-        python3-pip \
-        python3-dev \
-        python3-setuptools \
+        cmake \
         cuda-minimal-build-10-0 \
+        libnvinfer-samples \
+        python3-dev \
+        python3-pip \
+        python3-setuptools \
     && rm -rf /var/lib/apt/lists/*
 # the apt packages are build dependencies, but not runtime dependencies
 # since --runtime nvidia bind mounts libs at runtime, so we can purge
 # these packages after we're done installing pycuda
 
-
 # copy source last, so it can be modified easily without rebuilding everything.
 COPY . /repo/
 WORKDIR /repo/
 
-# create a regular user to run the app instead of default (root)
-# /home/dir is /var/smart_distancing
-# video group is required to access the GPU without root
-RUN useradd -G video -mrd /var/smart_distancing smart_distancing
-USER smart_distancing:smart_distancing
+# run as smart distancing and the video group, which can access the GPU
+# (insted of running as root). The base image is also defanged.
+USER smart_distancing:video
 
 EXPOSE 8000
 
