@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         python3-opencv \
         python3-scipy \
         python3-matplotlib \
+        python3-pillow \
     && rm -rf /var/lib/apt/lists/*
 
 # install build deps for pycuda, install pycuda, remove build deps
