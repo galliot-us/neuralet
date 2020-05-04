@@ -1,6 +1,6 @@
 # docker is pre-installed on Tegra devices
-# 1) build: docker build -f Dockerfile-jetson-nano -t "neuralet/jetson-nano:applications-smart-distancing" .
-# 2) run: docker run -it --runtime nvidia -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
+# 1) build: (sudo) docker build -f Dockerfile-jetson-nano -t "neuralet/jetson-nano:applications-smart-distancing" .
+# 2) run: (sudo) docker run -it --runtime nvidia -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
 
 FROM nvcr.io/nvidia/l4t-base:r32.3.1
 
