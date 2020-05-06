@@ -118,10 +118,13 @@ def _make_paths(paths: Sequence[str]):
     """make some paths, return false on failure"""
     try:
         for path in paths:
-            os.makedirs(path, mode=0o755, exist_ok=True)
+            if not os.path.isdir(path):
+                print(f'creating {path}')
+                os.makedirs(path, mode=0o755, exist_ok=True)
             if not os.access(path, os.W_OK):
                 return False
     except OSError:
+        print('failed to initialize paths')
         return False
     return True
 
