@@ -84,7 +84,7 @@ class GstConfig(object):
         SINK_TYPE (str):
             The sink type to use.
             Defaults to 'fakesink'.
-    
+
     Examples:
 
         A supplied inference configuration and source configuration are
