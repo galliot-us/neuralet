@@ -13,6 +13,7 @@ from gi.repository import (
 from smart_distancing.detectors.deepstream._pyds import *
 from smart_distancing.detectors.deepstream._ds_config import *
 from smart_distancing.detectors.deepstream._ds_engine import *
+from smart_distancing.detectors.deepstream._detectors import *
 
 __all__ = [
     'DsConfig',  # _ds_config.py
