@@ -166,7 +166,7 @@ class GstEngine(multiprocessing.Process):
     Examples:
 
         NOTE: the default GstConfig pipeline is:
-            fakesrc ! identity ... identity ! fakesink,
+              fakesrc ! identity ... identity ! fakesink,
 
         >>> source_configs = [dict(),]
         >>> infer_configs = [dict(),]
@@ -339,7 +339,7 @@ class GstEngine(multiprocessing.Process):
         """
         Create GstConfig.INFER_TYPE elements, add them to the pipeline,
         and append them to self._infer_elements for ease of access / linking.
-        
+
         Returns:
             bool: False on failure, True on success.
         """
@@ -489,7 +489,7 @@ class GstEngine(multiprocessing.Process):
     def on_buffer(self, pad: Gst.Pad, info: Gst.PadProbeInfo, _: None, ) -> Gst.PadProbeReturn:
         """
         Default source pad probe buffer callback for the sink.
-        
+
         Simply returns Gst.PadProbeReturn.OK, signaling the buffer
         shuould continue down the pipeline.
         """
@@ -569,6 +569,54 @@ class GstEngine(multiprocessing.Process):
         self._main_loop = GLib.MainLoop()
         self.logger.debug('starting the GLib.MainLoop')
         self._main_loop.run()
+
+
+class DsEngine(GstEngine):
+    """
+    DeepStream implemetation of GstEngine.
+    """
+
+    def on_buffer(self, pad: Gst.Pad, info: Gst.PadProbeInfo, _: None, ) -> Gst.PadProbeReturn:
+        """
+        Parse inference metadata and put it in the result queue.
+        """
+        gst_buffer = info.get_buffer()
+        if not gst_buffer:
+            self.logger.error(
+                'Failed to get buffer from Gst.PadProbeInfo. Removing probe.')
+            return Gst.PadProbeReturn.REMOVE
+        
+        # the __hash__ of a gst_buffer is a pointer
+        batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
+
+        # a list to store the detections
+        results = []
+
+        # iterate through the metadata and add results to the list
+        for frame_meta in frame_meta_iterator(batch_meta.frame_meta_list):
+            for obj_meta in obj_meta_iterator(frame_meta.obj_meta_list):
+                rect = obj_meta.rect_params  # type: pyds.NvOSD_RectParams
+                results.append({
+                    'fnum': frame_meta.frame_num,
+                    'id': obj_meta.class_id,
+                    'bbox': [
+                        rect.left,  # x1
+                        rect.top,  # y1
+                        rect.left + rect.width,  # x2
+                        rect.top + rect.height,  # y2
+                    ],
+                    'score': obj_meta.confidence,
+                })
+
+        if not self._update_result_queue(results):
+            # NOTE(mdegans): we can drop the whole buffer here if we want to drop
+            # frames when we're unable to update the metadata queue
+            # return Gst.PadProbeReturn.DROP
+            pass
+
+        # return pad probe ok, which passes the buffer on
+        return Gst.PadProbeReturn.OK
+
 
 if __name__ == "__main__":
     import doctest
