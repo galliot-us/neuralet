@@ -335,7 +335,7 @@ class GstEngine(multiprocessing.Process):
         return True
     _create_tracker.__doc__ = _ELEM_DOC.format(elem_name='`self.config.TRACKER_TYPE`')
 
-    def _create_nvinfer_elements(self) -> bool:
+    def _create_infer_elements(self) -> bool:
         """
         Create GstConfig.INFER_TYPE elements, add them to the pipeline,
         and append them to self._infer_elements for ease of access / linking.
@@ -416,6 +416,7 @@ class GstEngine(multiprocessing.Process):
             self._create_sources,
             self._create_muxer,
             self._create_tracker,
+            self._create_infer_elements,
             self._create_osd,
             self._create_sink,
         )
