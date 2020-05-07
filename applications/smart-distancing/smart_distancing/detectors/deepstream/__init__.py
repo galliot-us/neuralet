@@ -17,13 +17,14 @@ from smart_distancing.detectors.deepstream._detectors import *
 
 __all__ = [
     'DsConfig',  # _ds_config.py
+    'DsDetector',  # _detectors.py
     'ElemConfig',  # _ds_config.py
+    'frame_meta_iterator',  # _ds_engine.py
     'GstConfig',  # _ds_config.py
-    'pyds',  # _pyds.py
-    'PYDS_PATH',  # _pyds.py
-    'PYDS_INSTRUCTIONS',  # _pyds.py
     'GstEngine',  # _ds_engine.py
     'link_many',  # _ds_engine.py
-    'frame_meta_iterator',  # _ds_engine.py
     'obj_meta_iterator',  # _ds_engine.py
+    'PYDS_INSTRUCTIONS',  # _pyds.py
+    'PYDS_PATH',  # _pyds.py
+    'pyds',  # _pyds.py
 ]
