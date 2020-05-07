@@ -60,6 +60,9 @@ __all__ = [
     'obj_meta_iterator',
 ]
 
+"""
+Signature of Gsteamer Pad Probe Callback
+"""
 
 def link_many(elements: Iterable[Gst.Element]):
     """
@@ -99,6 +102,17 @@ def obj_meta_iterator(obj_meta_list: GLib.List
     while obj_meta_list is not None:
         yield pyds.glist_get_nvds_object_meta(obj_meta_list.data)
         obj_meta_list = obj_meta_list.next
+
+
+_ELEM_DOC = """
+Create {elem_name} Gst.Element and add to the pipeline.
+
+Returns:
+    bool: False on failure, True on success.
+"""
+"""
+Documentation template for a create method
+"""
 
 
 class GstEngine(multiprocessing.Process):
@@ -142,7 +156,7 @@ class GstEngine(multiprocessing.Process):
 
     Examples:
 
-        Internally, the GstConfig pipeline is:
+        NOTE: the default GstConfig pipeline is:
             fakesrc ! identity ... identity ! fakesink,
 
         >>> source_configs = [dict(),]
@@ -155,7 +169,8 @@ class GstEngine(multiprocessing.Process):
         >>> engine.exitcode
         0
 
-        Real-world subclasses can override the
+        Real-world subclasses can override GstConfig to set different source,
+        sink, and inference elements. See GstConfig documentation for details.
 
     """
 
@@ -208,7 +223,8 @@ class GstEngine(multiprocessing.Process):
         """
         Called internally by the GStreamer process.
 
-        Update results queue.
+        Update results queue. Should probably be called by the subclass
+        implemetation of on_buffer().
 
         Does not block (because this would block the GLib.MainLoop).
         
@@ -245,12 +261,6 @@ class GstEngine(multiprocessing.Process):
     # TODO(mdegans): some of these creation methods can probably be combined
 
     def _create_sources(self) -> bool:
-        """
-        Create sources and add to pipeline. Does not link.
-
-        Returns:
-            bool: False on failure, True on success.
-        """
         # create a source and check
         for conf in self._gst_config.src_configs:
             self.logger.debug('creating source')
@@ -271,14 +281,9 @@ class GstEngine(multiprocessing.Process):
             # append the source to the _sources list
             self._sources.append(src)
         return True
+    _create_sources.__doc__ = _ELEM_DOC.format(elem_name='`self.config.SRC_TYPE`')
 
     def _create_muxer(self) -> bool:
-        """
-        Attempt to create self.config.MUXER_TYPE element.
-
-        Returns:
-            bool: False on failure, True on success.
-        """
         # creeate the muxer and check
         self.logger.debug('creating stream muxer')
         self._muxer = Gst.ElementFactory.make(self._gst_config.MUXER_TYPE)  # type: Gst.Element
@@ -297,14 +302,9 @@ class GstEngine(multiprocessing.Process):
             self.logger.error('could not add muxer to pipeline')
             return False
         return True
+    _create_muxer.__doc__ = _ELEM_DOC.format(elem_name='`self.config.MUXER_TYPE`')
 
     def _create_tracker(self) -> bool:
-        """
-        Attempt to create self.config.TRACKER_TYPE element.
-
-        Returns:
-            bool: False on failure, True on success.
-        """
         # creeate the tracker and check
         self.logger.debug('creating tracker')
         self._tracker = Gst.ElementFactory.make(self._gst_config.TRACKER_TYPE)  # type: Gst.Element
@@ -323,10 +323,12 @@ class GstEngine(multiprocessing.Process):
             self.logger.error('could not add tracker to pipeline')
             return False
         return True
+    _create_tracker.__doc__ = _ELEM_DOC.format(elem_name='`self.config.TRACKER_TYPE`')
 
     def _create_nvinfer_elements(self) -> bool:
         """
-        Create infer elements and append to self._infer_elements
+        Create GstConfig.INFER_TYPE elements, add them to the pipeline,
+        and append them to self._infer_elements for ease of access / linking.
         
         Returns:
             bool: False on failure, True on success.
@@ -376,6 +378,7 @@ class GstEngine(multiprocessing.Process):
             self.logger.error('could not add sink to pipeline')
             return False
         return True
+    _create_sink.__doc__ = _ELEM_DOC.format(elem_name='`self.config.SINK_TYPE`')
 
     def _create_all(self) -> int:
         """
@@ -456,43 +459,11 @@ class GstEngine(multiprocessing.Process):
 
     def on_buffer(self, pad: Gst.Pad, info: Gst.PadProbeInfo, _: None, ) -> Gst.PadProbeReturn:
         """
-        Parse inference metadata and put it in the result queue.
-        """
-        gst_buffer = info.get_buffer()
-        if not gst_buffer:
-            self.logger.error(
-                'Failed to get buffer from Gst.PadProbeInfo. Removing probe.')
-            return Gst.PadProbeReturn.REMOVE
+        Default source pad probe buffer callback for the sink.
         
-        # the __hash__ of a gst_buffer is a pointer
-        batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
-
-        # a list to store the detections
-        results = []
-
-        # iterate through the metadata and add results to the list
-        for frame_meta in frame_meta_iterator(batch_meta.frame_meta_list):
-            for obj_meta in obj_meta_iterator(frame_meta.obj_meta_list):
-                rect = obj_meta.rect_params  # type: pyds.NvOSD_RectParams
-                results.append({
-                    'fnum': frame_meta.frame_num,
-                    'id': obj_meta.class_id,
-                    'bbox': [
-                        rect.left,  # x1
-                        rect.top,  # y1
-                        rect.left + rect.width,  # x2
-                        rect.top + rect.height,  # y2
-                    ],
-                    'score': obj_meta.confidence,
-                })
-
-        if not self._update_result_queue(results):
-            # NOTE(mdegans): we can drop the whole buffer here if we want to drop
-            # frames when we're unable to update the metadata queue
-            # return Gst.PadProbeReturn.DROP
-            pass
-
-        # return pad probe ok, which passes the buffer on
+        Simply returns Gst.PadProbeReturn.OK, signaling the buffer
+        shuould continue down the pipeline.
+        """
         return Gst.PadProbeReturn.OK
                 
     def stop(self):

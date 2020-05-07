@@ -45,40 +45,45 @@ class GstConfig(object):
 
     Arguments:
         infer_configs:
-            Iterable of InferConfig (a filename or dict).
-            For each element, GstEngine will create a new
-            `GstConfig.INFER_TYPE` Gst.Element and assign it
-            these properties (or the config file if appropriate).
+            For each :obj:`ElemConfig` (dict) in this iterable,
+            GstEngine will create a new `GstConfig.INFER_TYPE`
+            Gst.Element and assign it these properties.
         src_configs:
-            Iterable of ElemConfig (a dict). For each element
-            in the iterable, GstEngine will create a new
-            `GstConfig.SRC_TYPE` and assign it these properties.
+            For each :obj:`ElemConfig` (dict) in this iterable,
+            GstEngine will create a new `GstConfig.SRC_TYPE`
+            Gst.Element and assign it these properties.
         muxer_config:
-            Elemconfig (a dict) to use to apply properties to
+            :obj:`ElemConfig` (a dict) to use to apply properties to
             the muxer of type `GstConfig.MUXER_TYPE`.
         tracker_config:
-            ElemConfig (a dict) to use to apply properties to
-            the tracker of type `GstConfig.TRACKER_TYPE`.
+            :obj:`ElemConfig` (a dict) to use to apply properties to
+            the muxer of type `GstConfig.TRACKER_TYPE`.
+        osd_config:
+            :obj:`ElemConfig` (a dict) to use to apply properties to
+            the muxer of type `GstConfig.OSD_TYPE`.
         sink_config:
-            Elemconfig (a dict) to use to apply properties to
+            :obj:`ElemConfig` (a dict) to use to apply properties to
             the muxer of type `GstConfig.SINK_TYPE`.
     
     Attributes:
         SRC_TYPE (str):
             The source type to use.
-            Defaults to 'uridecodebin'.
-        SINK_TYPE (str):
-            The sink type to use.
-            Defaults to 'hlssink'.
+            Defaults to 'fakesrc'.
         MUXER_TYPE (str):
             The stream muxer to use, if any.
             Defaults to 'identity'.
         INFER_TYPE (str):
             The inference element type to use.
             Defaults to 'identity'.
+        OSD_TYPE (str):
+            The inference element type to use.
+            Defaults to 'identity'.
         TRACKER_TYPE (str):
             The tracker element to use.
             Defaults to 'identity'.
+        SINK_TYPE (str):
+            The sink type to use.
+            Defaults to 'fakesink'.
     
     Examples:
 
@@ -171,15 +176,24 @@ class DsConfig(GstConfig):
             performance.
 
     Attributes:
-        MUXER_TYPE (str):
+        SRC_TYPE (str):
             The source type to use.
-            Defaults to 'nvstreammux'
+            Defaults to 'uridecodebin'.
+        MUXER_TYPE (str):
+            The stream muxer to use, if any.
+            Defaults to 'nvstreammux'.
         INFER_TYPE (str):
-            The inference type to use.
-            Defaults to 'nvinfer'
+            The inference element type to use.
+            Defaults to 'nvinfer'.
+        OSD_TYPE (str):
+            The inference element type to use.
+            Defaults to 'nvdsosd'.
         TRACKER_TYPE (str):
-            The tracker type to use.
-            Defaults to 'nvtracker'
+            The tracker element to use.
+            Defaults to 'nvtracker'.
+        SINK_TYPE (str):
+            The sink type to use.
+            Defaults to 'hlssink'.
     """
     SRC_TYPE = 'uridecodebin'
     SINK_TYPE = 'hlssink'
