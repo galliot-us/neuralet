@@ -1,5 +1,5 @@
 smart\_distancing.detectors.deepstream package
-==========================================
+==============================================
 
 Module contents
 ---------------
