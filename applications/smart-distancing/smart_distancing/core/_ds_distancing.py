@@ -1,8 +1,9 @@
 """DeepStream Distancing implementation and related functions."""
 import logging
 
-import pyds
-
+from smart_distancing.detectors.deepstream import (
+    pyds,
+)
 from smart_distancing.core._distancing import BaseDistancing
 
 logger = logging.getLogger(__name__)
