@@ -13,7 +13,11 @@ from smart_distancing.detectors.deepstream import _ds_engine
 class TestGstEngine(unittest.TestCase):
 
     def test_doctests(self):
-        doctest.testmod(_ds_engine)
+        """test none of the doctests fail"""
+        self.assertEqual(
+            doctest.testmod(_ds_engine)[0],
+            0,
+        )
 
 if __name__ == "__main__":
     import logging
