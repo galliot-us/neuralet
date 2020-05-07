@@ -1,3 +1,7 @@
+"""
+The DeepStream detector module includes a DeepStream specific implementation
+of the BaseDetector class and various utility classes and functions.
+"""
 # GStreamer needs to be imported before pyds or else there is crash on Gst.init
 import gi
 gi.require_version('Gst', '1.0')
