@@ -119,17 +119,20 @@ class GstConfig(object):
     SINK_TYPE = 'fakesink'
     MUXER_TYPE = 'identity'
     INFER_TYPE = 'identity'
+    OSD_TYPE = 'identity'
     TRACKER_TYPE = 'identity'
 
     def __init__(self, infer_configs: Iterable[ElemConfig],
                  src_configs: Iterable[ElemConfig],
                  muxer_config: ElemConfig = None,
                  tracker_config: ElemConfig = None,
+                 osd_config: ElemConfig = None,
                  sink_config: ElemConfig = None,):
         self.infer_configs = list(infer_configs)
         self.src_configs = list(src_configs)
         self.muxer_config = muxer_config
         self.tracker_config = tracker_config
+        self.osd_config = osd_config
         self.sink_config = sink_config
         self.validate()
     
@@ -199,6 +202,7 @@ class DsConfig(GstConfig):
     SINK_TYPE = 'hlssink'
     MUXER_TYPE = 'nvstreammux'
     INFER_TYPE = 'nvinfer'
+    OSD_TYPE = 'nvdsosd'
     TRACKER_TYPE = 'nvtracker'
 
     def __init__(self, *args, max_batch_size=32, **kwargs):

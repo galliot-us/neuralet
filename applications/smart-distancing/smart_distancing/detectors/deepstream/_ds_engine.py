@@ -39,6 +39,7 @@ from smart_distancing.detectors.deepstream._ds_config import (
 )
 # typing
 from typing import (
+    Any,
     Callable,
     Iterator,
     Iterable,
@@ -55,14 +56,20 @@ else:
 
 __all__ = [
     'GstEngine',
+    'PadProbeCallback',
     'link_many',
     'frame_meta_iterator',
     'obj_meta_iterator',
 ]
 
+PadProbeCallback = Callable[
+    [Gst.Pad, Gst.PadProbeInfo, Any],
+    Gst.PadProbeReturn,
+]
 """
 Signature of Gsteamer Pad Probe Callback
 """
+
 
 def link_many(elements: Iterable[Gst.Element]):
     """
@@ -193,7 +200,8 @@ class GstEngine(multiprocessing.Process):
         self._muxer_lock = multiprocessing.Lock()
         self._tracker = None  # type: Gst.Element
         self._infer_elements = []  # type: List[Gst.Element]
-        # self._osd = None  # type: Gst.Element
+        self._osd = None  # type: Gst.Element
+        self._osd_probe_id = None # type: int
         self._sink = None  # type: Gst.Element
 
         # process communication primitives
@@ -354,13 +362,27 @@ class GstEngine(multiprocessing.Process):
             self._infer_elements.append(elem)
         return True
 
-    def _create_sink(self) -> bool:
-        """
-        Create GstConfig.SINK_TYPE sink and add to pipeline.
+    def _create_osd(self) -> bool:
+        self.logger.debug('creating osd')
+        self._osd = Gst.ElementFactory.make(self._gst_config.OSD_TYPE)
+        if not self._osd:
+            self.logger.error(f'failed to create {self._gst_config.OSD_TYPE}')
+            return False
 
-        Returns:
-            bool: False on failure, True on success.
-        """
+        # set the osd properties from the config
+        if self._gst_config.osd_config:
+            for k, v in self._gst_config.osd_config.items():
+                self._osd.set_property(k, v)
+        
+        # add the osd to the pipeline and check
+        if not self._pipeline.add(self._osd):
+            self.logger.error(f'could not add {self._gst_config.OSD_TYPE} to pipeline')
+            return False
+        return True
+
+    _create_osd.__doc__ = _ELEM_DOC.format(elem_name='`self.config.OSD_TYPE`')
+
+    def _create_sink(self) -> bool:
         self.logger.debug('creating sink')
         # create the sink element
         self._sink = Gst.ElementFactory.make(self._gst_config.SINK_TYPE)
@@ -392,7 +414,7 @@ class GstEngine(multiprocessing.Process):
             self._create_sources,
             self._create_muxer,
             self._create_tracker,
-            self._create_nvinfer_elements,
+            self._create_osd,
             self._create_sink,
         )
 
@@ -450,9 +472,13 @@ class GstEngine(multiprocessing.Process):
             return False
         
         # link the final inference element to the sink
-        if not self._infer_elements[-1].link(self._sink):
+        if not self._infer_elements[-1].link(self._osd):
             self.logger.error(
-                f'could not link final {self._gst_config.INFER_TYPE} to {self._gst_config.SINK_TYPE}')
+                f'could not link final {self._gst_config.INFER_TYPE} to {self._gst_config.OSD_TYPE}')
+
+        if not self._osd.link(self._sink):
+            self.logger.error(
+                f'could not link {self._gst_config.OSD_TYPE} to {self._gst_config.SINK_TYPE}')
 
         self.logger.debug('linking pipeline successful')
         return True
@@ -516,6 +542,15 @@ class GstEngine(multiprocessing.Process):
             self.logger.error('could not link pipeline')
             return -2
         
+        # register pad probe buffer callback on the osd
+        self.logger.debug('registering self.on_buffer() callback on osd sink pad')
+        osd_sink_pad = self._osd.get_static_pad('sink')
+        if not osd_sink_pad:
+            self.logger.error('could not get osd sink pad')
+            return -3
+        self._osd_probe_id = osd_sink_pad.add_probe(
+            Gst.PadProbeType.BUFFER, self.on_buffer, None)
+
         # register callback to check for the stop event when idle.
         # TODO(mdegans): test to see if a higher priority is needed.
         self.logger.debug('registering self._on_stop() callback')
