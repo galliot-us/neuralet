@@ -88,6 +88,8 @@ def link_many(elements: Iterable[Gst.Element]):
     return True
 
 
+# these two functions below are used by DsEngine to parse pyds metadata
+
 def frame_meta_iterator(frame_meta_list: GLib.List
                         ) -> Iterator[pyds.NvDsFrameMeta]:
     """
@@ -346,7 +348,7 @@ class GstEngine(multiprocessing.Process):
             # create and check inference element
             elem = Gst.ElementFactory.make(self._gst_config.INFER_TYPE)  # type: Gst.Element
             if not elem:
-                self.logger.error("failed to create nvinfer element")
+                self.logger.error(f"failed to create {self._gst_config.INFER_TYPE} element")
                 return False
 
             # set properties on inference element
@@ -553,7 +555,7 @@ class GstEngine(multiprocessing.Process):
 
         # register callback to check for the stop event when idle.
         # TODO(mdegans): test to see if a higher priority is needed.
-        self.logger.debug('registering self._on_stop() callback')
+        self.logger.debug('registering self._on_stop() idle callback with GLib MainLoop')
         GLib.idle_add(self._on_stop)
 
         # set the pipeline to the playing state
