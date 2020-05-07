@@ -8,11 +8,11 @@ from smart_distancing.core._distancing import *
 # import Distancing implementations
 try:
     # OpenCV might not be installed
-    from smart_distancing.core._cv_distancing import *
+    from smart_distancing.core._cv_distancing import CvDistancing
 except ImportError:
     CvDistancing = None
 try:
-    from smart_distancing.core._ds_distancing import *
+    from smart_distancing.core._ds_distancing import DsDistancing
 except ImportError:  # (DeepStream not found)
     DsDistancing = None
 if CvDistancing is None and DsDistancing is None:
