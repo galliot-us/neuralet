@@ -64,26 +64,6 @@ class GstConfig(object):
         sink_config:
             :obj:`ElemConfig` (a dict) to use to apply properties to
             the muxer of type `GstConfig.SINK_TYPE`.
-    
-    Attributes:
-        SRC_TYPE (str):
-            The source type to use.
-            Defaults to 'fakesrc'.
-        MUXER_TYPE (str):
-            The stream muxer to use, if any.
-            Defaults to 'identity'.
-        INFER_TYPE (str):
-            The inference element type to use.
-            Defaults to 'identity'.
-        OSD_TYPE (str):
-            The inference element type to use.
-            Defaults to 'identity'.
-        TRACKER_TYPE (str):
-            The tracker element to use.
-            Defaults to 'identity'.
-        SINK_TYPE (str):
-            The sink type to use.
-            Defaults to 'fakesink'.
 
     Examples:
 
@@ -177,26 +157,6 @@ class DsConfig(GstConfig):
             Defaults to 32, but this should probably be
             lower on platforms like Jetson Nano for best
             performance.
-
-    Attributes:
-        SRC_TYPE (str):
-            The source type to use.
-            Defaults to 'uridecodebin'.
-        MUXER_TYPE (str):
-            The stream muxer to use, if any.
-            Defaults to 'nvstreammux'.
-        INFER_TYPE (str):
-            The inference element type to use.
-            Defaults to 'nvinfer'.
-        OSD_TYPE (str):
-            The inference element type to use.
-            Defaults to 'nvdsosd'.
-        TRACKER_TYPE (str):
-            The tracker element to use.
-            Defaults to 'nvtracker'.
-        SINK_TYPE (str):
-            The sink type to use.
-            Defaults to 'hlssink'.
     """
     SRC_TYPE = 'uridecodebin'
     SINK_TYPE = 'hlssink'
