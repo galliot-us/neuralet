@@ -88,6 +88,21 @@ class TestGstEngine(unittest.TestCase):
         else:
             self.skipTest('freedesktop.org is down (as usual)')
 
+    def test_source_local_avi_single(self):
+        #FIXME(mdegans): this doesn't quit cleanly with .avi.
+        for fn in VIDEO_FILENAMES:
+            source_configs = [
+                {'uri': f'file://{fn}'},
+            ]
+            infer_configs = [dict(),]
+            config = GstConfig(infer_configs, source_configs)
+            engine = GstEngine(config)
+            engine.start()
+            time.sleep(1)
+            engine.stop()
+            engine.join(10)
+            self.assertEqual(engine.exitcode, 0)
+
 if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.INFO)
