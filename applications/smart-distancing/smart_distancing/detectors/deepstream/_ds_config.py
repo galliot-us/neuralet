@@ -52,6 +52,10 @@ class GstConfig(object):
             For each :obj:`ElemConfig` (dict) in this iterable,
             GstEngine will create a new `GstConfig.SRC_TYPE`
             Gst.Element and assign it these properties.
+            
+            NOTE: the default linking implementation on GstEngine
+            assumes the src pad type has a `Sometimes` pad
+            (eg. uridecodebin)
         muxer_config:
             :obj:`ElemConfig` (a dict) to use to apply properties to
             the muxer of type `GstConfig.MUXER_TYPE`.
@@ -95,9 +99,9 @@ class GstConfig(object):
     TODO(mdegans): more examples and doctests
     """
 
-    SRC_TYPE = 'fakesrc'
+    SRC_TYPE = 'uridecodebin'
     SINK_TYPE = 'fakesink'
-    MUXER_TYPE = 'identity'
+    MUXER_TYPE = 'concat'
     INFER_TYPE = 'identity'
     OSD_TYPE = 'identity'
     TRACKER_TYPE = 'identity'
