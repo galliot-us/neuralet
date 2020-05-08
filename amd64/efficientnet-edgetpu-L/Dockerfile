@@ -16,6 +16,6 @@ RUN apt-get update && apt-get install -y python3-pip pkg-config libedgetpu1-std 
 
 RUN python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_x86_64.whl 
 
-WORKDIR /repo/amd64/efficientnet-edgetpu-L
 
-ENTRYPOINT ["python3", "src/server-example.py"]
+
+
