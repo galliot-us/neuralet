@@ -72,8 +72,6 @@ for detector_config in DETECTOR_CONFIGS:
             conf = [
                 detector_config,  # the primary config
                 {
-                    # oh fuck me, this can't be set dynamically.
-                    # why is Nvidia in love with config files with craptastic absolute paths.
                     'model-file': m,
                     'proto-file': p,
                     'lablefile-path': l,
@@ -88,16 +86,15 @@ class TestDsEngine(unittest.TestCase):
 
     def test_doctests(self):
         """test none of the doctests fail"""
-        #FIXME(mdegans): this actually fails becuase the 'URI' is missing as
-        # a source option. Docs need to be fixed. Also it should return an
-        # error code in this case.
+        # FIXME(mdegans):
+        #  * there is no return code but there should be, since this is actually
+        #    a fail since there is no uri supplied and GstEngine now uses
+        #    uridecodebin since that has a sometimes pad. it's passing, but it shouldn't.
         self.assertEqual(
             doctest.testmod(_ds_engine, optionflags=doctest.ELLIPSIS)[0],
             0,
         )
 
-    #FIXME(mdegans): right now this fails because some properties can't be set on nvinfer
-    # without using an .ini file, so modifying DsEngine will be necessary.
     def test_start_stop(self):
         """test pipeline construct/destruct"""
         # this is copypasta from the TestGstEngine doctest
