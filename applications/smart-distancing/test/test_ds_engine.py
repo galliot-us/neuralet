@@ -25,15 +25,6 @@ VIDEO_FILENAMES = (
 from smart_distancing.detectors.deepstream import _ds_engine
 from smart_distancing.detectors.deepstream import _ds_config
 
-class TestGstEngine(unittest.TestCase):
-
-    def test_doctests(self):
-        """test none of the doctests fail"""
-        self.assertEqual(
-            doctest.testmod(_ds_engine)[0],
-            0,
-        )
-
 class TestDsEngine(unittest.TestCase):
 
     # config generator for uridecodebin
