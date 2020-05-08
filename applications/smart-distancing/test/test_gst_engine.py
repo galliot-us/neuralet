@@ -49,7 +49,8 @@ class TestGstEngine(unittest.TestCase):
     def test_doctests(self):
         """test none of the doctests fail"""
         #FIXME(mdegans): this actually fails becuase the 'URI' is missing as
-        # a source option. Docs need to be fixed.
+        # a source option. Docs need to be fixed. Also it should return an
+        # error code in this case.
         self.assertEqual(
             doctest.testmod(_gst_engine)[0],
             0,
