@@ -1,3 +1,4 @@
+import functools
 import multiprocessing
 import queue
 import logging
@@ -210,7 +211,7 @@ class GstEngine(multiprocessing.Process):
     def _create_sources(self) -> bool:
         # create a source and check
         for conf in self._gst_config.src_configs:
-            self.logger.debug('creating source')
+            self.logger.debug(f'creating source: {self._gst_config.SRC_TYPE}')
             src = Gst.ElementFactory.make(self._gst_config.SRC_TYPE)  # type: Gst.Element
             if not src:
                 self.logger.error(f'could not create source of type: {self._gst_config.SRC_TYPE}')
@@ -230,47 +231,52 @@ class GstEngine(multiprocessing.Process):
         return True
     _create_sources.__doc__ = _ELEM_DOC.format(elem_name='`self.config.SRC_TYPE`')
 
-    def _create_muxer(self) -> bool:
-        # creeate the muxer and check
-        self.logger.debug('creating stream muxer')
-        self._muxer = Gst.ElementFactory.make(self._gst_config.MUXER_TYPE)  # type: Gst.Element
-        if not self._muxer:
-            self.logger.error(
-                f'could not create stream muxer of type: {self._gst_config.MUXER_TYPE}')
-            return False
+    def _create_element(self, e_type:str) -> Optional[Gst.Element]:
+        """
+        Create a Gst.Element and add to the pipeline.
+
+        Arguments:
+            e_type (str):
+                The FOO_TYPE of elememt to add defined on the config class
+                as an attribute eg. MUXER_TYPE, SRC_TYPE... This argument is
+                case insensitive. choices are: ('muxer', 'src', 'sink')
+
+                Once the element of the corresponding type on the config is
+                made using Gst.ElementFactory.make, it will be added to 
+                self._pipeline and assigned to self._e_type. 
+
+        Returns:
+            A Gst.Element if sucessful, otherwise None.
         
-        # set properties on the muxer
-        if self._gst_config.muxer_config:
-            for k, v in self._gst_config.muxer_config.items():
-                self._muxer.set_property(k, v)
+        Raises:
+            AttributeError if e_type doesn't exist on the config and the class.
+        """
+        # NOTE(mdegans): "type" and "name" are confusing variable names considering
+        #  GStreamer's and Python's usage of them. Synonyms anybody?
+        e_type = e_type.lower()
+        e_name = getattr(self._gst_config, f'{e_type.upper()}_TYPE')
+        self.logger.debug(f'creating {e_type}: {e_name}')
+
+        # make an self.gst_config.E_TYPE_TYPE element
+        elem = Gst.ElementFactory.make(e_name)
+        if not elem:
+            self.logger.error(f'could not create {e_type}: {e_name}')
+            return
+
+        # set properties on the element
+        props = getattr(self._gst_config, f'{e_type}_config')  # type: dict
+        if props:
+            for k, v in props.items():
+                setattr(elem, k, v)
         
-        # add the muxer to the pipeline and check
-        if not self._pipeline.add(self._muxer):
-            self.logger.error('could not add muxer to pipeline')
-            return False
-        return True
-    _create_muxer.__doc__ = _ELEM_DOC.format(elem_name='`self.config.MUXER_TYPE`')
+        # assign the element to self._e_type
+        setattr(self, f'_{e_type}', elem)
 
-    def _create_tracker(self) -> bool:
-        # creeate the tracker and check
-        self.logger.debug('creating tracker')
-        self._tracker = Gst.ElementFactory.make(self._gst_config.TRACKER_TYPE)  # type: Gst.Element
-        if not self._tracker:
-            self.logger.error(
-                f'could not create tracker of type: {self._gst_config.TRACKER_TYPE}')
-            return False
-
-        # set properties on the tracker
-        if self._gst_config.tracker_config:
-            for k, v in self._gst_config.tracker_config.items():
-                self._tracker.set_property(k, v)
-
-        # add the tracker to the pipeline and check
-        if not self._pipeline.add(self._tracker):
-            self.logger.error('could not add tracker to pipeline')
-            return False
-        return True
-    _create_tracker.__doc__ = _ELEM_DOC.format(elem_name='`self.config.TRACKER_TYPE`')
+        # add the element to the pipeline and check
+        if not self._pipeline.add(elem):
+            self.logger.error(f'could not add {e_type}: {e_name} to pipeline.')
+            return
+        return elem
 
     def _create_infer_elements(self) -> bool:
         """
@@ -301,46 +307,6 @@ class GstEngine(multiprocessing.Process):
             self._infer_elements.append(elem)
         return True
 
-    def _create_osd(self) -> bool:
-        self.logger.debug('creating osd')
-        self._osd = Gst.ElementFactory.make(self._gst_config.OSD_TYPE)
-        if not self._osd:
-            self.logger.error(f'failed to create {self._gst_config.OSD_TYPE}')
-            return False
-
-        # set the osd properties from the config
-        if self._gst_config.osd_config:
-            for k, v in self._gst_config.osd_config.items():
-                self._osd.set_property(k, v)
-        
-        # add the osd to the pipeline and check
-        if not self._pipeline.add(self._osd):
-            self.logger.error(f'could not add {self._gst_config.OSD_TYPE} to pipeline')
-            return False
-        return True
-
-    _create_osd.__doc__ = _ELEM_DOC.format(elem_name='`self.config.OSD_TYPE`')
-
-    def _create_sink(self) -> bool:
-        self.logger.debug('creating sink')
-        # create the sink element
-        self._sink = Gst.ElementFactory.make(self._gst_config.SINK_TYPE)
-        if not self._sink:
-            self.logger.error(f'failed to create {self._gst_config.SINK_TYPE}')
-            return False
-        
-        # set the sink properties from the config
-        if self._gst_config.sink_config:
-            for k, v in self._gst_config.sink_config.items():
-                self._sink.set_property(k, v)
-        
-        # add the sink to the pipeline and check
-        if not self._pipeline.add(self._sink):
-            self.logger.error('could not add sink to pipeline')
-            return False
-        return True
-    _create_sink.__doc__ = _ELEM_DOC.format(elem_name='`self.config.SINK_TYPE`')
-
     def _create_all(self) -> int:
         """
         Create and link the pipeline from self.config.
@@ -351,11 +317,11 @@ class GstEngine(multiprocessing.Process):
         create_funcs = (
             self._create_pipeline,
             self._create_sources,
-            self._create_muxer,
-            self._create_tracker,
+            functools.partial(self._create_element, 'muxer'),
+            functools.partial(self._create_element, 'tracker'),
             self._create_infer_elements,
-            self._create_osd,
-            self._create_sink,
+            functools.partial(self._create_element, 'osd'),
+            functools.partial(self._create_element, 'sink'),
         )
 
         for i, f in enumerate(create_funcs):
