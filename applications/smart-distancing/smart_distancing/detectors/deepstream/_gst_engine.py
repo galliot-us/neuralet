@@ -394,6 +394,7 @@ class GstEngine(multiprocessing.Process):
         # a lock is required so that identical pads are not requested.
         self._muxer_lock.acquire()
         try:
+            self.logger.debug(f'{element.name} linking new pad: {src_pad.name}')
             # TODO(mdegans): i half expect this to fail since it was broken on Ds4
             muxer_sink = self._muxer.get_request_pad('sink_%u')
             if not muxer_sink:
