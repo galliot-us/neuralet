@@ -16,7 +16,8 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-
+import configparser
+import tempfile
 import logging
 
 # import gstreamer bidings
@@ -84,10 +85,62 @@ def obj_meta_iterator(obj_meta_list: GLib.List
         obj_meta_list = obj_meta_list.next
 
 
+def write_config(tmpdir, config:dict) -> str:
+    """
+    Write a nvinfer config to a .ini file in tmpdir and return the filename.
+
+    The section heading is [property]
+
+    Example:
+        >>> config = {
+        ...     'model-file': 'foo.caffemodel',
+        ...     'proto-file': 'foo.prototxt',
+        ...     'labelfile-path': 'foo.labels.txt',
+        ...     'int8-calib-file': 'foo_cal_trt.bin',
+        ... }
+        >>> with tempfile.TemporaryDirectory() as tmp:
+        ...     filename = write_config(tmp, config)
+        ...     print(filename)
+        ...     with open(filename) as f:
+        ...         for l in f:
+        ...             print(l, end='')
+        /tmp/tmp.../config....ini
+        [property]
+        model-file = foo.caffemodel
+        proto-file = foo.prototxt
+        labelfile-path = foo.labels.txt
+        int8-calib-file = foo_cal_trt.bin
+        <BLANKLINE>
+    """
+    # TODO(mdegans): simple property validation to fail fast
+    cp = configparser.ConfigParser()
+    cp['property'] = config
+    fd, filename = tempfile.mkstemp(prefix='config', suffix='.ini', dir=tmpdir, text=True)
+    with open(fd, 'w') as f:
+        cp.write(f)
+    return filename
+
 class DsEngine(GstEngine):
     """
     DeepStream implemetation of GstEngine.
     """
+
+    _tmp = None  # type: tempfile.TemporaryDirectory
+
+    def _quit(self):
+        # cleanup the temporary directory we created on __init__
+        self._tmp.cleanup()
+        # this can self terminate so it should be called last:
+        super()._quit()
+
+    @property
+    def tmp(self):
+        """
+        Path to the /tmp/ds_engine... folder used by this engine.
+
+        This path is normally deleted on self._quit()
+        """
+        return self._tmp.name
 
     def on_buffer(self, pad: Gst.Pad, info: Gst.PadProbeInfo, _: None, ) -> Gst.PadProbeReturn:
         """
@@ -130,6 +183,38 @@ class DsEngine(GstEngine):
         # return pad probe ok, which passes the buffer on
         return Gst.PadProbeReturn.OK
 
+    def _create_infer_elements(self) -> bool:
+        """
+        Create GstConfig.INFER_TYPE elements, add them to the pipeline,
+        and append them to self._infer_elements for ease of access / linking.
+
+        Returns:
+            bool: False on failure, True on success.
+        """
+        self.logger.debug('creating inference elements')
+        for conf in self._gst_config.infer_configs:
+            # create and check inference element
+            elem = Gst.ElementFactory.make(self._gst_config.INFER_TYPE)  # type: Gst.Element
+            if not elem:
+                self.logger.error(f"failed to create {self._gst_config.INFER_TYPE} element")
+                return False
+
+            # set properties on inference element
+            self.logger.debug(f'writing config: {conf}')
+            elem.set_property('config-file-path', write_config(self.tmp, conf))
+
+            # add the elements to the pipeline and check
+            if not self._pipeline.add(elem):
+                self.logger.error('could not add source to pipeline')
+                return False
+
+            # append the element to the list of inference elements
+            self._infer_elements.append(elem)
+        return True
+
+    def run(self):
+        self._tmp = tempfile.TemporaryDirectory(prefix='ds_engine')
+        super().run()
 
 if __name__ == "__main__":
     import doctest
