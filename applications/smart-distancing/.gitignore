@@ -1,4 +1,6 @@
 __pycache__/
+build/
+*.egg-info/
 *~
 *.swp
 .ToDo
@@ -8,3 +10,4 @@ __pycache__/
 *.caffemodel
 *.uff
 *.avi
+*.log.*
