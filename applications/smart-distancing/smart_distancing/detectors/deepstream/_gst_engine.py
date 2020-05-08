@@ -82,6 +82,9 @@ class GstEngine(multiprocessing.Process):
     Arguments:
         config (:obj:`GstConfig`):
             GstConfig instance for this engine.
+        debug (bool, optional):
+            log all bus messages to the debug level
+            (this can mean a lot of spam)
 
     Attributes:
         logger (:obj:`logging.Logger`):
@@ -100,6 +103,9 @@ class GstEngine(multiprocessing.Process):
             leave the timeout, but it will block any context you use the
             setter from and this block **cannot** be interrupted, even with
             SIGINT / KeyboardInterrupt.
+        IGNORED_MESSAGES(:obj:`tuple` of :obj:`Gst.MessageType`):
+            Gst.MessageType to be ignored by on_bus_message.
+
 
     Examples:
 
@@ -121,12 +127,16 @@ class GstEngine(multiprocessing.Process):
 
     """
 
+    IGNORED_MESSAGES = tuple()  # type: Tuple[Gst.MessageType]
+
     logger = logging.getLogger('GstEngine')
     queue_timeout=10
 
-    def __init__(self, config:GstConfig, *args, **kwargs):
+    def __init__(self, config:GstConfig, *args, debug=False, **kwargs):
         self.logger.debug('__init__')
         super().__init__(*args, **kwargs)
+        # set debug for optional extra logging
+        self._debug = debug
 
         # the pipeline configuration
         self._gst_config = config  # type: GstConfig
@@ -190,6 +200,52 @@ class GstEngine(multiprocessing.Process):
                 # this really should't ever happen
                 self.logger.warning("failed to put results in queue (queue.Full)")
                 return False
+
+    def on_bus_message(self, bus: Gst.Bus, message: Gst.Message, *_) -> bool:
+        """
+        Default bus message callback.
+
+        This implementation does the following on each message type:
+
+        Ignored:
+            any Gst.MessageType in GstEngine.IGNORED_MESSAGES
+        
+        Logged:
+            Gst.MessageType.STREAM_STATUS
+            Gst.MessageType.STATE_CHANGED
+            Gst.MessageType.WARNING
+            (all others)
+
+        call self._quit():
+            Gst.MessageType.EOS
+            Gst.MessageType.ERROR
+        """
+        # TAG and DURATION_CHANGED seem to be the most common
+        if message.type in self.IGNORED_MESSAGES:
+            pass
+        elif message.type == Gst.MessageType.STREAM_STATUS:
+            status, owner = message.parse_stream_status()  # type: Gst.StreamStatusType, Gst.Element
+            self.logger.debug(f"{owner.name}:status:{status.value_name}")
+        elif message.type == Gst.MessageType.STATE_CHANGED:
+            old, new, _ = message.parse_state_changed()  # type: Gst.State, Gst.State, Gst.State
+            self.logger.debug(
+                f"{message.src.name}:state-change:"
+                f"{old.value_name}->{new.value_name}")
+        elif message.type == Gst.MessageType.EOS:
+            self.logger.debug(f"Got EOS")
+            self._quit()
+        elif message.type == Gst.MessageType.ERROR:
+            err, errmsg = message.parse_error()  # type: GLib.Error, str
+            self.logger.error(f'{err}: {errmsg}')
+            self._quit()
+        elif message.type == Gst.MessageType.WARNING:
+            err, errmsg = message.parse_warning()  # type: GLib.Error, str
+            self.logger.warning(f'{err}: {errmsg}')
+        else:
+            if self._debug:
+                self.logger.debug(
+                    f"{message.src.name}:{Gst.MessageType.get_name(message.type)}")
+        return True
 
     def _create_pipeline(self) -> bool:
         """
@@ -442,18 +498,26 @@ class GstEngine(multiprocessing.Process):
         if not self._create_all():
             self.logger.debug('could not create pipeline')
             return -1
-        
+
+        # register bus message callback
+        bus = self._pipeline.get_bus()
+        if not bus:
+            self.logger.error('could not get bus')
+            return -2
+        self.logger.debug('registering bus message callback')
+        bus.add_watch(GLib.PRIORITY_DEFAULT, self.on_bus_message, None)
+
         # link all pipeline elements:
         if not self._link_pipeline():
             self.logger.error('could not link pipeline')
-            return -2
+            return -3
         
         # register pad probe buffer callback on the osd
         self.logger.debug('registering self.on_buffer() callback on osd sink pad')
         osd_sink_pad = self._osd.get_static_pad('sink')
         if not osd_sink_pad:
             self.logger.error('could not get osd sink pad')
-            return -3
+            return -4
         self._osd_probe_id = osd_sink_pad.add_probe(
             Gst.PadProbeType.BUFFER, self.on_buffer, None)
 
