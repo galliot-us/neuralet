@@ -27,6 +27,16 @@ from smart_distancing.detectors.deepstream import _ds_config
 
 class TestDsEngine(unittest.TestCase):
 
+    def test_doctests(self):
+        """test none of the doctests fail"""
+        #FIXME(mdegans): this actually fails becuase the 'URI' is missing as
+        # a source option. Docs need to be fixed. Also it should return an
+        # error code in this case.
+        self.assertEqual(
+            doctest.testmod(_ds_engine, optionflags=doctest.ELLIPSIS)[0],
+            0,
+        )
+
     # config generator for uridecodebin
     FILE_SOURCE_CONFIGS = [
         {'uri': f'file://{fn}'} for fn in VIDEO_FILENAMES
