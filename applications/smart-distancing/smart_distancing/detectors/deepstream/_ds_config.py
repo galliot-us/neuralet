@@ -20,14 +20,24 @@
 import os
 import logging
 
-from math import log, ceil
+from math import (
+    log,
+    ceil,
+    sqrt,
+)
 
 from typing import (
+    TYPE_CHECKING,
     Any,
+    Tuple,
     Iterable,
     Mapping,
     Union,
 )
+if TYPE_CHECKING:
+    from smart_distancing.core._config_engine import ConfigEngine
+else:
+    ConfigEngine = None
 
 __all__ = [
     'DsConfig',
@@ -38,10 +48,30 @@ __all__ = [
 Path = Union[str, os.PathLike]
 ElemConfig = Mapping[str, Any]
 
+
+def calc_rows_and_columns(num_sources: int) -> int:
+    """
+    Calculate rows and columns values from a number of sources.
+
+    Returns:
+        (int) math.ceil(math.sqrt(num_sources))
+    """
+    if not num_sources:
+        return 1
+    return int(ceil(sqrt(num_sources)))
+
+
+def calc_tile_resolution(out_res: Tuple[int, int], rows_and_columns: int) -> Tuple[int, int]:
+    """
+    Return the optimal resolution for the stream muxer to scale input sources to.
+    (same as the resolution for a tile).
+    """
+    return out_res[0] // rows_and_columns, out_res[1] // rows_and_columns
+
+
 class GstConfig(object):
     """
-    GstConfig is a simple class to store configuration
-    for a GstEngine.
+    GstConfig is a simple class to store configuration for a GstEngine.
 
     Arguments:
         infer_configs:
@@ -106,12 +136,14 @@ class GstConfig(object):
     OSD_TYPE = 'identity'
     TRACKER_TYPE = 'identity'
 
-    def __init__(self, infer_configs: Iterable[ElemConfig],
+    def __init__(self, master_config: ConfigEngine,
+                 infer_configs: Iterable[ElemConfig],
                  src_configs: Iterable[ElemConfig],
                  muxer_config: ElemConfig = None,
                  tracker_config: ElemConfig = None,
                  osd_config: ElemConfig = None,
                  sink_config: ElemConfig = None,):
+        self.master_config = master_config
         self.infer_configs = list(infer_configs)
         self.src_configs = list(src_configs)
         self.muxer_config = muxer_config
@@ -119,7 +151,50 @@ class GstConfig(object):
         self.osd_config = osd_config
         self.sink_config = sink_config
         self.validate()
+
+    @property
+    def rows_and_columns(self) -> int:
+        """
+        Number of rows and columns for the tiler element.
+        
+        Calculated based on the number of sources.
+        """
+        return calc_rows_and_columns(len(self.src_configs))
+
+    @property
+    def tile_resolution(self) -> Tuple[int, int]:
+        """
+        Resolution of an individual video tile.
+        
+        Calculated based on the resolution and number of sources.
+        """
+        return calc_tile_resolution(self.out_resolution, self.rows_and_columns)
+
+    @property
+    def out_resolution(self) -> Tuple[int, int]:
+        """
+        Output video resolution as a 2 tuple of width, height.
+
+        Read from self.master_config.config['App']
+        """
+        return tuple(int(i) for i in self.master_config.config['App']['Resolution'].split(','))
     
+    @property
+    def host(self) -> str:
+        """
+        Host to serve on.
+
+        Read from self.master_config.config['App']
+        """
+        return self.master_config.config['App']['Host']
+
+    @property
+    def port(self) -> int:
+        """
+        Port to serve on.
+        """
+        return int(self.master_config.config['App']['Port'])
+
     def validate(self):
         """
         Validate `self`. Called by __init__.
@@ -173,46 +248,51 @@ class DsConfig(GstConfig):
         self.max_batch_size = max_batch_size
         super().__init__(*args, **kwargs)
 
-    # TODO(mdegans): validate method
+    @property
+    def batch_size(self) -> int:
+        """
+        Return the optimal batch size.
+        (next power of two up from the number of sources).
+
+        TODO(mdegans): it's unclear if this is actually optimal
+          and under what circumstances (depends on model, afaik)
+          tests must be run to see if it's better to use the number
+          of sources directly.
+
+        Control the max by setting max_batch_size.
+        """
+        optimal = pow(2, ceil(log(len(self.src_configs))/log(2)))
+        return min(optimal, self.max_batch_size)
+
+    # TODO(mdegans): split this up into multiple functions
     def validate(self):
         """
         Checks:
             * superclass validators
             * Set optimal batch-size property by rounding up to the next
               power of two with a maximum of self.max_batch_size
-
-            Example:
-                >>> infer_configs = [
-                ...     {'uff-file': '/path/to/detector.uff', 'network-mode': 0},
-                ...     {'onnx-file': '/path/to/classifier.onnx', 'classifier-async-mode': True},
-                ... ]
-                >>> src_configs = [
-                ...     {'uri', 'https://foo.com/video.mp4'},
-                ...     {'uri', 'file:///home/foo/Videos/video.mp4'},
-                ...     {'url', 'https://bar.com/video.mp4'},
-                ... ]
-                >>> config = DsConfig(infer_configs, src_configs)
-                >>> config.infer_configs[0]['batch-size']
-                4
-                >>> config.muxer_config['batch-size']
-                4
+            * override muxer resolution to self.tile_resolution
         """
+        # TODO(mdegans): a doctest would be too long, so a unit test file
+        #  is necessary for this class and method.
         super().validate()
 
-        # set the optimal batch size (next power of 2)
-        # the formula has mixed reviews on stackoverflow and
-        # might fail in some languages, but not in Python.
-        num_sources = len(self.src_configs)
-        optimal_batch_size = pow(2, ceil(log(num_sources)/log(2)))
-        configs_with_batch_size = [
-            *self.infer_configs,
-        ]
+        # create muxer config if it doesn't exist
         if not self.muxer_config:
             self.muxer_config = dict()
-            configs_with_batch_size.append(self.muxer_config)
-        for c in configs_with_batch_size:
-            c['batch-size'] = min(optimal_batch_size, self.max_batch_size)
 
+        # at a minimum, a muxer config must have a resolution
+        self.muxer_config.update({
+            'width': self.tile_resolution[0],
+            'height': self.tile_resolution[1],
+        })
+
+        # override the batch size
+        # all have to match or bad things happen
+        configs_with_batch_size = [
+            *self.infer_configs, self.muxer_config]
+        for c in configs_with_batch_size:
+            c['batch-size'] = self.batch_size
 
 if __name__ == "__main__":
     import doctest
