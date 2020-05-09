@@ -78,6 +78,9 @@ class GstEngine(multiprocessing.Process):
       which is not possible in Python due to the GIL). Running GLib.MainLoop
       it in a separate process and putting the results into a queue if a slot
       is empty (dropping the results if not), avoids this problem.
+    * Ease of adding and removing new sources. With DeepStream, right now, the
+      *easiest* and most reliable way to do this is to relaunch it's process
+      with a modified configuration.
 
     Arguments:
         config (:obj:`GstConfig`):
@@ -110,9 +113,10 @@ class GstEngine(multiprocessing.Process):
     Examples:
 
         NOTE: the default GstConfig pipeline is:
-              fakesrc ! identity ... identity ! fakesink,
+              uridecodebin ! concat ! identity ... identity ! fakesink,
 
-        >>> source_configs = [dict(),]
+        >>> source_configs = [
+        ...     {'uri': 'https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm'},]
         >>> infer_configs = [dict(),]
         >>> config = GstConfig(infer_configs, source_configs)
         >>> engine = GstEngine(config)
