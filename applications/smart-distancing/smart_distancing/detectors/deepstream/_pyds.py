@@ -17,6 +17,8 @@ import logging
 import sys
 import platform
 
+from smart_distancing.detectors.deepstream._ds_utils import find_deepstream
+
 logger = logging.getLogger()
 
 __all__ = [
@@ -26,7 +28,15 @@ __all__ = [
 ]
 
 # Python DeepStream paths
-PYDS_ROOT = '/opt/nvidia/deepstream/deepstream/sources/python/bindings'
+
+DS_INFO = find_deepstream()
+if DS_INFO:
+    DS_ROOT = DS_INFO[1]
+else:
+    raise ImportError(
+        'DeepStream not intalled. '
+        'Install with: sudo-apt install deepstream-$VERSION')
+PYDS_ROOT = os.path.join(DS_ROOT, 'sources/python/bindings') if DS_ROOT else '/'
 PYDS_JETSON_PATH = os.path.join(PYDS_ROOT, 'jetson')
 PYDS_x86_64_PATH = os.path.join(PYDS_ROOT, 'x86_64')
 # Installing the bindings is actually fairly cumbersome, unfortunately. Please, Nvidia
