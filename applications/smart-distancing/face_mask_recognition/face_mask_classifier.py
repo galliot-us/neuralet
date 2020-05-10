@@ -1,17 +1,15 @@
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Activation, Dropout, Flatten, Dense
-from keras.preprocessing.image import ImageDataGenerator
 from keras import optimizers
 import keras
 import os
-import matplotlib.pyplot as plt
 from absl import flags
 import tensorflow as tf
-from keras import backend as K
-from tensorflow.python.saved_model import builder as saved_model_builder, tag_constants
-from tensorflow.python.saved_model.signature_def_utils import predict_signature_def
+import _init_path
+from utils import data_reader, plot_confusion_matrix, export_keras_model_to_pb, plot_results
 import logging
 import numpy as np
+
 
 flags.DEFINE_string(
     "train_dir",
@@ -45,97 +43,13 @@ flags.DEFINE_integer("batch_size", 64, "Batch size")
 
 flags.DEFINE_string("result_dir", "results", "Exported images path")
 
-flags.DEFINE_list("classes", ["face", "mask-face"], "List of classes names")
+flags.DEFINE_list("classes", ["face", "face-mask"], "List of classes names")
 
 FLAGS = tf.flags.FLAGS
 
 if not os.path.exists(FLAGS.save_dir):
     os.mkdir(FLAGS.save_dir)
     logging.info('{} folder is created because not exists'.format(FLAGS.save_dir))
-
-
-def data_reader(path, batch_size, input_size):
-    """
-    Using keras image generator to read images
-    Args:
-        path: Image path (each folder at this path will be considered as a class)
-        batch_size: Batch size
-        input_size: The size of the network input
-
-    Returns:
-        data: A generator of images
-
-    """
-    data_generator = ImageDataGenerator(rescale=1.0 / 255)
-    data = data_generator.flow_from_directory(
-        batch_size=batch_size,
-        directory=path,
-        shuffle=True,
-        target_size=input_size,
-        class_mode="categorical",
-    )
-    return data
-
-
-def export_keras_model_to_pb(keras_model, export_path):
-    """
-    Function to export Keras model to Protocol Buffer format
-
-    Args:
-        keras_model: Keras Model instance
-        export_path: Path to store Protocol Buffer model
-
-    Returns:
-    """
-    # Set the learning phase to Test since the model is already trained.
-    K.set_learning_phase(0)
-
-    # Build the Protocol Buffer SavedModel at 'export_path'
-    builder = saved_model_builder.SavedModelBuilder(export_path)  # export_path must be an empty folder
-
-    # Create prediction signature to be used by TensorFlow Serving Predict API
-    signature = predict_signature_def(inputs={"images": keras_model.input},
-                                      outputs={"scores": keras_model.output})
-
-    with K.get_session() as sess:
-        # Save the meta graph and the variables
-        builder.add_meta_graph_and_variables(sess=sess, tags=[tag_constants.SERVING],
-                                             signature_def_map={"predict": signature})
-
-    builder.save()
-
-
-def plot_output(model, data_gen):
-    """
-    This function gets the output of the model for 25 random images from validation set and plots them
-    Args:
-        model: Keras model
-        data_gen: Keras image generator
-
-    Returns:
-
-    """
-    fig = plt.figure(figsize=(10, 10))
-    for i in range(25):
-        plt.subplot(5, 5, i + 1)
-        plt.xticks([])
-        plt.yticks([])
-        plt.grid(False)
-        x, y = data_gen.next()
-        out = model.predict(x)
-
-        x = np.reshape(x, newshape=(FLAGS.input_size, FLAGS.input_size, FLAGS.no_channels))
-        x = x * 255
-        x = x.astype('uint8')
-        plt.imshow(x, cmap=plt.cm.binary)
-        label_id = np.argmax(y)
-        prd_id = np.argmax(out)
-        plt.xlabel(FLAGS.classes[label_id] + ' / ' + FLAGS.classes[prd_id])
-    plt.show()
-    if not os.path.exists(FLAGS.result_dir):
-        os.mkdir(FLAGS.result_dir)
-    fig.savefig(os.path.join(FLAGS.result_dir, 'eval_results.png'))
-
 
 
 def main(_):
@@ -191,19 +105,33 @@ def main(_):
     val_data_gen = data_reader(
         path=FLAGS.validation_dir, batch_size=1, input_size=(FLAGS.input_size, FLAGS.input_size)
     )
-    # Start training
-    logging.info("Start training ...")
-    model.fit_generator(
-        train_data_gen,
-        steps_per_epoch=train_data_gen.samples // FLAGS.batch_size,
-        epochs=FLAGS.epoch,
-        validation_data=val_data_gen,
-        validation_steps=val_data_gen.samples // 1,
-        verbose=1,
-        callbacks=[cp_callback],
-    )
 
-    plot_output(model, val_data_gen)
+    # # Start training
+    # logging.info("Start training ...")
+    # model.fit_generator(
+    #     train_data_gen,
+    #     steps_per_epoch=train_data_gen.samples // FLAGS.batch_size,
+    #     epochs=FLAGS.epoch,
+    #     validation_data=val_data_gen,
+    #     validation_steps=val_data_gen.samples // 1,
+    #     verbose=1,
+    #     callbacks=[cp_callback],
+    # )
+
+    plot_results(model, val_data_gen)
+
+    # Plot confusion matrix
+    logging.info("Start ploting confusion matrix")
+    y_true = []
+    y_probas = []
+    model.load_weights(os.path.join(FLAGS.save_dir, FLAGS.model_file_name))   # Load the saved model
+    for i in range(val_data_gen.samples):
+        print('Getting prediction results is in progress {:.02f}%'.format(i/val_data_gen.samples * 100.0))
+        input_img, label = val_data_gen.next()
+        output = model.predict(input_img)
+        y_true.append(np.argmax((label[0])))
+        y_probas.append(np.argmax((output[0])))
+    plot_confusion_matrix(y_true, y_probas)
 
     export_keras_model_to_pb(keras_model=model, export_path=FLAGS.export_dir)
     logging.info("The inference model is exported at {}".format(FLAGS.save_dir))
