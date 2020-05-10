@@ -106,17 +106,17 @@ def main(_):
         path=FLAGS.validation_dir, batch_size=1, input_size=(FLAGS.input_size, FLAGS.input_size)
     )
 
-    # # Start training
-    # logging.info("Start training ...")
-    # model.fit_generator(
-    #     train_data_gen,
-    #     steps_per_epoch=train_data_gen.samples // FLAGS.batch_size,
-    #     epochs=FLAGS.epoch,
-    #     validation_data=val_data_gen,
-    #     validation_steps=val_data_gen.samples // 1,
-    #     verbose=1,
-    #     callbacks=[cp_callback],
-    # )
+    # Start training
+    logging.info("Start training ...")
+    model.fit_generator(
+        train_data_gen,
+        steps_per_epoch=train_data_gen.samples // FLAGS.batch_size,
+        epochs=FLAGS.epoch,
+        validation_data=val_data_gen,
+        validation_steps=val_data_gen.samples // 1,
+        verbose=1,
+        callbacks=[cp_callback],
+    )
 
     plot_results(model, val_data_gen)
 
