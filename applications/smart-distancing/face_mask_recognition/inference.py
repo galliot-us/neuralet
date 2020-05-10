@@ -12,7 +12,7 @@ flags.DEFINE_integer("input_size", 224, "The size of input image")
 
 flags.DEFINE_string("imgs_dir", "images", "Directroy of images for inference")
 
-flags.DEFINE_list("classes", ["face", "mask-face"], "List of classes names")
+flags.DEFINE_list("classes", ["face", "face-mask"], "List of classes names")
 
 flags.DEFINE_string("result_dir", "results", "Exported images path")
 
