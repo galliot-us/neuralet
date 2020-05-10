@@ -6,10 +6,10 @@ import os
 from absl import flags
 import tensorflow as tf
 import _init_path
-from utils import data_reader, plot_confusion_matrix, export_keras_model_to_pb, plot_results
+from utils import data_reader, plot_confusion_matrix, plot_results, bar_progress
 import logging
 import numpy as np
-
+import wget
 
 flags.DEFINE_string(
     "train_dir",
@@ -31,13 +31,11 @@ flags.DEFINE_integer("no_classes", 2, "The number of classes")
 
 flags.DEFINE_string("save_dir", "saved_model", "Save directory")
 
-flags.DEFINE_string("export_dir", 'inference_model', 'Should be an empty directory in which .pb file will be exported')
-
-flags.DEFINE_integer("epoch", 20, "Number of epochs to train")
+flags.DEFINE_integer("epoch", 25, "Number of epochs to train")
 
 flags.DEFINE_string("model_file_name", "model.h5", "Model .h5 name")
 
-flags.DEFINE_float("learning_rate", 0.001, "Learning rate")
+flags.DEFINE_float("learning_rate", 0.005, "Learning rate")
 
 flags.DEFINE_integer("batch_size", 64, "Batch size")
 
@@ -45,19 +43,26 @@ flags.DEFINE_string("result_dir", "results", "Exported images path")
 
 flags.DEFINE_list("classes", ["face", "face-mask"], "List of classes names")
 
+flags.DEFINE_bool("pretraining", False, "True: Download the fine-tune model and retrain it")
+
 FLAGS = tf.flags.FLAGS
 
 if not os.path.exists(FLAGS.save_dir):
     os.mkdir(FLAGS.save_dir)
     logging.info('{} folder is created because not exists'.format(FLAGS.save_dir))
 
+if FLAGS.pretraining:
+    url = 'https://github.com/mrn-mln/neuralet-models/blob/master/amd64/face_mask_classifier/model.h5?raw=true'
+    if not os.path.isfile(os.path.join(FLAGS.save_dir, FLAGS.model_file_name)):
+        print('model does not exist under: {} ,downloading from {}'.format(FLAGS.save_dir, url))
+        wget.download(url, FLAGS.save_dir, bar_progress)
+
 
 def main(_):
     model = Sequential()
-    model.add(
-        Conv2D(16, (3, 3), input_shape=(FLAGS.input_size, FLAGS.input_size, FLAGS.no_channels), strides=(2, 2),
-               padding="same")
-    )
+    model.add(Conv2D(16, (3, 3), input_shape=(FLAGS.input_size, FLAGS.input_size, FLAGS.no_channels), strides=(2, 2),
+                     padding="same")
+              )
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -76,6 +81,8 @@ def main(_):
     model.add(Activation("sigmoid"))
 
     model.summary()
+    if os.path.isfile(os.path.join(FLAGS.save_dir, FLAGS.model_file_name)):
+        model.load_weights(os.path.join(FLAGS.save_dir, FLAGS.model_file_name))  # Load the saved model
 
     # Create optimizer
     adam = optimizers.Adam(
@@ -94,7 +101,7 @@ def main(_):
         monitor="val_loss",
         verbose=0,
         save_best_only=True,
-        save_weights_only=True,
+        save_weights_only=False,
         mode="auto",
         period=1,
     )
@@ -124,17 +131,13 @@ def main(_):
     logging.info("Start ploting confusion matrix")
     y_true = []
     y_probas = []
-    model.load_weights(os.path.join(FLAGS.save_dir, FLAGS.model_file_name))   # Load the saved model
     for i in range(val_data_gen.samples):
-        print('Getting prediction results is in progress {:.02f}%'.format(i/val_data_gen.samples * 100.0))
+        print('Getting prediction results is in progress {:.02f}%'.format(i / val_data_gen.samples * 100.0))
         input_img, label = val_data_gen.next()
         output = model.predict(input_img)
         y_true.append(np.argmax((label[0])))
         y_probas.append(np.argmax((output[0])))
     plot_confusion_matrix(y_true, y_probas)
-
-    export_keras_model_to_pb(keras_model=model, export_path=FLAGS.export_dir)
-    logging.info("The inference model is exported at {}".format(FLAGS.save_dir))
 
 
 if __name__ == "__main__":
