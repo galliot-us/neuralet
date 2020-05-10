@@ -77,7 +77,7 @@ def data_reader(path, batch_size, input_size):
     return data
 
 
-def export_h5_to_pb(keras_model, export_path):
+def export_keras_model_to_pb(keras_model, export_path):
     """
     Function to export Keras model to Protocol Buffer format
 
@@ -205,7 +205,7 @@ def main(_):
 
     plot_output(model, val_data_gen)
 
-    export_h5_to_pb(keras_model=model, export_path=FLAGS.export_dir)
+    export_keras_model_to_pb(keras_model=model, export_path=FLAGS.export_dir)
     logging.info("The inference model is exported at {}".format(FLAGS.save_dir))
 
 
