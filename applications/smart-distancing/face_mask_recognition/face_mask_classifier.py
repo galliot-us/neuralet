@@ -15,13 +15,13 @@ import numpy as np
 
 flags.DEFINE_string(
     "train_dir",
-    "/media/mehran/My files/My-Files/Company/Neuralet/object-detection/classifier_dataset_creators/classifier_data/dataset/train",
+    "/work/tensorflow/face_mask_classifier/tpu/dataset/train",
     "The directory of train dataset",
 )
 
 flags.DEFINE_string(
     "validation_dir",
-    "/media/mehran/My files/My-Files/Company/Neuralet/object-detection/classifier_dataset_creators/classifier_data/dataset/validation",
+    "/work/tensorflow/face_mask_classifier/tpu/dataset/validation",
     "The directory of validation dataset",
 )
 
@@ -35,7 +35,7 @@ flags.DEFINE_string("save_dir", "saved_model", "Save directory")
 
 flags.DEFINE_string("export_dir", 'inference_model', 'Should be an empty directory in which .pb file will be exported')
 
-flags.DEFINE_integer("epoch", 1, "Number of epochs to train")
+flags.DEFINE_integer("epoch", 20, "Number of epochs to train")
 
 flags.DEFINE_string("model_file_name", "model.h5", "Model .h5 name")
 
