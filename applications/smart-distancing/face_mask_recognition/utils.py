@@ -8,20 +8,30 @@ from keras.preprocessing.image import ImageDataGenerator
 import tensorflow as tf
 import numpy as np
 import os
+import sys
+from keras.models import load_model
 
 FLAGS = tf.flags.FLAGS
 
 
 def plot_confusion_matrix(cls_true, cls_pred):
+    """
+    Plot confusion matrix
+    Args:
+        cls_true: Array of labels, each element in the array indicates a class id
+        cls_pred: Array of prediction results, each element in the array indicates a predicted class id
+
+    Returns:
+
+    """
     cm = confusion_matrix(y_true=cls_true,
                           y_pred=cls_pred,
                           )
     plt.ion()
     plt.matshow(cm, cmap=plt.cm.Reds)
-    num_classes = 2
     # Make various adjustments to the plot.
     plt.colorbar()
-    tick_marks = np.arange(num_classes)
+    tick_marks = np.arange(FLAGS.no_classes)
     plt.xticks(tick_marks, FLAGS.classes)
     plt.yticks(tick_marks, FLAGS.classes)
     plt.xlabel('Predicted')
@@ -60,7 +70,7 @@ def data_reader(path, batch_size, input_size):
     return data
 
 
-def export_keras_model_to_pb(keras_model, export_path):
+def export_keras_model_to_pb(model_path, export_path):
     """
     Function to export Keras model to Protocol Buffer format
 
@@ -70,6 +80,8 @@ def export_keras_model_to_pb(keras_model, export_path):
 
     Returns:
     """
+    keras_model = load_model(model_path)
+    keras_model.summary()
     # Set the learning phase to Test since the model is already trained.
     K.set_learning_phase(0)
 
@@ -118,3 +130,11 @@ def plot_results(model, data_gen):
     if not os.path.exists(FLAGS.result_dir):
         os.mkdir(FLAGS.result_dir)
     fig.savefig(os.path.join(FLAGS.result_dir, 'eval_results.png'))
+
+
+def bar_progress(current, total, width=80):
+    # create this bar_progress method which is invoked automatically from wget
+    progress_message = "Downloading: %d%% [%d / %d] bytes" % (current / total * 100, current, total)
+    # Don't use print() as it will print in new line every time.
+    sys.stdout.write("\r" + progress_message)
+    sys.stdout.flush()
