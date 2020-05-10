@@ -26,18 +26,35 @@ class CvDistancing(BaseDistancing):
         self.frame_counter = itertools.count(0)
         self.tracker = CentroidTracker(
             max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
+
+        detector_name_tmp = self.config.get_section_dict("Detector")["Name"]
         if self.device == 'Jetson':
-            from smart_distancing.detectors.jetson import MobilenetSsdDetector
-            self.detector = MobilenetSsdDetector(self.config)
+            if detector_name_tmp == 'mobilenet_ssd_v2_coco':
+                from smart_distancing.detectors.jetson import MobilenetSsdDetector as Detector
+            else:
+                raise ValueError('Failed to initiate Detector, as ' + detector_name_tmp + \
+                                 ' on device ' + self.device + ' is not supported')
         elif self.device == 'EdgeTPU':
-            from smart_distancing.detectors.edgetpu import MobilenetSsdDetector
-            self.detector = MobilenetSsdDetector(self.config)
-        elif self.device == 'Dummy':
-            self.detector = None
+            if detector_name_tmp == 'mobilenet_ssd_v2':
+                from smart_distancing.detectors.edgetpu import MobilenetSsdDetector as Detector
+            elif detector_name_tmp == 'pedestrian_ssd_mobilenet_v2':
+                from smart_distancing.detectors.edgetpu import PedestrianSsdDetector as Detector
+            elif detector_name_tmp == 'pedestrian_ssdlite_mobilenet_v2':
+                from smart_distancing.detectors.edgetpu import PedestrianSsdLiteDetector as Detector
+            else:
+                raise ValueError('Failed to initiate Detector, as ' + detector_name_tmp + \
+                                 ' on device ' + self.device + ' is not supported')
         elif self.device == 'x86':
-            from smart_distancing.detectors.x86 import TfDetector
-            self.detector = TfDetector(self.config)
+            if detector_name_tmp == 'mobilenet_ssd_v2_coco_2018_03_29':
+                from smart_distancing.detectors.x86 import TfDetector as Detector
+            else:
+                raise ValueError('Failed to initiate Detector, as ' + detector_name_tmp + \
+                                 ' on device ' + self.device + ' is not supported')
+        elif self.device == 'Dummy':
+             Detector = None
         
+        if Detector is not None: 
+            self.detector = Detector(self.config)
         # set the callback on the detector process, so it's called 
         self.detector.on_frame = self._on_detections
 
