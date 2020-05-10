@@ -37,8 +37,8 @@ class CvDistancing(BaseDistancing):
         elif self.device == 'EdgeTPU':
             if detector_name_tmp == 'mobilenet_ssd_v2':
                 from smart_distancing.detectors.edgetpu import MobilenetSsdDetector as Detector
-            #elif detector_name_tmp == 'pedestrian_ssd_mobilenet_v2':
-            #    from smart_distancing.detectors.edgetpu import PedestrianSsdDetector as Detector
+            elif detector_name_tmp == 'pedestrian_ssd_mobilenet_v2':
+                from smart_distancing.detectors.edgetpu import PedestrianSsdDetector as Detector
             elif detector_name_tmp == 'pedestrian_ssdlite_mobilenet_v2':
                 from smart_distancing.detectors.edgetpu import PedestrianSsdLiteDetector as Detector
             else:
