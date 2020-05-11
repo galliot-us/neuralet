@@ -19,5 +19,3 @@ RUN python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1
 WORKDIR /repo/amd64/efficientnet-edgetpu-L
 
 ENTRYPOINT ["python3", "src/server-example.py"]
-
-
