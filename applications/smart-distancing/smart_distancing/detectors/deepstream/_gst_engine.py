@@ -140,7 +140,7 @@ class GstEngine(multiprocessing.Process):
         # GStreamer elements (in order of connection)
         self._sources = []  # type: List[Gst.Element]
         self._muxer = None  # type: Gst.Element
-        self._muxer_lock = multiprocessing.Lock()
+        self._muxer_lock = GLib.Mutex()
         self._tracker = None  # type: Gst.Element
         self._infer_elements = []  # type: List[Gst.Element]
         self._osd = None  # type: Gst.Element
@@ -385,7 +385,8 @@ class GstEngine(multiprocessing.Process):
         Callback to link sources to the muxer.
         """
         # a lock is required so that identical pads are not requested.
-        self._muxer_lock.acquire()
+        # GLib.Mutex is required because python's isn't respected by GLib's MainLoop
+        self._muxer_lock.lock()
         try:
             self.logger.debug(f'{element.name} linking new pad: {src_pad.name}')
             # TODO(mdegans): i half expect this to fail since it was broken on Ds4
@@ -398,7 +399,7 @@ class GstEngine(multiprocessing.Process):
                 self.logger.error(
                     f"failed to link source to muxer becase {ret.value_name}")
         finally:
-            self._muxer_lock.release()
+            self._muxer_lock.unlock()
 
     def _link_pipeline(self) -> bool:
         """
