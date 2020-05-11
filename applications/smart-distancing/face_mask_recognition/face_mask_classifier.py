@@ -43,7 +43,7 @@ flags.DEFINE_string("result_dir", "results", "Exported images path")
 
 flags.DEFINE_list("classes", ["face", "face-mask"], "List of classes names")
 
-flags.DEFINE_bool("pretraining", False, "True: Download the fine-tune model and retrain it")
+flags.DEFINE_bool("pretraining", True, "True: Download the fine-tune model and retrain it")
 
 FLAGS = tf.flags.FLAGS
 
@@ -52,7 +52,7 @@ if not os.path.exists(FLAGS.save_dir):
     logging.info('{} folder is created because not exists'.format(FLAGS.save_dir))
 
 if FLAGS.pretraining:
-    url = 'https://github.com/mrn-mln/neuralet-models/blob/master/amd64/face_mask_classifier/model.h5?raw=true'
+    url = 'https://github.com/neuralet/neuralet-models/blob/master/amd64/face_mask_classifier/model.h5?raw=true'
     if not os.path.isfile(os.path.join(FLAGS.save_dir, FLAGS.model_file_name)):
         print('model does not exist under: {} ,downloading from {}'.format(FLAGS.save_dir, url))
         wget.download(url, FLAGS.save_dir, bar_progress)
