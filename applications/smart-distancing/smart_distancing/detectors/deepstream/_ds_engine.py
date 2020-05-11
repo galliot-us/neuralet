@@ -183,35 +183,6 @@ class DsEngine(GstEngine):
         # return pad probe ok, which passes the buffer on
         return Gst.PadProbeReturn.OK
 
-    def _create_infer_elements(self) -> bool:
-        """
-        Create GstConfig.INFER_TYPE elements, add them to the pipeline,
-        and append them to self._infer_elements for ease of access / linking.
-
-        Returns:
-            bool: False on failure, True on success.
-        """
-        self.logger.debug('creating inference elements')
-        for conf in self._gst_config.infer_configs:
-            # create and check inference element
-            elem = Gst.ElementFactory.make(self._gst_config.INFER_TYPE)  # type: Gst.Element
-            if not elem:
-                self.logger.error(f"failed to create {self._gst_config.INFER_TYPE} element")
-                return False
-
-            # set properties on inference element
-            self.logger.debug(f'writing config: {conf}')
-            elem.set_property('config-file-path', write_config(self.tmp, conf))
-
-            # add the elements to the pipeline and check
-            if not self._pipeline.add(elem):
-                self.logger.error('could not add source to pipeline')
-                return False
-
-            # append the element to the list of inference elements
-            self._infer_elements.append(elem)
-        return True
-
     def run(self):
         self._tmp = tempfile.TemporaryDirectory(prefix='ds_engine')
         super().run()
