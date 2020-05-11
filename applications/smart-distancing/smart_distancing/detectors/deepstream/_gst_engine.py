@@ -304,7 +304,8 @@ class GstEngine(multiprocessing.Process):
         #  GStreamer's and Python's usage of them. Synonyms anybody?
         e_type = e_type.lower()
         e_name = getattr(self._gst_config, f'{e_type.upper()}_TYPE')
-        self.logger.debug(f'creating {e_type}: {e_name}')
+        props = getattr(self._gst_config, f'{e_type}_config')  # type: dict
+        self.logger.debug(f'creating {e_type}: {e_name} with props: {props}')
 
         # make an self.gst_config.E_TYPE_TYPE element
         elem = Gst.ElementFactory.make(e_name)
@@ -313,7 +314,6 @@ class GstEngine(multiprocessing.Process):
             return
 
         # set properties on the element
-        props = getattr(self._gst_config, f'{e_type}_config')  # type: dict
         if props:
             for k, v in props.items():
                 elem.set_property(k, v)
