@@ -17,6 +17,11 @@ THIS_DIR  = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.dirname(THIS_DIR)
 sys.path.insert(0, PARENT_DIR)
 
+SKELETON_CONFIG = os.path.join(
+    PARENT_DIR, 'smart_distancing', 'data', 'config', 'skeleton.in')
+DS_ONE_SOURCE_CONFIG = os.path.join(
+    THIS_DIR, 'data', 'deepstream_one_source.ini')
+
 # where to find test data
 TEST_DATA_DIR = os.path.join(THIS_DIR, 'data')
 # put video filesname here.when added to 'data':
@@ -28,6 +33,7 @@ VIDEO_FILENAMES = tuple(
 NETWORK_TEST_HOST = 'http://www.freedesktop.org/'
 TEST_VID_URI = 'https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm'
 
+from smart_distancing.core import ConfigEngine
 from smart_distancing.detectors.deepstream import _gst_engine
 from smart_distancing.detectors.deepstream._gst_engine import GstEngine
 from smart_distancing.detectors.deepstream._ds_config import GstConfig
@@ -46,80 +52,25 @@ def freedesktop_is_up():
 
 class TestGstEngine(unittest.TestCase):
 
+    def setUp(self):
+        self.conf_one_source = ConfigEngine(DS_ONE_SOURCE_CONFIG)
+
     def test_doctests(self):
         """test none of the doctests fail"""
-        #FIXME(mdegans): this actually fails becuase the 'URI' is missing as
-        # a source option. Docs need to be fixed. Also it should return an
-        # error code in this case.
+        #FIXME(mdegans): documentation needs to be updated with an examples
         self.assertEqual(
             doctest.testmod(_gst_engine)[0],
             0,
         )
 
-    def test_source_network_single(self):
-        if freedesktop_is_up():
-            source_configs = [
-                {'uri': TEST_VID_URI},
-            ]
-            infer_configs = [dict(),]
-            config = GstConfig(infer_configs, source_configs)
-            engine = GstEngine(config)
-            engine.start()
-            time.sleep(1)
-            engine.stop()
-            engine.join(10)
-            self.assertEqual(engine.exitcode, 0)
-        else:
-            self.skipTest('freedesktop.org is down (as usual)')
-
-    def test_source_network_multiple(self):
-        if freedesktop_is_up():
-            source_configs = [
-                {'uri': TEST_VID_URI},
-                {'uri': TEST_VID_URI},
-            ]
-            infer_configs = [dict(),]
-            config = GstConfig(infer_configs, source_configs)
-            engine = GstEngine(config)
-            engine.start()
-            time.sleep(1)
-            engine.stop()
-            engine.join(10)
-            self.assertEqual(engine.exitcode, 0)
-        else:
-            self.skipTest('freedesktop.org is down (as usual)')
-
-    def test_source_local_single(self):
-        #FIXME(mdegans): this doesn't quit cleanly with .avi.
-        for fn in VIDEO_FILENAMES:
-            with self.subTest(fn):
-                source_configs = [
-                    {'uri': f'file://{fn}'},
-                ]
-                infer_configs = [dict(),]
-                config = GstConfig(infer_configs, source_configs)
-                engine = GstEngine(config)
-                engine.start()
-                time.sleep(1)
-                engine.stop()
-                engine.join(10)
-                self.assertEqual(engine.exitcode, 0)
-
-    def test_source_local_multiple(self):
-        for fn in VIDEO_FILENAMES:
-            with self.subTest(f'two identical sources: {fn}'):
-                source_configs = [
-                    {'uri': f'file://{fn}'},
-                    {'uri': f'file://{fn}'},
-                ]
-                infer_configs = [dict(),]
-                config = GstConfig(infer_configs, source_configs)
-                engine = GstEngine(config)
-                engine.start()
-                time.sleep(1)
-                engine.stop()
-                engine.join(10)
-                self.assertEqual(engine.exitcode, 0)
+    def test_local_single(self):
+        config = GstConfig(self.conf_one_source)
+        engine = GstEngine(config)
+        engine.start()
+        time.sleep(1)
+        engine.stop()
+        engine.join(10)
+        self.assertEqual(engine.exitcode, 0)
 
 if __name__ == "__main__":
     import logging
