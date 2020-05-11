@@ -316,7 +316,7 @@ class GstEngine(multiprocessing.Process):
         props = getattr(self._gst_config, f'{e_type}_config')  # type: dict
         if props:
             for k, v in props.items():
-                setattr(elem, k, v)
+                elem.set_property(k, v)
         
         # assign the element to self._e_type
         setattr(self, f'_{e_type}', elem)
