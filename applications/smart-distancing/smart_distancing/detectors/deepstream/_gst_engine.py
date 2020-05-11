@@ -115,17 +115,6 @@ class GstEngine(multiprocessing.Process):
         NOTE: the default GstConfig pipeline is:
               uridecodebin ! concat ! identity ... identity ! fakesink,
 
-        >>> source_configs = [
-        ...     {'uri': 'https://www.freedesktop.org/software/gstreamer-sdk/data/media/sintel_trailer-480p.webm'},]
-        >>> infer_configs = [dict(),]
-        >>> config = GstConfig(infer_configs, source_configs)
-        >>> engine = GstEngine(config)
-        >>> engine.start()
-        >>> engine.stop()
-        >>> engine.join(10)
-        >>> engine.exitcode
-        0
-
         Real-world subclasses can override GstConfig to set different source,
         sink, and inference elements. See GstConfig documentation for details.
 
