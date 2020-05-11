@@ -388,16 +388,23 @@ class GstEngine(multiprocessing.Process):
         # GLib.Mutex is required because python's isn't respected by GLib's MainLoop
         self._muxer_lock.lock()
         try:
-            self.logger.debug(f'{element.name} linking new pad: {src_pad.name}')
+            self.logger.debug(f'{element.name} new pad: {src_pad.name}')
+            self.logger.debug(
+                f'{src_pad.name} caps:{src_pad.props.caps}')
             # TODO(mdegans): i half expect this to fail since it was broken on Ds4
-            muxer_sink = self._muxer.get_request_pad('sink_%u')
+            muxer_sink_pad_name = f'sink_{self._muxer.numsinkpads}'
+            self.logger.debug(f'{self._muxer.name}:requesting pad:{muxer_sink_pad_name}')
+            muxer_sink = self._muxer.get_request_pad(muxer_sink_pad_name)
             if not muxer_sink:
                 self.logger.error(
                     f"failed to get request pad from {self._muxer.name}")
+            self.logger.debug(
+                f'{muxer_sink.name} caps:{muxer_sink.props.caps}')
             ret = src_pad.link(muxer_sink)
             if not ret == Gst.PadLinkReturn.OK:
                 self.logger.error(
                     f"failed to link source to muxer becase {ret.value_name}")
+                self._muxer.release_request_pad(muxer_sink)
         finally:
             self._muxer_lock.unlock()
 
