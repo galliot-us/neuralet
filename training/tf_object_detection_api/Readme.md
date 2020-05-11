@@ -14,10 +14,16 @@ you can also specify other parameters like:
 
 ## TensorFlow Object Detection API
 `tensorflow-od-api-Dockerfile` will install the TensorFlow Object Detection API and its dependecies in the `/models/research/object_detection` directory. For instructions to train an object detection model visit [API Github Repo](https://github.com/tensorflow/models/tree/master/research/object_detection).
-Run followings to use this container:
+Run followings to use this container with CPU support:
+```
+docker build -f tensorflow-od-api-Dockerfile -t "neuralet/tensorflow-od-api"
+docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tensorflow-od-api
+```
+Run followings to use this container with GPU support:
 ```
 docker build -f tensorflow-od-api-Dockerfile -t "neuralet/tensorflow-od-api"
 docker run -it --gpus all -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tensorflow-od-api
 ```
+
 note that you should install [Nvidia Docker Toolkit](https://github.com/NVIDIA/nvidia-docker) for gpu support.
 
