@@ -33,6 +33,7 @@ from typing import (
     Iterable,
     Mapping,
     Union,
+    List,
 )
 if TYPE_CHECKING:
     from smart_distancing.core._config_engine import ConfigEngine
@@ -45,9 +46,12 @@ __all__ = [
     'GstConfig',
 ]
 
+from smart_distancing.detectors.deepstream._ds_utils import find_deepstream
+
 Path = Union[str, os.PathLike]
 ElemConfig = Mapping[str, Any]
 
+logger = logging.getLogger(__name__)
 
 def calc_rows_and_columns(num_sources: int) -> int:
     """
@@ -71,92 +75,70 @@ def calc_tile_resolution(out_res: Tuple[int, int], rows_and_columns: int) -> Tup
 
 class GstConfig(object):
     """
-    GstConfig is a simple class to store configuration for a GstEngine.
+    GstConfig is a simple class to wrap a ConfigEngine and provide
+     for a GstEngine.
 
     Arguments:
-        infer_configs:
-            For each :obj:`ElemConfig` (dict) in this iterable,
-            GstEngine will create a new `GstConfig.INFER_TYPE`
-            Gst.Element and assign it these properties.
-        src_configs:
-            For each :obj:`ElemConfig` (dict) in this iterable,
-            GstEngine will create a new `GstConfig.SRC_TYPE`
-            Gst.Element and assign it these properties.
-            
-            NOTE: the default linking implementation on GstEngine
-            assumes the src pad type has a `Sometimes` pad
-            (eg. uridecodebin)
-        muxer_config:
-            :obj:`ElemConfig` (a dict) to use to apply properties to
-            the muxer of type `GstConfig.MUXER_TYPE`.
-        tracker_config:
-            :obj:`ElemConfig` (a dict) to use to apply properties to
-            the muxer of type `GstConfig.TRACKER_TYPE`.
-        osd_config:
-            :obj:`ElemConfig` (a dict) to use to apply properties to
-            the muxer of type `GstConfig.OSD_TYPE`.
-        sink_config:
-            :obj:`ElemConfig` (a dict) to use to apply properties to
-            the muxer of type `GstConfig.SINK_TYPE`.
-
-    Examples:
-
-        A supplied inference configuration and source configuration are
-        the only two required parameters and available after __init__ and
-        validate() on their correspondingly named attributes.
-
-        >>> infer_configs = [
-        ...     {'uff-file': '/path/to/detector.uff', 'network-mode': 0},
-        ...     {'onnx-file': '/path/to/classifier.onnx', 'classifier-async-mode': True},
-        ... ]
-        >>> src_configs = [
-        ...     {'uri', 'https://foo.com/video.mp4'},
-        ...     {'uri', 'file:///home/foo/Videos/video.mp4'},
-        ... ]
-        >>> config = GstConfig(infer_configs, src_configs)
-        >>> config.infer_configs == infer_configs
-        True
-        >>> config.infer_configs[1]['classifier-async-mode']
-        True
-        >>> config.src_configs == src_configs
-        True
-    
-        **IMPORTANT NOTE: this class does not currently ensure all properties on
-        a config exist on a given GStreamer element. TypeError will be raised by
-        the GstProcess if an attempt is made to set a property that does not exist.
-        This cannot be caught with try, but you can check the GstProcess return code.**
-
-    TODO(mdegans): more examples and doctests
+        master_config:
+            The master :obj:`ConfigEngine`_ to use internally.
     """
 
     SRC_TYPE = 'uridecodebin'
     SINK_TYPE = 'fakesink'
-    MUXER_TYPE = 'concat'
+    MUXER_TYPE = 'concat'  # using this just because it has request pads
     INFER_TYPE = 'identity'
     OSD_TYPE = 'identity'
     TRACKER_TYPE = 'identity'
 
-    def __init__(self, master_config: ConfigEngine,
-                 infer_configs: Iterable[ElemConfig],
-                 src_configs: Iterable[ElemConfig],
-                 muxer_config: ElemConfig = None,
-                 tracker_config: ElemConfig = None,
-                 osd_config: ElemConfig = None,
-                 sink_config: ElemConfig = None,):
+    def __init__(self, master_config: ConfigEngine):
         self.master_config = master_config
-        self.infer_configs = list(infer_configs)
-        self.src_configs = list(src_configs)
-        self.muxer_config = muxer_config
-        self.tracker_config = tracker_config
-        self.osd_config = osd_config
-        self.sink_config = sink_config
         self.validate()
+
+    @property
+    def src_configs(self) -> List[ElemConfig]:
+        """
+        Returns:
+            A list containing an ElemConfig for each 'Source' Section
+            in self.master_config
+        """
+        ret = []
+        for section, content in self.master_config.config.items():
+            if section.startswith('Source') and 'VideoPath' in content:
+                video_path = content['VideoPath']
+                if os.path.isfile(video_path):
+                    video_path = f'file://{os.path.abspath(video_path)}'
+                ret.append({'uri': video_path})
+        return ret
+
+    @property
+    def infer_configs(self) -> List[ElemConfig]:
+        """
+        Default implementation.
+
+        Returns:
+            a list with a single empty :obj:`ElemConfig`
+        """
+        return [dict(),]
+
+    def _blank_config(self) -> ElemConfig:
+        """
+        Default implementation.
+
+        Returns:
+            a new empty :obj:`ElemConfig`
+        """
+        return dict()
+
+    muxer_config = property(_blank_config)
+    tracker_config = property(_blank_config)
+    osd_config = property(_blank_config)
+    sink_config = property(_blank_config)
 
     @property
     def rows_and_columns(self) -> int:
         """
         Number of rows and columns for the tiler element.
-        
+
         Calculated based on the number of sources.
         """
         return calc_rows_and_columns(len(self.src_configs))
@@ -165,7 +147,7 @@ class GstConfig(object):
     def tile_resolution(self) -> Tuple[int, int]:
         """
         Resolution of an individual video tile.
-        
+
         Calculated based on the resolution and number of sources.
         """
         return calc_tile_resolution(self.out_resolution, self.rows_and_columns)
@@ -178,22 +160,6 @@ class GstConfig(object):
         Read from self.master_config.config['App']
         """
         return tuple(int(i) for i in self.master_config.config['App']['Resolution'].split(','))
-    
-    @property
-    def host(self) -> str:
-        """
-        Host to serve on.
-
-        Read from self.master_config.config['App']
-        """
-        return self.master_config.config['App']['Host']
-
-    @property
-    def port(self) -> int:
-        """
-        Port to serve on.
-        """
-        return int(self.master_config.config['App']['Port'])
 
     def validate(self):
         """
@@ -219,16 +185,18 @@ class GstConfig(object):
         """
         if not self.infer_configs:
             raise ValueError(
-                "at least one inference config is required")
+                "at least one 'Detector' section is required in the .ini")
         if not self.src_configs:
             raise ValueError(
-                "at least one source config is required")
+                "at least one 'Source' section is required in the .ini")
 
 
 class DsConfig(GstConfig):
     """
     DeepStream implementation of GstConfig.
-    Batch size properties 
+
+    'batch-size' will may be overridden on element configs to match
+    the number of sources in the master config.
 
     Arguments:
         max_batch_size (int):
@@ -244,9 +212,57 @@ class DsConfig(GstConfig):
     OSD_TYPE = 'nvdsosd'
     TRACKER_TYPE = 'nvtracker'
 
+    DS_VER, DS_ROOT = find_deepstream()
+    DS_CONF_PATH = os.path.join(DS_ROOT, 'samples', 'configs')
+    # TODO(mdegans): secure hash validation of all configs, models, paths, etc and copy to immutable path
+    # important that the copy is *before* the validation
+    RESNET_CONF = os.path.join(DS_CONF_PATH, 'deepstream-app/config_infer_primary.txt')
+    RESNET_CONF_NANO = os.path.join(DS_CONF_PATH, 'deepstream-app/config_infer_primary_nano.txt')
+    PEOPLENET_CONF = os.path.join(DS_CONF_PATH, 'tlt_pretrained_models/config_infer_primary_peoplenet.txt')
+
     def __init__(self, *args, max_batch_size=32, **kwargs):
         self.max_batch_size = max_batch_size
         super().__init__(*args, **kwargs)
+
+    @property
+    def muxer_config(self) -> ElemConfig:
+        return {
+            'width': self.tile_resolution[0],
+            'height': self.tile_resolution[1],
+            'batch-size': self.batch_size,
+        }
+
+    @property
+    def tracker_config(self) -> ElemConfig:
+        return {
+            'll-lib-file': os.path.join(self.DS_ROOT, 'lib', 'libnvds_mot_klt.so')
+        }
+
+    @property
+    def infer_configs(self) -> List[ElemConfig]:
+        """
+        Return nvinfer configs.
+        """
+        infer_configs = []
+        # TODO(mdegans): support 'Clasifier' section as secondary detectors
+        # this might mean parsing and writing the config files since the
+        # unique id is specified in the config.
+        detector_cfg = self.master_config.config['Detector']
+        model_name = detector_cfg['Name']
+        if model_name == 'resnet10':
+            # TODO(detect nano and use alternate cfg)
+            detector = {
+                'config-file-path': self.RESNET_CONF,
+            }
+        elif model_name == 'peoplenet':
+            detector = {
+                'config-file-path': self.PEOPLENET_CONF,
+            }
+        else:
+            raise ValueError('Invalid value for Detector "Name"')
+        detector['batch-size'] = self.batch_size
+        infer_configs.append(detector)
+        return infer_configs
 
     @property
     def batch_size(self) -> int:
@@ -259,40 +275,15 @@ class DsConfig(GstConfig):
           tests must be run to see if it's better to use the number
           of sources directly.
 
+        NOTE(mdegans): Nvidia sets it to a static 30 in their config
+          so it may be a power of two is not optimal here. Some of
+          their test apps use the number of sources. Benchmarking
+          is probably the easiest way to settle this.
+
         Control the max by setting max_batch_size.
         """
         optimal = pow(2, ceil(log(len(self.src_configs))/log(2)))
         return min(optimal, self.max_batch_size)
-
-    # TODO(mdegans): split this up into multiple functions
-    def validate(self):
-        """
-        Checks:
-            * superclass validators
-            * Set optimal batch-size property by rounding up to the next
-              power of two with a maximum of self.max_batch_size
-            * override muxer resolution to self.tile_resolution
-        """
-        # TODO(mdegans): a doctest would be too long, so a unit test file
-        #  is necessary for this class and method.
-        super().validate()
-
-        # create muxer config if it doesn't exist
-        if not self.muxer_config:
-            self.muxer_config = dict()
-
-        # at a minimum, a muxer config must have a resolution
-        self.muxer_config.update({
-            'width': self.tile_resolution[0],
-            'height': self.tile_resolution[1],
-        })
-
-        # override the batch size
-        # all have to match or bad things happen
-        configs_with_batch_size = [
-            *self.infer_configs, self.muxer_config]
-        for c in configs_with_batch_size:
-            c['batch-size'] = self.batch_size
 
 if __name__ == "__main__":
     import doctest
