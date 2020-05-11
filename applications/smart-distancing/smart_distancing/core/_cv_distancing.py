@@ -2,6 +2,7 @@
 import math
 import logging
 import itertools
+import os
 
 import cv2 as cv
 import numpy as np
@@ -103,7 +104,16 @@ class CvDistancing(BaseDistancing):
         self.ui.update(self._cv_img_tmp, objects, distancings)
 
     def process_video(self, video_uri):
-        input_cap = cv.VideoCapture(video_uri)
+        if os.path.isfile(video_uri):
+            # if the input video_uri is a file, convert to file uri
+            # gstreamer's uridecodebin demands this format
+            video_uri = f'file://{os.path.abspath(video_uri)}'
+        # create the uridecodebin launch string.
+        # NOTE(mdegans): There are some optmizations that can go here, like only
+        # decoding video streams or using a more performant platform specific
+        # conversion elements, however videoconvert exists on all platforms
+        gst_launch_str = f'uridecodebin uri="{video_uri}" ! video/x-raw ! videoconvert ! appsink'
+        input_cap = cv.VideoCapture(gst_launch_str, cv.CAP_GSTREAMER)
 
         if input_cap.isOpened():
             print('opened video ', video_uri)
