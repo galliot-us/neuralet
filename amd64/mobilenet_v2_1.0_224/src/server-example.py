@@ -33,7 +33,10 @@ model_file = "mobilenet_v2_1.0_224_quant_edgetpu.tflite"
 model_name = "mobilenet_v2_1.0_224"
 model_path = "data/models/" + model_name + "/" + model_file
 
-base_url = "https://raw.githubusercontent.com/neuralet/neuralet-models/master/edge-tpu/"
+base_url = (
+    "https://raw.githubusercontent.com/neuralet/"
+    + "neuralet-models/master/edge-tpu/"
+)
 url = base_url + model_name + "/" + model_file
 
 if not os.path.isfile(model_path):
@@ -55,13 +58,14 @@ def main():
     output_queue = output_manager.get_output_queue()
 
     print(
-        "------------------------------------------------------------------------------------------"
+        "--------------------------------------------------------------------"
     )
     print(
-        "Started Inference server, waiting for incoming requests ... (send 'stop' to kill server)"
+        "Started Inference server, waiting for incoming requests ... "
+        + "(send 'stop' to kill server)"
     )
     print(
-        "------------------------------------------------------------------------------------------"
+        "--------------------------------------------------------------------"
     )
 
     while True:
