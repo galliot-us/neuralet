@@ -416,33 +416,47 @@ class GstEngine(multiprocessing.Process):
             bool: False on failure, True on success.
         """
         self.logger.debug('linking pipeline')
-
-        # link the muxer to the tracker
-        if not self._muxer.link(self._tracker):
-            self.logger.error(
-                f'could not link {self._gst_config.MUXER_TYPE} to {self._gst_config.TRACKER_TYPE}')
-        
+       
         # arrange for the sources to link to the muxer when they are ready
+        # (uridecodebin has sometimes pads so needs to be linked by callback)
         for source in self._sources:  # type: Gst.Element
             source.connect('pad-added', self._on_source_src_pad_create)
 
-        # link the tracker to the first inference element
-        if not self._tracker.link(self._infer_elements[0]):
+        # link the muxer to the first inference element
+        if not self._muxer.link(self._infer_elements[0]):
             self.logger.error(
-                f'could not link {self._gst_config.TRACKER_TYPE} to {self._gst_config.INFER_TYPE}')
-
-        # link the inference elements together
-        if not link_many(self._infer_elements):
+                f'could not link {self._muxer.name} to {self._infer_elements[0].name}')
             return False
-        
-        # link the final inference element to the sink
-        if not self._infer_elements[-1].link(self._osd):
+
+        if not self._infer_elements[0].link(self._tracker):
             self.logger.error(
-                f'could not link final {self._gst_config.INFER_TYPE} to {self._gst_config.OSD_TYPE}')
+                f'could not link primary inference engine to tracker')
+            return False
+
+        # if there are secondary inference elements
+        if self._infer_elements[1:]:
+            # link tracker to the rest of the inference elements
+            if not link_many((self._tracker, *self._infer_elements[1:])):
+                return False
+
+            # link the final inference element to the osd converter
+            if not self._infer_elements[-1].link(self._osd_converter):
+                self.logger.error(
+                    f'could not link final inference element to {self._osd_converter.name}')
+        else:
+            # link tracker directly to the osd converter
+            if not self._tracker.link(self._osd_converter):
+                self.logger.error(
+                    f'could not link {self._tracker.name} to {self._osd_converter.name}')
+
+        if not self._osd_converter.link(self._osd):
+            self.logger.error(
+                f'could not link {self._osd_converter.name} to {self._osd.name}')
 
         if not self._osd.link(self._sink):
             self.logger.error(
-                f'could not link {self._gst_config.OSD_TYPE} to {self._gst_config.SINK_TYPE}')
+                f'could not link {self._osd.name} to {self._sink.name}')
+            return False
 
         self.logger.debug('linking pipeline successful')
         return True
