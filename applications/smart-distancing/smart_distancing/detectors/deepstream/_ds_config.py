@@ -238,6 +238,9 @@ class DsConfig(GstConfig):
     RESNET_CONF_NANO = os.path.join(DS_CONF_PATH, 'deepstream-app/config_infer_primary_nano.txt')
     PEOPLENET_CONF = os.path.join(DS_CONF_PATH, 'tlt_pretrained_models/config_infer_primary_peoplenet.txt')
 
+    TRACKER_LIB = 'libnvds_mot_iou.so'
+    INFER_INTERVAL = 1
+
     def __init__(self, *args, max_batch_size=32, **kwargs):
         self.max_batch_size = max_batch_size
         super().__init__(*args, **kwargs)
@@ -254,7 +257,7 @@ class DsConfig(GstConfig):
     @property
     def tracker_config(self) -> ElemConfig:
         return {
-            'll-lib-file': os.path.join(self.DS_ROOT, 'lib', 'libnvds_mot_klt.so'),
+            'll-lib-file': os.path.join(self.DS_ROOT, 'lib', self.TRACKER_LIB),
             'enable-batch-process': True,
         }
 
@@ -290,6 +293,7 @@ class DsConfig(GstConfig):
         else:
             raise ValueError('Invalid value for Detector "Name"')
         detector['batch-size'] = self.batch_size
+        detector['interval'] = self.INFER_INTERVAL
         infer_configs.append(detector)
         return infer_configs
 
