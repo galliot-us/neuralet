@@ -143,6 +143,7 @@ class GstEngine(multiprocessing.Process):
         self._muxer_lock = GLib.Mutex()
         self._tracker = None  # type: Gst.Element
         self._infer_elements = []  # type: List[Gst.Element]
+        self._osd_converter = None  # type: Gst.Element
         self._osd = None  # type: Gst.Element
         self._osd_probe_id = None # type: int
         self._sink = None  # type: Gst.Element
@@ -369,6 +370,7 @@ class GstEngine(multiprocessing.Process):
             functools.partial(self._create_element, 'muxer'),
             functools.partial(self._create_element, 'tracker'),
             self._create_infer_elements,
+            functools.partial(self._create_element, 'osd_converter'),
             functools.partial(self._create_element, 'osd'),
             functools.partial(self._create_element, 'sink'),
         )

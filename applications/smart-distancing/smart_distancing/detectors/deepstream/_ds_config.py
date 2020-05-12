@@ -87,6 +87,7 @@ class GstConfig(object):
     SINK_TYPE = 'fakesink'
     MUXER_TYPE = 'concat'  # using this just because it has request pads
     INFER_TYPE = 'identity'
+    OSD_CONVERTER_TYPE = 'identity'
     OSD_TYPE = 'identity'
     TRACKER_TYPE = 'identity'
 
@@ -132,6 +133,7 @@ class GstConfig(object):
     muxer_config = property(_blank_config)
     tracker_config = property(_blank_config)
     osd_config = property(_blank_config)
+    osd_converter_config = property(_blank_config)
     sink_config = property(_blank_config)
 
     @property
@@ -209,6 +211,7 @@ class DsConfig(GstConfig):
     SINK_TYPE = 'hlssink'
     MUXER_TYPE = 'nvstreammux'
     INFER_TYPE = 'nvinfer'
+    OSD_CONVERTER_TYPE = 'nvvideoconvert'
     OSD_TYPE = 'nvdsosd'
     TRACKER_TYPE = 'nvtracker'
 
