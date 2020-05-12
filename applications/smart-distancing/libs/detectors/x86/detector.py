@@ -16,6 +16,9 @@ class Detector:
         if self.name == 'mobilenet_ssd_v2':
             from libs.detectors.x86 import mobilenet_ssd
             self.net = mobilenet_ssd.Detector(self.config)
+        elif self.name == "openvino":
+            from libs.detectors.x86 import openvino
+            self.net = openvino.Detector(self.config)
         else:
             raise ValueError('Not supported network named: ', self.name)
 

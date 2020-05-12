@@ -1,0 +1,14 @@
+FROM openvino/ubuntu18_dev
+
+USER root
+VOLUME  /repo
+WORKDIR /repo/applications/smart-distancing
+
+RUN apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev
+
+RUN pip3 install --upgrade pip setuptools==41.0.0 && pip3 install opencv-python wget flask scipy image
+
+RUN /opt/intel/openvino/deployment_tools/tools/model_downloader/downloader.py --name pedestrian-detection-adas-0002 --precisions FP32
+
+EXPOSE 8000
+
