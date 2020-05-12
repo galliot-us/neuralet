@@ -12,6 +12,10 @@ Smart Distancing is an open-source application to quantify social distancing mea
 
 You can run this application on edge devices such as NVIDIA's Jetson Nano or Google's Coral Edge-TPU. This application measures social distancing rates and gives proper notifications each time someone ignores social distancing rules. By generating and analyzing data, this solution outputs statistics about high-traffic areas that are at high risk of exposure to COVID-19 or any other contagious virus. The project is under substantial active development; you can find our roadmap at https://github.com/neuralet/neuralet/projects/1.
 
+We encourage the community to join us in building a practical solution to keep people safe while allowing them to get back to their jobs. You can read more about the project motivation and roadmap here: https://docs.google.com/presentation/d/13EEt4JfdkYSqpPLpotx9taBHpNW6WtfXo2SfwFU_aQ0/edit?usp=sharing
+
+Please reach out to covid19project@neuralet.com if you have any questions. 
+
 
 ## Getting Started
 
