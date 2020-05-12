@@ -245,6 +245,7 @@ class DsConfig(GstConfig):
             'width': self.tile_resolution[0],
             'height': self.tile_resolution[1],
             'batch-size': self.batch_size,
+            'enable-padding': True,  # maintain apsect raidou
         }
 
     @property
