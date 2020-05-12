@@ -30,6 +30,7 @@ function clean() {
 function main() {
     if [ "$#" -ne 1 ]; then
         echo "plugin install path required"
+        exit 1
     fi
     prep $1
     build
