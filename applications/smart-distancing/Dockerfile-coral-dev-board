@@ -3,6 +3,13 @@
 # 1) build: docker build -f Dockerfile-coral-dev-board -t "neuralet/coral-dev-board:applications-smart-distancing" .
 # 2) run: docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/coral-dev-board:applications-smart-distancing
 
+FROM node:14-alpine as frontend
+WORKDIR /frontend
+COPY ui/frontend/package.json ui/frontend/package-lock.json /frontend/
+RUN npm install --production
+COPY ui/frontend /frontend
+RUN npm run build
+
 FROM arm64v8/debian:buster
 
 VOLUME  /repo
@@ -22,7 +29,11 @@ RUN python3 -m pip install --upgrade pip==19.3.1 setuptools==41.0.0 && python3 -
 
 RUN apt-get install -y python3-wget
 
-RUN apt-get install -y python3-flask python3-opencv python3-scipy
+RUN apt-get install -y python3-opencv python3-scipy
+
+RUN pip3 install fastapi uvicorn aiofiles
+
+COPY --from=frontend /frontend/build /srv/frontend
 
 WORKDIR /repo/applications/smart-distancing
 # Also if you use opencv: LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0"

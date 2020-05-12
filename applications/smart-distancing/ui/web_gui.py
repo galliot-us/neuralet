@@ -3,9 +3,10 @@ import time
 import cv2 as cv
 import numpy as np
 from datetime import date
-from flask import Flask
-from flask import render_template
-from flask import Response
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse, FileResponse, StreamingResponse
+import uvicorn
 
 from .utils import visualization_utils as vis_util
 from tools.objects_post_process import extract_violating_objects
@@ -14,7 +15,7 @@ from tools.environment_score import mx_environment_scoring_consider_crowd
 
 class WebGUI:
     """
-    The Webgui object implements a flask application and acts as an interface for users.
+    The Webgui object implements a fastapi application and acts as an interface for users.
     Once it is created it will act as a central application for viewing outputs.
 
     :param config: Is a ConfigEngine instance which provides necessary parameters.
@@ -30,7 +31,7 @@ class WebGUI:
         self._lock = threading.Lock()
         self._host = self.config.get_section_dict("App")["Host"]
         self._port = int(self.config.get_section_dict("App")["Port"])
-        self.app = self.create_flask_app()
+        self.app = self.create_fastapi_app()
         self._dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
         self._displayed_items = {}  # all items here will be used at ui webpage
 
@@ -107,36 +108,36 @@ class WebGUI:
             self._output_frame = input_frame.copy()
             self._birds_view = birds_eye_window.copy()
 
-    def create_flask_app(self):
-        # Create and return a flask instance named 'app'
-        app = Flask(__name__)
+    def create_fastapi_app(self):
+        # Create and return a fastapi instance
+        app = FastAPI()
 
-        @app.route("/")
-        def _index():
-            # Render a html file located at templates as home page
-            return render_template("index.html")
+        app.mount("/panel/static", StaticFiles(directory="/srv/frontend/static"), name="panel")
+        app.mount("/static", StaticFiles(directory="ui/static"), name="static")
 
-        @app.route("/video_feed")
+        @app.get("/panel/")
+        async def panel():
+            return FileResponse("/srv/frontend/index.html")
+
+        @app.get("/")
+        async def index():
+            return RedirectResponse("/panel/")
+
+        @app.get("/video_feed")
         def video_feed():
             # Return the response generated along with the specific media
             # Type (mime type)
-            return Response(
-                self._generate(1), mimetype="multipart/x-mixed-replace; boundary=frame"
+            return StreamingResponse(
+                self._generate(1), media_type="multipart/x-mixed-replace; boundary=frame"
             )
 
-        @app.route("/birds_view_feed")
+        @app.get("/birds_view_feed")
         def birds_view_feed():
             # Return the response generated along with the specific media
             # Type (mime type)
-            return Response(
-                self._generate(2), mimetype="multipart/x-mixed-replace; boundary=frame"
+            return StreamingResponse(
+                self._generate(2), media_type="multipart/x-mixed-replace; boundary=frame"
             )
-
-        @app.route("/visualize_logs", methods=['GET'])
-        def visualizer_page():
-            # Render a html file located at templates as home page
-            path = [self.objects_log]
-            return render_template("visualizer.html", csv_path=path)
 
         return app
 
@@ -147,7 +148,7 @@ class WebGUI:
             encoded birds-eye window
 
         Returns:
-            Yield and encode output_frame for flask the response object that is used by default in Flask
+            Yield and encode output_frame the response object that is used by default in fastapi
         """
         while True:
             with self._lock:
@@ -174,9 +175,10 @@ class WebGUI:
             yield encoded_input_frame if out_frame == 1 else encoded_birds_eye_frame
 
     def _run(self):
-        self.app.run(
-            host=self._host, port=self._port, debug=True, threaded=True, use_reloader=False,
-        )
+        time.sleep(1)
+        # Get video file path from the config
+        video_path = self.config.get_section_dict("App")["VideoPath"]
+        self.__ENGINE_INSTANCE.process_video(video_path)
 
     def start(self):
         """
@@ -184,8 +186,7 @@ class WebGUI:
         It must be called at most once. It runes self._run method on a separate thread and starts
         process_video method at engine instance
         """
-        threading.Thread(target=self._run).start()
-        time.sleep(1)
-        # Get video file path from the config
-        video_path = self.config.get_section_dict("App")["VideoPath"]
-        self.__ENGINE_INSTANCE.process_video(video_path)
+        process_thread = threading.Thread(target=self._run)
+        process_thread.start()
+        uvicorn.run(self.app, host=self._host, port=self._port, log_level='info')
+        process_thread.join()

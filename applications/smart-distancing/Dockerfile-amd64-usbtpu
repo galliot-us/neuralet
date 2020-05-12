@@ -3,6 +3,13 @@
 # 1) build: docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:applications-smart-distancing" .
 # 2) run: docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:applications-smart-distancing
 
+FROM node:14-alpine as frontend
+WORKDIR /frontend
+COPY ui/frontend/package.json ui/frontend/package-lock.json /frontend/
+RUN npm install --production
+COPY ui/frontend /frontend
+RUN npm run build
+
 FROM amd64/debian:buster
 
 VOLUME  /repo
@@ -16,7 +23,11 @@ RUN apt-get update && apt-get install -y python3-pip pkg-config libedgetpu1-std 
 
 RUN python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_x86_64.whl 
 
-RUN apt-get install -y python3-flask python3-opencv python3-scipy
+RUN apt-get install -y python3-opencv python3-scipy
+
+RUN pip3 install fastapi uvicorn aiofiles
+
+COPY --from=frontend /frontend/build /srv/frontend
 
 WORKDIR /repo/applications/smart-distancing
 

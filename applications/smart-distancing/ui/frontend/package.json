@@ -1,0 +1,49 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@material-ui/core": "4.9.13",
+    "@material-ui/icons": "4.9.1",
+    "@testing-library/jest-dom": "4.2.4",
+    "@testing-library/react": "9.5.0",
+    "@testing-library/user-event": "7.2.1",
+    "axios": "0.19.2",
+    "babel-plugin-ramda": "2.0.0",
+    "babel-plugin-transform-imports": "2.0.0",
+    "customize-cra": "0.9.1",
+    "plotly.js": "1.54.1",
+    "ramda": "0.27.0",
+    "react": "^16.13.1",
+    "react-app-rewired": "2.1.6",
+    "react-container-dimensions": "1.4.1",
+    "react-dom": "^16.13.1",
+    "react-plotly.js": "2.4.0",
+    "react-router-dom": "5.1.2",
+    "react-scripts": "3.4.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired --expose-gc --max-old-space-size=8192 build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "homepage": ".",
+  "proxy": "http://127.0.0.1:8000"
+}
