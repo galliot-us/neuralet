@@ -6,7 +6,7 @@ import cv2 as cv
 
 from libs.detectors.utils.fps_calculator import convert_infr_time_to_fps
 
-from openvino.inference_engine import IENetwork, IECore
+from openvino.inference_engine import IECore
 
 class Detector:
     """
@@ -24,7 +24,7 @@ class Detector:
         # Frames Per Second
         self.fps = None
 
-        model_path = '/opt/intel/openvino_2020.2.120/deployment_tools/open_model_zoo/tools/downloader/intel/pedestrian-detection-adas-0002/FP32'
+        model_path = 'libs/detectors/x86/data'
 
         core = IECore()
         network = core.read_network(
