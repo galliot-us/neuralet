@@ -26,6 +26,13 @@ from math import (
     sqrt,
 )
 
+import gi
+gi.require_version('Gst', '1.0')
+gi.require_version('GLib', '2.0')
+from gi.repository import (
+    Gst,
+)
+
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -108,7 +115,12 @@ class GstConfig(object):
                 video_path = content['VideoPath']
                 if os.path.isfile(video_path):
                     video_path = f'file://{os.path.abspath(video_path)}'
-                ret.append({'uri': video_path})
+                ret.append({
+                    'uri': video_path,
+                    'async-handling': True,  # this makees the startup slightly faster
+                    'caps': Gst.Caps.from_string("video/x-raw(ANY)"),
+                    'expose-all-streams': False,  # this filters decoded streams to the above (video only)
+                })
         return ret
 
     @property
@@ -208,7 +220,7 @@ class DsConfig(GstConfig):
             performance.
     """
     SRC_TYPE = 'uridecodebin'
-    SINK_TYPE = 'hlssink'
+    SINK_TYPE = 'nvoverlaysink'
     MUXER_TYPE = 'nvstreammux'
     INFER_TYPE = 'nvinfer'
     OSD_CONVERTER_TYPE = 'nvvideoconvert'
