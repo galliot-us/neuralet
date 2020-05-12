@@ -146,6 +146,7 @@ class GstEngine(multiprocessing.Process):
         self._tracker = None  # type: Gst.Element
         self._infer_elements = []  # type: List[Gst.Element]
         self._osd_converter = None  # type: Gst.Element
+        self._tiler = None  # type: Gst.Element
         self._osd = None  # type: Gst.Element
         self._osd_probe_id = None # type: int
         self._sink = None  # type: Gst.Element
@@ -373,6 +374,7 @@ class GstEngine(multiprocessing.Process):
             functools.partial(self._create_element, 'tracker'),
             self._create_infer_elements,
             functools.partial(self._create_element, 'osd_converter'),
+            functools.partial(self._create_element, 'tiler'),
             functools.partial(self._create_element, 'osd'),
             functools.partial(self._create_element, 'sink'),
         )
@@ -447,15 +449,23 @@ class GstEngine(multiprocessing.Process):
             if not self._infer_elements[-1].link(self._osd_converter):
                 self.logger.error(
                     f'could not link final inference element to {self._osd_converter.name}')
+                return False
         else:
             # link tracker directly to the osd converter
             if not self._tracker.link(self._osd_converter):
                 self.logger.error(
                     f'could not link {self._tracker.name} to {self._osd_converter.name}')
+                return False
 
-        if not self._osd_converter.link(self._osd):
+        if not self._osd_converter.link(self._tiler):
             self.logger.error(
-                f'could not link {self._osd_converter.name} to {self._osd.name}')
+                f'could not link {self._osd_converter.name} to {self._tiler.name}')
+            return False
+
+        if not self._tiler.link(self._osd):
+            self.logger.error(
+                f'could not link {self._tiler.name} to {self._osd.name}')
+            return False
 
         if not self._osd.link(self._sink):
             self.logger.error(

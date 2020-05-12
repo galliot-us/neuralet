@@ -95,6 +95,7 @@ class GstConfig(object):
     MUXER_TYPE = 'concat'  # using this just because it has request pads
     INFER_TYPE = 'identity'
     OSD_CONVERTER_TYPE = 'identity'
+    TILER_TYPE = 'identity',
     OSD_TYPE = 'identity'
     TRACKER_TYPE = 'identity'
 
@@ -144,6 +145,7 @@ class GstConfig(object):
 
     muxer_config = property(_blank_config)
     tracker_config = property(_blank_config)
+    tiler_config = property(_blank_config)
     osd_config = property(_blank_config)
     osd_converter_config = property(_blank_config)
     sink_config = property(_blank_config)
@@ -224,6 +226,7 @@ class DsConfig(GstConfig):
     MUXER_TYPE = 'nvstreammux'
     INFER_TYPE = 'nvinfer'
     OSD_CONVERTER_TYPE = 'nvvideoconvert'
+    TILER_TYPE = 'nvmultistreamtiler'
     OSD_TYPE = 'nvdsosd'
     TRACKER_TYPE = 'nvtracker'
 
@@ -251,7 +254,17 @@ class DsConfig(GstConfig):
     @property
     def tracker_config(self) -> ElemConfig:
         return {
-            'll-lib-file': os.path.join(self.DS_ROOT, 'lib', 'libnvds_mot_klt.so')
+            'll-lib-file': os.path.join(self.DS_ROOT, 'lib', 'libnvds_mot_klt.so'),
+            'enable-batch-process': True,
+        }
+
+    @property
+    def tiler_config(self) -> ElemConfig:
+        return {
+            'rows': self.rows_and_columns,
+            'columns': self.rows_and_columns,
+            'width': self.out_resolution[0],
+            'height': self.out_resolution[1],
         }
 
     @property
