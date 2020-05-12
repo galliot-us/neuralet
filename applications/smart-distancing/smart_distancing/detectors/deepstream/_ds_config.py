@@ -125,6 +125,14 @@ class GstConfig(object):
         return ret
 
     @property
+    def class_ids(self) -> str:
+        """
+        Returns:
+            the class IDs from the master config.
+        """
+        return self.master_config.config['Detector']['ClassID']
+
+    @property
     def infer_configs(self) -> List[ElemConfig]:
         """
         Default implementation.
