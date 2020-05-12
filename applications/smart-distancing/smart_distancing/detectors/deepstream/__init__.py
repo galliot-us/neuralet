@@ -18,11 +18,12 @@ from smart_distancing.detectors.deepstream._ds_engine import *
 from smart_distancing.detectors.deepstream._detectors import *
 
 __all__ = [
+    'bin_to_pdf',  # _ds_utils.py
     'DsConfig',  # _ds_config.py
-    'find_deepstream',  # _ds_utils.py
     'DsDetector',  # _detectors.py
     'DsEngine',  # _ds_engine.py
     'ElemConfig',  # _ds_config.py
+    'find_deepstream',  # _ds_utils.py
     'frame_meta_iterator',  # _ds_engine.py
     'GstConfig',  # _ds_config.py
     'GstEngine',  # _ds_engine.py

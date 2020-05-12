@@ -1,3 +1,4 @@
+import os
 import functools
 import multiprocessing
 import queue
@@ -17,9 +18,10 @@ from typing import (
     Iterable,
     Optional,
 )
-
+from smart_distancing.detectors.deepstream._ds_utils import bin_to_pdf
 from smart_distancing.detectors.deepstream._ds_config import GstConfig
 from smart_distancing import Detections
+from smart_distancing import USER_LOG_DIR
 
 __all__ = [
     'GstEngine',
@@ -484,6 +486,7 @@ class GstEngine(multiprocessing.Process):
         Called by _on_stop. A separate function for testing purposes.
         """
         self._main_loop.quit()
+        self._write_pdf('quit')
         self.logger.debug('shifting pipeline to NULL state')
         ret = self._pipeline.set_state(Gst.State.NULL)
         if ret == Gst.StateChangeReturn.ASYNC:
@@ -504,10 +507,22 @@ class GstEngine(multiprocessing.Process):
             self._stop_requested.clear()
             self.logger.info(f'{self.__class__.__name__} cleanly stopped')
 
+    def _write_pdf(self, suffix: str):
+        # create a debug pdf from the pipeline
+        dot_filename = bin_to_pdf(
+            self._pipeline, Gst.DebugGraphDetails.ALL, f'{self.__class__.__name__}.pipeline.{suffix}')
+        if dot_filename:
+            self.logger.debug(
+                f'.dot file written to {dot_filename}')
+
     def run(self):
         """Called on start(). Do not call this directly."""
         self.logger.debug('run() called. Initializing Gstreamer.')
         
+        # set the .dot file dump path (this must be done prior to Gst.init)
+        if 'GST_DEBUG_DUMP_DOT_DIR' not in os.environ:
+            os.environ['GST_DEBUG_DUMP_DOT_DIR'] = USER_LOG_DIR
+
         # initialize and check GStreamer
         Gst.init_check()
 
@@ -544,11 +559,17 @@ class GstEngine(multiprocessing.Process):
         self.logger.debug('registering self._on_stop() idle callback with GLib MainLoop')
         GLib.idle_add(self._on_stop)
 
+        # write a pdf before we attempt to start the pipeline
+        self._write_pdf('linked')
+
         # set the pipeline to the playing state
         self.logger.debug('setting pipeline to PLAYING state')
         self._pipeline.set_state(Gst.State.PLAYING)
 
-        # run the main loop.
+        # write a pipeline after set the pipeline to PLAYING
+        self._write_pdf('playing')
+
+        # create and run the main loop.
         # this has a built-in signal handler for SIGINT
         self.logger.debug('creating the GLib.MainLoop')
         self._main_loop = GLib.MainLoop()
