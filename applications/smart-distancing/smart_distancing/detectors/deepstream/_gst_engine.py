@@ -404,7 +404,7 @@ class GstEngine(multiprocessing.Process):
             if not ret == Gst.PadLinkReturn.OK:
                 self.logger.error(
                     f"failed to link source to muxer becase {ret.value_name}")
-                self._muxer.release_request_pad(muxer_sink)
+                self._quit()
         finally:
             self._muxer_lock.unlock()
 
