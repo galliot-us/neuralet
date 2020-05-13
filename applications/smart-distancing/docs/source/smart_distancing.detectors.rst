@@ -9,6 +9,8 @@ Subpackages
 
    smart_distancing.detectors.edgetpu
    smart_distancing.detectors.jetson
+   smart_distancing.detectors.deepstream
+   smart_distancing.detectors.x86
 
 Module contents
 ---------------
