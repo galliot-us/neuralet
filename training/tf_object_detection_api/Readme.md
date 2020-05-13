@@ -19,15 +19,15 @@ git clone https://github.com/neuralet/neuralet
 cd training/tf_object_detection_api
 
 # 2- Build the container
-docker build -f toco-Dockerfile -t "neuralet/toco" .
+docker build -f tools-toco.Dockerfile -t "neuralet/tools-toco" .
 
 3- Run the container
-docker run -v [PATH_TO_FROZEN_GRAPH_DIRECTORY]:/model_dir neuralet/toco --graph_def_file=[frozen graph file]
+docker run -v [PATH_TO_FROZEN_GRAPH_DIRECTORY]:/model_dir neuralet/tools-toco --graph_def_file=[frozen graph file]
 ```
 
 ### Pull the Container from Docker Hub:
 ```
-docker run -v [PATH_TO_FROZEN_GRAPH_DIRECTORY]:/model_dir neuralet/toco --graph_def_file=[frozen graph file]
+docker run -v [PATH_TO_FROZEN_GRAPH_DIRECTORY]:/model_dir neuralet/tools-toco --graph_def_file=[frozen graph file]
 ```
 
 Running the container will create a `detect.tflite` file in the graph def directory that you have mounted to the docker.
@@ -38,7 +38,7 @@ You can also override other parameters, such as `--input_shapes[default:1,300,30
 
 ## TensorFlow Object Detection API Docker Container
 
-The `tensorflow-od-api-Dockerfile` will install the TensorFlow Object Detection API and its dependencies into `/models/research/object_detection` directory. For instructions on how to train an object detection model, visit the [API's GitHub repo](https://github.com/tensorflow/models/tree/master/research/object_detection). To run this Docker container, you should either build the Docker container from source or pull the container from Docker Hub.
+The `tools-tf-object-detection-api-training.Dockerfile` will install the TensorFlow Object Detection API and its dependencies into `/models/research/object_detection` directory. For instructions on how to train an object detection model, visit the [API's GitHub repo](https://github.com/tensorflow/models/tree/master/research/object_detection). To run this Docker container, you should either build the Docker container from source or pull the container from Docker Hub.
 
 
 1- Run with CPU support:
@@ -50,14 +50,14 @@ git clone https://github.com/neuralet/neuralet
 cd training/tf_object_detection_api
 
 # 2- Build the container
-docker build -f tensorflow-od-api-Dockerfile -t "neuralet/tensorflow-od-api" .
+docker build -f tools-tf-object-detection-api-training.Dockerfile -t "neuralet/tools-tf-object-detection-api-training" .
 
 3- Run the container
-docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tensorflow-od-api
+docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tools-tf-object-detection-api-training
 ```
 ### Pull the Container from Docker Hub:
 ```
-docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tensorflow-od-api
+docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tools-tf-object-detection-api-training
 
 ``` 
 
@@ -73,13 +73,13 @@ git clone https://github.com/neuralet/neuralet
 cd training/tf_object_detection_api
 
 # 2- Build the container
-docker build -f tensorflow-od-api-Dockerfile -t "neuralet/tensorflow-od-api" .
+docker build -f tools-tf-object-detection-api-training.Dockerfile -t "neuralet/tools-tf-object-detection-api-training" .
 
 3- Run the container
-docker run -it --gpus all -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tensorflow-od-api
+docker run -it --gpus all -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tools-tf-object-detection-api-training
 ```
 ### Pull the Container from Docker Hub:
 ```
-docker run -it --gpus all -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tensorflow-od-api
+docker run -it --gpus all -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tools-tf-object-detection-api-training
 ```
 
