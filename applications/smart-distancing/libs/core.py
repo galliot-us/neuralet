@@ -25,7 +25,8 @@ class Distancing:
             from libs.detectors.edgetpu.detector import Detector
             self.detector = Detector(self.config)
         elif self.device == 'Dummy':
-            self.detector = None
+            from libs.detectors.dummy.detector import Detector
+            self.detector = Detector(self.config)
         elif self.device == 'x86':
             from libs.detectors.x86.detector import Detector
             self.detector = Detector(self.config)
@@ -48,8 +49,6 @@ class Distancing:
         return object_list list of  dict for each obj,
         obj["bbox"] is normalized coordinations for [x0, y0, x1, y1] of box
         """
-        if self.device == 'Dummy':
-            return cv_image, [], None
 
         # Resize input image to resolution
         resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
