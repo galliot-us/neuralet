@@ -18,7 +18,7 @@ class Detector:
         self.class_id = self.config.get_section_dict('Detector')['ClassID']
 
     def inference(self, resized_rgb_image):
-        self.fps = int(np.random.rand() * 10 + 10)
+        self.fps = np.random.choice([0.5, 1, 2])
         time.sleep(1.0 / self.fps)
         bbox_transform = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [1, 0, 1, 0], [0, 1, 0, 1]]) * 0.5
         class_id = self.class_id
