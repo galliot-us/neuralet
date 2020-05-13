@@ -10,4 +10,4 @@ VOLUME /model_dir
 
 WORKDIR /model_dir
 
-ENTRYPOINT ["/usr/local/bin/toco", "--output_format","TFLITE", "--input_shapes", "1,300,300,3","--input_arrays", "normalized_input_image_tensor" ,"--output_arrays","TFLite_Detection_PostProcess,TFLite_Detection_PostProcess:1,TFLite_Detection_PostProcess:2,TFLite_Detection_PostProcess:3" ,"--inference_type" ,"QUANTIZED_UINT8" ,"--mean_values", "128" ,"--std_dev_values" ,"128","--change_concat_input_ranges", "false", "--allow_custom_op","--output_file","detect.tflite"]
+ENTRYPOINT ["/usr/local/bin/toco" ,"--output_format","TFLITE", "--input_shapes", "1,300,300,3","--input_arrays", "normalized_input_image_tensor" ,"--output_arrays","TFLite_Detection_PostProcess,TFLite_Detection_PostProcess:1,TFLite_Detection_PostProcess:2,TFLite_Detection_PostProcess:3" ,"--inference_type" ,"QUANTIZED_UINT8" ,"--mean_values", "128" ,"--std_dev_values" ,"128","--change_concat_input_ranges", "false", "--allow_custom_op","--output_file","detect.tflite"]
