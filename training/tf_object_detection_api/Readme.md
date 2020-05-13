@@ -58,7 +58,6 @@ docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tools-tf-object-
 ### Pull the Container from Docker Hub:
 ```
 docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tools-tf-object-detection-api-training
-
 ``` 
 
 2- Run with GPU support:
@@ -67,6 +66,7 @@ docker run -it -v [PATH TO EXPERIMENT DIRECTORY]:/work neuralet/tools-tf-object-
 You should have the [Nvidia Docker Toolkit](https://github.com/NVIDIA/nvidia-docker) installed to be able to run the Docker container with GPU support.
 
 ### Build the Container from Source:
+
 ```
 # 1- Clone the repository
 git clone https://github.com/neuralet/neuralet
