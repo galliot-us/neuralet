@@ -109,9 +109,11 @@ class MobilenetSsdDetector(EdgeTpuDetector):
 
 class PedestrianSsdDetector(EdgeTpuDetector):
     __doc__ = TFLITE_CLASS_DOC
+    DEFAULT_MODEL_URL = 'https://github.com/neuralet/neuralet-models/raw/master/edge-tpu/pedestrian_ssd_mobilenet_v2/'
     DEFAULT_MODEL_FILE = 'ped_ssd_mobilenet_v2_quantized_edgetpu.tflite'
 
 
 class PedestrianSsdLiteDetector(EdgeTpuDetector):
     __doc__ = TFLITE_CLASS_DOC
+    DEFAULT_MODEL_URL = 'https://github.com/neuralet/neuralet-models/raw/master/edge-tpu/pedestrian_ssdlite_mobilenet_v2/'
     DEFAULT_MODEL_FILE = 'ped_ssdlite_mobilenet_v2_quantized_edgetpu.tflite'

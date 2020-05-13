@@ -2,6 +2,7 @@
 import math
 import logging
 import itertools
+import os
 
 import cv2 as cv
 import numpy as np
@@ -26,18 +27,35 @@ class CvDistancing(BaseDistancing):
         self.frame_counter = itertools.count(0)
         self.tracker = CentroidTracker(
             max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
+
+        detector_name_tmp = self.config.get_section_dict("Detector")["Name"]
         if self.device == 'Jetson':
-            from smart_distancing.detectors.jetson import MobilenetSsdDetector
-            self.detector = MobilenetSsdDetector(self.config)
+            if detector_name_tmp == 'mobilenet_ssd_v2_coco':
+                from smart_distancing.detectors.jetson import MobilenetSsdDetector as Detector
+            else:
+                raise ValueError('Failed to initiate Detector, as ' + detector_name_tmp + \
+                                 ' on device ' + self.device + ' is not supported')
         elif self.device == 'EdgeTPU':
-            from smart_distancing.detectors.edgetpu import MobilenetSsdDetector
-            self.detector = MobilenetSsdDetector(self.config)
-        elif self.device == 'Dummy':
-            self.detector = None
+            if detector_name_tmp == 'mobilenet_ssd_v2':
+                from smart_distancing.detectors.edgetpu import MobilenetSsdDetector as Detector
+            elif detector_name_tmp == 'pedestrian_ssd_mobilenet_v2':
+                from smart_distancing.detectors.edgetpu import PedestrianSsdDetector as Detector
+            elif detector_name_tmp == 'pedestrian_ssdlite_mobilenet_v2':
+                from smart_distancing.detectors.edgetpu import PedestrianSsdLiteDetector as Detector
+            else:
+                raise ValueError('Failed to initiate Detector, as ' + detector_name_tmp + \
+                                 ' on device ' + self.device + ' is not supported')
         elif self.device == 'x86':
-            from smart_distancing.detectors.x86 import TfDetector
-            self.detector = TfDetector(self.config)
+            if detector_name_tmp == 'mobilenet_ssd_v2_coco_2018_03_29':
+                from smart_distancing.detectors.x86 import TfDetector as Detector
+            else:
+                raise ValueError('Failed to initiate Detector, as ' + detector_name_tmp + \
+                                 ' on device ' + self.device + ' is not supported')
+        elif self.device == 'Dummy':
+             Detector = None
         
+        if Detector is not None: 
+            self.detector = Detector(self.config)
         # set the callback on the detector process, so it's called 
         self.detector.on_frame = self._on_detections
 
@@ -86,7 +104,16 @@ class CvDistancing(BaseDistancing):
         self.ui.update(self._cv_img_tmp, objects, distancings)
 
     def process_video(self, video_uri):
-        input_cap = cv.VideoCapture(video_uri)
+        if os.path.isfile(video_uri):
+            # if the input video_uri is a file, convert to file uri
+            # gstreamer's uridecodebin demands this format
+            video_uri = f'file://{os.path.abspath(video_uri)}'
+        # create the uridecodebin launch string.
+        # NOTE(mdegans): There are some optmizations that can go here, like only
+        # decoding video streams or using a more performant platform specific
+        # conversion elements, however videoconvert exists on all platforms
+        gst_launch_str = f'uridecodebin uri="{video_uri}" ! video/x-raw ! videoconvert ! appsink'
+        input_cap = cv.VideoCapture(gst_launch_str, cv.CAP_GSTREAMER)
 
         if input_cap.isOpened():
             print('opened video ', video_uri)
