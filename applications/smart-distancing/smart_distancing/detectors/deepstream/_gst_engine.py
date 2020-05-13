@@ -147,8 +147,8 @@ class GstEngine(multiprocessing.Process):
         self._infer_elements = []  # type: List[Gst.Element]
         self._osd_converter = None  # type: Gst.Element
         self._tiler = None  # type: Gst.Element
+        self._tiler_probe_id = None # type: int
         self._osd = None  # type: Gst.Element
-        self._osd_probe_id = None # type: int
         self._sink = None  # type: Gst.Element
 
         # process communication primitives
@@ -555,13 +555,13 @@ class GstEngine(multiprocessing.Process):
             self.logger.error('could not link pipeline')
             return -3
         
-        # register pad probe buffer callback on the osd
+        # register pad probe buffer callback on the tiler
         self.logger.debug('registering self.on_buffer() callback on osd sink pad')
-        osd_sink_pad = self._osd.get_static_pad('sink')
-        if not osd_sink_pad:
+        tiler_sink_pad = self._tiler.get_static_pad('sink')
+        if not tiler_sink_pad:
             self.logger.error('could not get osd sink pad')
             return -4
-        self._osd_probe_id = osd_sink_pad.add_probe(
+        self._tiler_probe_id = tiler_sink_pad.add_probe(
             Gst.PadProbeType.BUFFER, self.on_buffer, None)
 
         # register callback to check for the stop event when idle.
