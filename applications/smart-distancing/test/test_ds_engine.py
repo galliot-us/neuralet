@@ -2,6 +2,7 @@ import unittest
 import doctest
 import os
 import sys
+import time
 
 from typing import (
     Tuple,
@@ -65,27 +66,59 @@ class TestDsEngineSlow(unittest.TestCase):
                 engine.join()
                 self.assertEqual(0, engine.exitcode)
 
+
+class TestDsEngineInteractive(unittest.TestCase):
+    """
+    these tests should be run and killed interactively
+    """
+
+    def test_results_queue(self):
+        """test runner should ensure results are printed out when the pipeline starts"""
+        # TODO(mdegans): automation
+        master_config = sd.core.ConfigEngine(DS_THREE_SOURCE_CONFIG)
+        config = DsConfig(master_config)
+        engine = DsEngine(config)
+        engine.queue_timeout = 1000
+        engine.start()
+        try:
+            while True:
+                time.sleep(1)
+                results = engine.results
+                if results:
+                    print(results)
+        except KeyboardInterrupt:
+            engine.stop()
+            engine.join()
+
+
+def fast_suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestDsEngineFast())
+    return suite
+
+def medium_suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestDsEngineSlow())
+    return suite
+
+def interactive_suite():
+    suite = unittest.TestSuite()
+    suite.addTest(TestDsEngineInteractive())
+    return suite
+
 if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.DEBUG)
 
-    # import argparse
-    # ap = argparse.ArgumentParser()
-    # ap.add_argument('--slow', action='store_true')
-    # args = ap.parse_args()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--interactive', action='store_true')
+    args = ap.parse_args()
 
-    # tests = []
+    runner = unittest.TextTestRunner()
 
-    # fast = unittest.TestSuite()
-    # fast.addTest(TestDsEngineFast())
-    # tests.append(fast)
-
-    # if args.slow:
-    #     slow = unittest.TestSuite()
-    #     slow.addTest(TestDsEngineSlow())
-    #     tests.append(slow)
-
-    # for suite in tests:
-    #     unittest.TextTestRunner().run(suite)
-
-    unittest.main()
+    if args.interactive:
+        runner.run(unittest.defaultTestLoader.loadTestsFromTestCase(TestDsEngineInteractive))
+    else:
+        runner.run(unittest.defaultTestLoader.loadTestsFromTestCase(TestDsEngineFast))
+        runner.run(unittest.defaultTestLoader.loadTestsFromTestCase(TestDsEngineSlow))
