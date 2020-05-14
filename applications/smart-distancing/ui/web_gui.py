@@ -189,4 +189,4 @@ class WebGUI:
         process_thread = threading.Thread(target=self._run)
         process_thread.start()
         uvicorn.run(self.app, host=self._host, port=self._port, log_level='info')
-        process_thread.join()
+        self.__ENGINE_INSTANCE.running_video = False
