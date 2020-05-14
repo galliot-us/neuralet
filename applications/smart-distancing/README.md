@@ -99,6 +99,20 @@ docker build -f Dockerfile-x86 -t "neuralet/x86_64:applications-smart-distancing
 docker run -it -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/x86_64:applications-smart-distancing
 ```
 
+**Run on x86 using OpenVino**
+
+
+```
+cd neuralet/applications/smart-distancing/
+# download model first
+./download_openvino_model.sh
+
+# 1) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
+docker build -f Dockerfile-x86-openvino -t "neuralet/x86_64-openvino:applications-smart-distancing" .
+# 2) Run Docker container:
+docker run -it -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/x86_64-openvino:applications-smart-distancing
+```
+
 ### Configurations
 You can read and modify the configurations in `config-jetson.ini` file for Jetson Nano and `config-skeleton.ini` file for Coral.
 
