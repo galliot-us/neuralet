@@ -12,7 +12,24 @@ ARG OPENCV_VERSION=4.3.0
 VOLUME  /repo
 WORKDIR /repo/applications/smart-distancing
 
-RUN apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev
+# get all packages from apt sources
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cmake \
+        g++ \
+        gcc \
+        git \
+        gstreamer1.0-plugins-good \
+        libavcodec-dev \
+        libavformat-dev \
+        libgstreamer-plugins-base1.0-dev \
+        libgstreamer1.0-dev \
+        libsm6 \
+        libswscale-dev \
+        libxext6 \
+        libxrender-dev \
+        pkg-config \
+        python3-numpy \
+    && rm -rf /var/lib/apt/lists/*
 
 # download and build OpenCv
 RUN cd /tmp/ \
