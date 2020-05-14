@@ -7,24 +7,25 @@ RUN npm run build
 
 FROM tensorflow/tensorflow:latest-gpu-py3
 
+ARG OPENCV_VERSION=4.3.0
+
 VOLUME  /repo
 WORKDIR /repo/applications/smart-distancing
 
 RUN apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev
 
-RUN apt-get update && apt-get install -y git cmake gcc g++ python3-numpy python3-dev \
-    libavcodec-dev libavformat-dev libswscale-dev \
-    libgstreamer-plugins-base1.0-dev libgstreamer1.0-dev
-
-RUN cd /tmp/ && curl -L https://github.com/opencv/opencv/archive/4.3.0.tar.gz -o opencv.tar.gz && \
-    tar zxvf opencv.tar.gz && rm opencv.tar.gz
-
-RUN cd /tmp/opencv-4.3.0 && mkdir build && cd build && \
-    cmake -DBUILD_opencv_python3=yes -DPYTHON_EXECUTABLE=/usr/local/bin/python3 ../ && \
-    make -j$(nproc) && make install && cd /tmp && rm -rf opencv-4.3.0
-
-# TODO: merge into previous RUN apt-get install
-RUN apt-get update && apt-get install -y gstreamer1.0-plugins-good
+# download and build OpenCv
+RUN cd /tmp/ \
+    && curl -L https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.tar.gz -o opencv.tar.gz \
+    && tar zxvf opencv.tar.gz && rm opencv.tar.gz \
+    && cd /tmp/opencv-${OPENCV_VERSION} \
+    && mkdir build \
+    && cd build \
+    && cmake -DBUILD_opencv_python3=yes -DPYTHON_EXECUTABLE=/usr/local/bin/python3 ../ \
+    && make -j$(nproc) \
+    && make install \
+    && cd /tmp \
+    && rm -rf opencv-${OPENCV_VERSION}
 
 RUN pip install --upgrade pip setuptools==41.0.0 && pip install wget fastapi uvicorn aiofiles scipy image
 
