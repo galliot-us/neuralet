@@ -173,20 +173,22 @@ function Charts() {
 
 export default function Live() {
     const classes = useStyle();
-
+    const [now, _] = useState(new Date().getTime())
     return (
         <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-                <CameraFeed/>
+            <Grid item xs={12} md={7}>
+                <video autoPlay controls width="640" height="480">
+                    <source src={`http://localhost:8080/?${now}`} type="video/webm"/>
+                </video>
             </Grid>
-            <Grid item container xs={12} md={6} spacing={3}>
+            <Grid item container xs={12} md={5} spacing={3}>
                 {process.env.NODE_ENV === 'development' /* IN_PROGRESS */ ? (
                     <Grid item xs={12}>
                         <Status/>
                     </Grid>
                 ) : null}
                 <Grid item xs={12}>
-                    <BirdsView/>
+                    {/*<BirdsView/>*/}
                 </Grid>
             </Grid>
             <Grid item xs={12}>

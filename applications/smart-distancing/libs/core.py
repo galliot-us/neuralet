@@ -2,9 +2,11 @@ import time
 import cv2 as cv
 import numpy as np
 import math
+import os
 from libs.centroid_object_tracker import CentroidTracker
 from scipy.spatial import distance as dist
 from libs.loggers.loggers import Logger
+from ui.utils import visualization_utils
 
 
 class Distancing:
@@ -40,6 +42,7 @@ class Distancing:
 
         self.dist_method = self.config.get_section_dict("PostProcessor")["DistMethod"]
         self.dist_threshold = self.config.get_section_dict("PostProcessor")["DistThreshold"]
+        self.resolution = tuple([int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')])
 
     def set_ui(self, ui):
         self.ui = ui
@@ -51,13 +54,12 @@ class Distancing:
         """
 
         # Resize input image to resolution
-        resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
-        cv_image = cv.resize(cv_image, tuple(resolution))
+        cv_image = cv.resize(cv_image, self.resolution)
 
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         tmp_objects_list = self.detector.inference(rgb_resized_image)
-        [w,h] = resolution
+        [w,h] = self.resolution
 
         for obj in tmp_objects_list:
             box = obj["bbox"]
@@ -75,6 +77,7 @@ class Distancing:
 
     def process_video(self, video_uri):
         input_cap = cv.VideoCapture(video_uri)
+        fps = input_cap.get(cv.CAP_PROP_FPS)
 
         if (input_cap.isOpened()):
             print('opened video ', video_uri)
@@ -83,15 +86,54 @@ class Distancing:
             return
 
         self.running_video = True
+
+        os.environ['GST_DEBUG'] = "*:1"  # log gstreamer Errors (https://stackoverflow.com/questions/3298934/how-do-i-view-gstreamer-debug-output)
+        out = cv.VideoWriter(
+            'appsrc ! videoconvert ! '
+            'vp8enc threads=4 deadline=1 ! webmmux streamable=true ! '
+            'tcpserversink host=0.0.0.0 port=8080',
+            0, fps, self.resolution
+        )
+        if not out.isOpened():
+            raise RuntimeError("Could not open gstreamer output")
+
+        dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
+        class_id = int(self.config.get_section_dict('Detector')['ClassID'])
+        DO_PROCESS = False
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             if np.shape(cv_image) != ():
-                cv_image, objects, distancings = self.__process(cv_image)
+                if DO_PROCESS:
+                    cv_image, objects, distancings = self.__process(cv_image)
+
+                    output_dict = visualization_utils.visualization_preparation(objects, distancings, dist_threshold)
+
+                    category_index = {class_id: {
+                        "id": class_id,
+                        "name": "Pedestrian",
+                    }}  # TODO: json file for detector config
+                    # Draw bounding boxes and other visualization factors on input_frame
+                    visualization_utils.visualize_boxes_and_labels_on_image_array(
+                        cv_image,
+                        output_dict["detection_boxes"],
+                        output_dict["detection_classes"],
+                        output_dict["detection_scores"],
+                        output_dict["detection_colors"],
+                        category_index,
+                        instance_masks=output_dict.get("detection_masks"),
+                        use_normalized_coordinates=True,
+                        line_thickness=3,
+                    )
+                else:
+                    cv_image = cv.resize(cv_image, self.resolution)
+                out.write(cv_image)
             else:
                 continue
-            self.logger.update(objects, distancings)
-            self.ui.update(cv_image, objects, distancings)
+            # self.logger.update(objects, distancings)
+            # self.ui.update(cv_image, objects, distancings)
+
         input_cap.release()
+        out.release()
         self.running_video = False
 
     def process_image(self, image_path):
