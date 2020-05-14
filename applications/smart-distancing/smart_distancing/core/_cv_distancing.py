@@ -101,7 +101,8 @@ class CvDistancing(BaseDistancing):
             'objects': len(objects),
         }
         self.logger.debug(serialize(record))
-        self.ui.update(self._cv_img_tmp, objects, distancings)
+        scored_objects = vis_util.visualization_preparation(objects, distancings, self.ui._dist_threshold)
+        self.ui.update(self._cv_img_tmp, scored_objects)
 
     def process_video(self, video_uri):
         if os.path.isfile(video_uri):
@@ -195,54 +196,77 @@ class CvDistancing(BaseDistancing):
     def non_max_suppression_fast(object_list, overlapThresh):
 
         """
-        omitting duplicated boxes by applying an auxilary non-maximum-suppression.
-        params:
-        object_list: a list of dictionaries. each dictionary has attributes of a detected object such
-        "id", "centroid" (a tuple of the normalized centroid coordinates (cx,cy,w,h) of the box) and "bbox" (a tuple
-        of the normalized (xmin,ymin,xmax,ymax) coordinate of the box)
+        Remove overlapping boxes by applying an auxilary non-maximum-suppression.
+        
+        # Dr. Malisiewicz et al.
+        https://www.pyimagesearch.com/2015/02/16/faster-non-maximum-suppression-python/
+
+        Args:
+            object_list (:obj:`list` of :obj:`dict`):
+                each key is the object uid. each value has attributes of a detected object such
+                "id", "centroid" (a tuple of the normalized centroid coordinates (cx,cy,w,h) of
+                the box) and "bbox" (a tuple of the normalized (xmin,ymin,xmax,ymax) coordinate
+                of the box)
 
         overlapThresh: threshold of minimum IoU of to detect two box as duplicated.
 
-        returns:
-        object_list: input object list without duplicated boxes
+        Returns:
+            object_list (:obj:`list` of :obj:`dict`):
+                without duplicated boxes
         """
-        # if there are no boxes, return an empty list
         boxes = np.array([item["centroid"] for item in object_list])
         corners = np.array([item["bbox"] for item in object_list])
-        if len(boxes) == 0:
-            return []
-        if boxes.dtype.kind == "i":
-            boxes = boxes.astype("float")
+
         # initialize the list of picked indexes
         pick = []
+
+        # TODO(author): comment this, please
         cy = boxes[:, 1]
         cx = boxes[:, 0]
         h = boxes[:, 3]
         w = boxes[:, 2]
+
+    	# grab the coordinates of the bounding boxes
         x1 = corners[:, 0]
         x2 = corners[:, 2]
         y1 = corners[:, 1]
         y2 = corners[:, 3]
+
+        # compute the area of the bounding boxes and sort the bounding
+	    # boxes by the bottom-right y-coordinate of the bounding box
         area = (h + 1) * (w + 1)
         idxs = np.argsort(cy + (h / 2))
+
+        # keep looping while some indexes still remain in the indexes
+	    # list
         while len(idxs) > 0:
+            # grab the last index in the indexes list and add the
+		    # index value to the list of picked indexes
             last = len(idxs) - 1
             i = idxs[last]
             pick.append(i)
+
+
+    		# find the largest (x, y) coordinates for the start of
+    		# the bounding box and the smallest (x, y) coordinates
+    		# for the end of the bounding box
             xx1 = np.maximum(x1[i], x1[idxs[:last]])
             yy1 = np.maximum(y1[i], y1[idxs[:last]])
             xx2 = np.minimum(x2[i], x2[idxs[:last]])
             yy2 = np.minimum(y2[i], y2[idxs[:last]])
 
+    		# compute the width and height of the bounding box
             w = np.maximum(0, xx2 - xx1 + 1)
             h = np.maximum(0, yy2 - yy1 + 1)
+
             # compute the ratio of overlap
             overlap = (w * h) / area[idxs[:last]]
+
             # delete all indexes from the index list that have
             idxs = np.delete(idxs, np.concatenate(([last],
-                                                   np.where(overlap > overlapThresh)[0])))
-        updated_object_list = [j for i, j in enumerate(object_list) if i in pick]
-        return updated_object_list
+                np.where(overlap > overlapThresh)[0])))
+
+        return [j for i, j in enumerate(object_list) if i in pick]
 
     def calculate_distance_of_two_points_of_boxes(self, first_point, second_point):
 
