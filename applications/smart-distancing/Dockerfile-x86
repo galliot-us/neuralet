@@ -44,7 +44,14 @@ RUN cd /tmp/ \
     && cd /tmp \
     && rm -rf opencv-${OPENCV_VERSION}
 
-RUN pip install --upgrade pip setuptools==41.0.0 && pip install wget fastapi uvicorn aiofiles scipy image
+# get all pip packages
+RUN pip install --upgrade pip setuptools==41.0.0 && pip install \
+    aiofiles \
+    fastapi \
+    image \
+    scipy \
+    uvicorn \
+    wget
 
 COPY --from=frontend /frontend/build /srv/frontend
 
