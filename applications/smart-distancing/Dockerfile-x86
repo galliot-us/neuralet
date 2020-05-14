@@ -21,7 +21,7 @@ RUN cd /tmp/ && curl -L https://github.com/opencv/opencv/archive/4.3.0.tar.gz -o
 
 RUN cd /tmp/opencv-4.3.0 && mkdir build && cd build && \
     cmake -DBUILD_opencv_python3=yes -DPYTHON_EXECUTABLE=/usr/local/bin/python3 ../ && \
-    make "-j`cat /proc/cpuinfo | grep processor | wc -l`" && make install && cd /tmp && rm -rf opencv-4.3.0
+    make -j$(nproc) && make install && cd /tmp && rm -rf opencv-4.3.0
 
 # TODO: merge into previous RUN apt-get install
 RUN apt-get update && apt-get install -y gstreamer1.0-plugins-good
