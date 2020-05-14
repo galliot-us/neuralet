@@ -39,7 +39,7 @@ class WebGUI:
         file_name = str(date.today()) + '.csv'
         self.objects_log = './static/data/objects_log/' + file_name
 
-    def update(self, input_frame, nn_out, distances):
+    def update(self, input_frame, output_dict):
         """
         Args:
             input_frame: uint8 numpy array with shape (img_height, img_width, 3)
@@ -52,8 +52,6 @@ class WebGUI:
         """
         # Create a black window for birds' eye view the size of window is constant (300, 200, 3)
         birds_eye_window = np.zeros((300, 200, 3), dtype="uint8")
-        # Get a proper dictionary of bounding boxes and colors for visualizing_boxes_and_labels_on_image_array function
-        output_dict = vis_util.visualization_preparation(nn_out, distances, self._dist_threshold)
 
         class_id = int(self.config.get_section_dict('Detector')['ClassID'])
 

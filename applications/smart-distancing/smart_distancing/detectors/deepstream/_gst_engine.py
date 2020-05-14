@@ -153,6 +153,7 @@ class GstEngine(multiprocessing.Process):
 
         # process communication primitives
         self._result_queue = multiprocessing.Queue(maxsize=1)
+        self.osd_queue = multiprocessing.Queue(maxsize=1)
         self._stop_requested = multiprocessing.Event()
         self._reset_requested = multiprocessing.Event()
 
