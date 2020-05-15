@@ -3,7 +3,12 @@ FROM tensorflow/tensorflow:latest-gpu-py3
 VOLUME  /repo
 WORKDIR /repo/applications/smart-distancing
 
-RUN apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libsm6 \
+        libxext6 \
+        libxrender-dev \
+        pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip setuptools==41.0.0 && pip install opencv-python wget flask scipy image
 
