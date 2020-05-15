@@ -56,6 +56,7 @@ Coming soon.
 ## Contact
 
 You can reach us via these channels:
+- [Join our slack channel](https://neuralet.slack.com/join/shared_invite/zt-envn1kqo-PE5qB~yE~Y_t0kkUSI~HWw)
 - [@neuralet](https://twitter.com/neuralet) on Twitter
 - [GitHub Issues](https://github.com/neuralet/neuralet/issues)
 - [hello@neuralet.com](mailto:hello@neuralet.com?subject=Hello)
