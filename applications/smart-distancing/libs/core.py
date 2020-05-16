@@ -291,4 +291,27 @@ class Distancing:
         return distances_asarray
 
 
+class WelfordBoxDist:
 
+    def __init__(self, img_width, img_height):
+        self.mean = np.zeros((2, img_height, img_width))
+        self.m2 = np.ones((2, img_height, img_width))
+        self.count = np.zeros((img_height, img_width), dtype=int)
+        self.num_calls = 0
+        self.img_width = img_width
+        self.img_height = img_height
+
+    def update(self, new_objects):
+        self.num_calls += 1
+        for item in new_objects:
+            cx, cy, w, h = [int(i) for i in item["centroidReal"]]
+            self.count[cy, cx] += 1
+            offset_old = [w, h] - self.mean[:, cy, cx]
+            self.mean[:, cy, cx] += offset_old / self.count[cy, cx]
+            offset_new = [w, h] - self.mean[:, cy, cx]
+            self.m2[:, cy, cx] += offset_old * offset_new
+
+    def compute_stats(self):
+        self.mean = self.mean
+        self.var = self.m2 / np.where(self.count != 0, self.count, 1.0)
+        self.sample_var = self.m2 / np.where(self.count != 0, self.count - 1, 1.0)
