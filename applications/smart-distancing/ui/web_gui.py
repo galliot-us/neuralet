@@ -7,11 +7,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse, FileResponse, StreamingResponse
 import uvicorn
-
-from .utils import visualization_utils as vis_util
-from tools.objects_post_process import extract_violating_objects
-from tools.environment_score import mx_environment_scoring_consider_crowd
-
+import os
 
 class WebGUI:
     """
@@ -32,8 +28,8 @@ class WebGUI:
         self._host = self.config.get_section_dict("App")["Host"]
         self._port = int(self.config.get_section_dict("App")["Port"])
         self.app = self.create_fastapi_app()
-        self._dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
         self._displayed_items = {}  # all items here will be used at ui webpage
+        self._public_url = self.config.get_section_dict("App")["PublicUrl"]
 
         # TODO: read from config file
         file_name = str(date.today()) + '.csv'
@@ -43,6 +39,10 @@ class WebGUI:
     def create_fastapi_app(self):
         # Create and return a fastapi instance
         app = FastAPI()
+
+        if os.environ.get('DEV_ALLOW_ALL_ORIGINS', False):
+            from fastapi.middleware.cors import CORSMiddleware
+            app.add_middleware(CORSMiddleware, allow_origins='*', allow_credentials=True, allow_methods=['*'], allow_headers=['*'])
 
         app.mount("/panel/static", StaticFiles(directory="/srv/frontend/static"), name="panel")
         app.mount("/static", StaticFiles(directory="ui/static"), name="static")
@@ -54,6 +54,15 @@ class WebGUI:
         @app.get("/")
         async def index():
             return RedirectResponse("/panel/")
+
+        @app.get("/api/cameras/")
+        async def live_api():
+            return [{
+                'id': 'default',
+                'streams': [
+                    {'src': f'{self._public_url}:8080/', 'type': 'video/webm; codecs="vp8"'},
+                ],
+            }]
 
         return app
 

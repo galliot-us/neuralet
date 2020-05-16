@@ -1,3 +1,6 @@
+__pycache__/
+docs/
 data/
+libs/detectors/*/data/
 ui/frontend/build/
 ui/frontend/node_modules/

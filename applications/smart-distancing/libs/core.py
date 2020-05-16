@@ -88,9 +88,11 @@ class Distancing:
         self.running_video = True
 
         os.environ['GST_DEBUG'] = "*:1"  # log gstreamer Errors (https://stackoverflow.com/questions/3298934/how-do-i-view-gstreamer-debug-output)
+
+        encoder = self.config.get_section_dict('App')['Encoder']
         out = cv.VideoWriter(
             'appsrc ! videoconvert ! '
-            'vp8enc threads=4 deadline=1 ! webmmux streamable=true ! '
+            f'{encoder} ! '
             'tcpserversink host=0.0.0.0 port=8080',
             0, fps, self.resolution
         )
@@ -99,7 +101,7 @@ class Distancing:
 
         dist_threshold = float(self.config.get_section_dict("PostProcessor")["DistThreshold"])
         class_id = int(self.config.get_section_dict('Detector')['ClassID'])
-        DO_PROCESS = False
+        DO_PROCESS = True
         while input_cap.isOpened() and self.running_video:
             _, cv_image = input_cap.read()
             if np.shape(cv_image) != ():

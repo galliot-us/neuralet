@@ -79,13 +79,16 @@ function BirdsView() {
     );
 }
 
-function Charts() {
+function Charts({cameras}) {
     const classes = useStyle();
     const [data, setData] = useState(undefined)
 
     function update() {
         const headers = {'Cache-Control': 'no-store'};
-        const url = `/static/data/objects_log/${new Date().toISOString().slice(0, 10)}.csv`;
+        if (!cameras) {
+            return
+        }
+        const url = `/static/data/objects_log/${cameras[0]['id']}/${new Date().toISOString().slice(0, 10)}.csv`;
         axios.get(url, {headers}).then(response => {
             let records = Plotly.d3.csv.parse(response.data);
             let x1 = [], y1 = [], y2 = [], env_score = [];
@@ -101,7 +104,7 @@ function Charts() {
         // })
     }
 
-    useEffect(update, []);
+    useEffect(update, [cameras]);
 
     const [envScoreFigure, setEnvScoreFigure] = useState(undefined)
 
@@ -174,11 +177,18 @@ function Charts() {
 export default function Live() {
     const classes = useStyle();
     const [now, _] = useState(new Date().getTime())
+    const [cameras, setCameras] = useState(undefined);
+    useEffect(() => {
+        axios.get('/api/cameras').then(response => setCameras(response.data))
+    }, []);
+
     return (
         <Grid container spacing={3}>
             <Grid item xs={12} md={7}>
                 <video autoPlay controls width="640" height="480">
-                    <source src={`http://localhost:8080/?${now}`} type="video/webm"/>
+                    {cameras ? (
+                        <source src={`${cameras[0].streams[0].src}?${now}`} type={cameras[0].streams[0].type}/>
+                    ) : null}
                 </video>
             </Grid>
             <Grid item container xs={12} md={5} spacing={3}>
@@ -192,7 +202,7 @@ export default function Live() {
                 </Grid>
             </Grid>
             <Grid item xs={12}>
-                <Charts/>
+                <Charts cameras={cameras}/>
             </Grid>
         </Grid>
     );
