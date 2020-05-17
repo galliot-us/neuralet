@@ -1,8 +1,8 @@
 FROM python:3.6
 
-WORKDIR /eval
+WORKDIR /repo/applications/smart-distancing/eval
 
-VOLUME /eval
+VOLUME /repo
 
 RUN pip install --upgrade pip setuptools==41.0.0 && pip install opencv-python==4.2.0.32 && pip install six==1.14.0 
 
