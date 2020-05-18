@@ -42,6 +42,7 @@ class Distancing:
         self.dist_method = self.config.get_section_dict("PostProcessor")["DistMethod"]
         self.dist_threshold = self.config.get_section_dict("PostProcessor")["DistThreshold"]
         self.resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
+        self.box_priors_training_frames = int(self.config.get_section_dict("PostProcessor")["BoxPriorsTrainingFrames"])
         self.box_priors = WelfordBoxDist(*self.resolution)
 
     def set_ui(self, ui):
@@ -137,11 +138,10 @@ class Distancing:
         return new_objects_list, distances
 
     def filter_boxes(self, objects_list):
-        # TODO: add the number of frames for calculating boxes priors distribution to the config file
-        if self.box_priors.num_calls < self.config[...]:
+        if self.box_priors.num_calls < self.box_priors_training_frames:
             self.box_priors.update(objects_list)
         else:
-            if self.box_priors.num_calls == self.config[...]:
+            if self.box_priors.num_calls == self.box_priors_training_frames:
                 self.box_priors.compute_stats()
             objects_list_copy = copy.copy(objects_list)
             for i, box in enumerate(objects_list_copy):
@@ -150,8 +150,8 @@ class Distancing:
                               w\
                               < self.box_priors.mean[0, cy, cx] + 3 * self.box_priors.std[0, cy, cx]
                 condition_h = self.box_priors.mean[1, cy, cx] - 3 * self.box_priors.std[1, cy, cx] <\
-                              h <\
-                              self.box_priors.mean[1, cy, cx] + 3 * self.box_priors.std[1, cy, cx]
+                              h\
+                              < self.box_priors.mean[1, cy, cx] + 3 * self.box_priors.std[1, cy, cx]
                 if not (condition_w and condition_h):
                     del objects_list[i]
         return objects_list
