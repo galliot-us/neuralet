@@ -40,6 +40,8 @@ class Distancing:
 
         self.dist_method = self.config.get_section_dict("PostProcessor")["DistMethod"]
         self.dist_threshold = self.config.get_section_dict("PostProcessor")["DistThreshold"]
+        self.resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
+        self.box_priors = WelfordBoxDist(*self.resolution)
 
     def set_ui(self, ui):
         self.ui = ui
@@ -51,13 +53,12 @@ class Distancing:
         """
 
         # Resize input image to resolution
-        resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
-        cv_image = cv.resize(cv_image, tuple(resolution))
+        cv_image = cv.resize(cv_image, tuple(self.resolution))
 
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         tmp_objects_list = self.detector.inference(rgb_resized_image)
-        [w,h] = resolution
+        [w,h] = self.resolution
 
         for obj in tmp_objects_list:
             box = obj["bbox"]
@@ -120,9 +121,13 @@ class Distancing:
 
         """
         new_objects_list = self.ignore_large_boxes(objects_list)
-        new_objects_list = self.non_max_suppression_fast(new_objects_list,
-                                                         float(self.config.get_section_dict("PostProcessor")[
-                                                                   "NMSThreshold"]))
+        # TODO: add the number of frames for calculating boxes priors distribution to the config file
+        if self.box_priors.num_calls < self.config[...]:
+            self.box_priors.update(new_objects_list)
+        else:
+            if self.box_priors.num_calls == self.config[...]:
+                self.box_priors.compute_stats()
+            # TODO: add filtering logic
         tracked_boxes = self.tracker.update(new_objects_list)
         new_objects_list = [tracked_boxes[i] for i in tracked_boxes.keys()]
         for i, item in enumerate(new_objects_list):
