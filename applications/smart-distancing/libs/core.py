@@ -42,7 +42,7 @@ class Distancing:
         self.dist_method = self.config.get_section_dict("PostProcessor")["DistMethod"]
         self.dist_threshold = self.config.get_section_dict("PostProcessor")["DistThreshold"]
         self.resolution = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
-        self.box_priors_training_frames = int(self.config.get_section_dict("PostProcessor")["BoxPriorsTrainingFrames"])
+        self.calibration_frames = int(self.config.get_section_dict("PostProcessor")["CalibrationFrames"])
         self.box_priors = WelfordBoxDist(*self.resolution)
         self.background_subtractor = cv.createBackgroundSubtractorMOG2()
 
@@ -140,14 +140,16 @@ class Distancing:
         return new_objects_list, distances
 
     def filter_boxes(self, objects_list):
-        if self.box_priors.num_calls < self.box_priors_training_frames:
+        if self.box_priors.num_calls < self.calibration_frames:
             self.box_priors.update(objects_list)
         else:
-            if self.box_priors.num_calls == self.box_priors_training_frames:
+            if self.box_priors.num_calls == self.calibration_frames:
                 self.box_priors.compute_stats()
             objects_list_copy = copy.copy(objects_list)
             for box in objects_list_copy:
                 cx, cy, w, h = [int(i) for i in box["centroidReal"]]
+                cx = min(cx, self.resolution[0] - 1)
+                cy = min(cy, self.resolution[1] - 1)
                 condition_w = self.box_priors.mean[0, cy, cx] - 3 * self.box_priors.std[0, cy, cx] <\
                               w\
                               < self.box_priors.mean[0, cy, cx] + 3 * self.box_priors.std[0, cy, cx]
@@ -157,11 +159,14 @@ class Distancing:
                 if (not (condition_w and condition_h)) and self.box_priors.count[cy, cx] > 10:
                     objects_list.remove(box)
                     continue
+                x_min = max(0, int(box["bboxReal"][0]))
+                y_min = max(0, int(box["bboxReal"][1]))
+                x_max = min(self.resolution[0] - 1, int(box["bboxReal"][2]))
+                y_max = min(self.resolution[1] - 1, int(box["bboxReal"][3]))
+                bbox_mask_window = self.foreground_mask[y_min:y_max, x_min:x_max]
 
-                bbox_mask_window = self.foreground_mask[int(box["bboxReal"][1]):int(box["bboxReal"][3]),
-                                   int(box["bboxReal"][0]):int(box["bboxReal"][2])]
                 foreground_portion = bbox_mask_window.sum() / bbox_mask_window.size
-                if foreground_portion < .9:
+                if foreground_portion < .1:
                     objects_list.remove(box)
         return objects_list
 
@@ -340,6 +345,9 @@ class WelfordBoxDist:
         self.num_calls += 1
         for item in new_objects:
             cx, cy, w, h = [int(i) for i in item["centroidReal"]]
+            cx = min(cx,self.img_width - 1)
+            cy = min(cy,self.img_height - 1)
+            print(cx, cy,item["centroid"][0],item["centroid"][1])
             self.count[cy, cx] += 1
             offset_old = [w, h] - self.mean[:, cy, cx]
             self.mean[:, cy, cx] += offset_old / self.count[cy, cx]
