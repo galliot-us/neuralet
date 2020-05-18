@@ -113,6 +113,8 @@ class Distancing:
         1. omitting large boxes by filtering boxes which are biger than the 1/4 of the size the image.
         2. omitting duplicated boxes by applying an auxilary non-maximum-suppression.
         3. apply a simple object tracker to make the detection more robust.
+        4. filter bounding boxes based on boxes prior distribution.
+        5. filter bounding boxes based on the amount of foreground pixels exist on the box.
 
         params:
         object_list: a list of dictionaries. each dictionary has attributes of a detected object such as
@@ -140,7 +142,21 @@ class Distancing:
         return new_objects_list, distances
 
     def filter_boxes(self, objects_list):
-        if self.box_priors.num_calls < self.calibration_frames:
+        """
+        filter bounding boxes based on boxes prior distribution and amount of foreground pixels exist in the box.
+        there is a training phase where the prior means and standard deviations and background/foreground distribution
+        will be calculated and then this distribution will be used to filter the bounding boxes.
+        params:
+        objects_list: A list of dictionaries. each dictionary has attributes of a detected object such as
+        "id", "centroid" (a tuple of the normalized centroid coordinates (cx,cy,w,h) of the box) and "bbox" (a tuple
+        of the normalized (xmin,ymin,xmax,ymax) coordinate of the box)
+
+        returns:
+        objects_list: a filtered version of input
+
+        """
+
+        if self.box_priors.num_calls < self.calibration_frames:  # self.calibration_frames is training number of frames.
             self.box_priors.update(objects_list)
         else:
             if self.box_priors.num_calls == self.calibration_frames:
@@ -150,6 +166,8 @@ class Distancing:
                 cx, cy, w, h = [int(i) for i in box["centroidReal"]]
                 cx = min(cx, self.resolution[0] - 1)
                 cy = min(cy, self.resolution[1] - 1)
+                # for filtering criteria we used three-sigma rule and additional condition that ensures that
+                # enough number of boxes has been detected in training phase for a centroid pixel.
                 condition_w = self.box_priors.mean[0, cy, cx] - 3 * self.box_priors.std[0, cy, cx] <\
                               w\
                               < self.box_priors.mean[0, cy, cx] + 3 * self.box_priors.std[0, cy, cx]
@@ -159,7 +177,9 @@ class Distancing:
                 if (not (condition_w and condition_h)) and self.box_priors.count[cy, cx] > 10:
                     objects_list.remove(box)
                     continue
-
+                # ========================================================================================== #
+                # filtering based on number of foreground pixel
+                # ========================================================================================== #
                 x_min = max(0, int(box["bboxReal"][0]))
                 y_min = max(0, int(box["bboxReal"][1]))
                 x_max = min(self.resolution[0] - 1, int(box["bboxReal"][2]))
@@ -332,7 +352,13 @@ class Distancing:
 
 
 class WelfordBoxDist:
-
+    """
+    This module will compute the mean, variance and standard deviation of width and height of bounding boxes for each
+    centroid point recurrently with Welford algorithm.
+    params:
+    img_width: width of the desired output frame
+    img_height: width of the desired output frame
+    """
     def __init__(self, img_width, img_height):
         self.mean = np.zeros((2, img_height, img_width))
         self.m2 = np.ones((2, img_height, img_width))
@@ -342,6 +368,13 @@ class WelfordBoxDist:
         self.img_height = img_height
 
     def update(self, new_objects):
+        """
+        this method will update the mean and the numerator (sum(x_i - mean) ** 2) based on new received bounding boxes
+        with Welford algorithm.
+        Args: new_objects: a list of dictionaries. each dictionary has attributes of a detected object such as
+        "id", "centroidReal" (a tuple of the centroid coordinates (cx,cy,w,h) of the box) and "bboxReal" (a tuple
+        of the (xmin,ymin,xmax,ymax) coordinate of the box)
+        """
         self.num_calls += 1
         for item in new_objects:
             cx, cy, w, h = [int(i) for i in item["centroidReal"]]
@@ -354,6 +387,7 @@ class WelfordBoxDist:
             self.m2[:, cy, cx] += offset_old * offset_new
 
     def compute_stats(self):
+        """ calculate final mean, variance and standard deviation"""
         self.num_calls += 1
         self.mean = self.mean
         self.var = self.m2 / np.where(self.count != 0, self.count, 1.0)
