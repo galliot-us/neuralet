@@ -63,7 +63,7 @@ cd neuralet/applications/smart-distancing/
 ./download_jetson_trt.sh
 
 # 2) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
-docker build -f Dockerfile-jetson-nano -t "neuralet/jetson-nano:applications-smart-distancing" .
+docker build -f jetson-nano.Dockerfile -t "neuralet/jetson-nano:applications-smart-distancing" .
 
 # 3) Run Docker container:
 docker run -it --runtime nvidia --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/jetson-nano:applications-smart-distancing
@@ -74,7 +74,7 @@ docker run -it --runtime nvidia --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONE
 cd neuralet/applications/smart-distancing/
 
 # 1) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
-docker build -f Dockerfile-coral-dev-board -t "neuralet/coral-dev-board:applications-smart-distancing" .
+docker build -f coral-dev-board.Dockerfile -t "neuralet/coral-dev-board:applications-smart-distancing" .
 # 2) Run Docker container:
 docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/coral-dev-board:applications-smart-distancing
 ```
@@ -84,7 +84,7 @@ docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/rep
 cd neuralet/applications/smart-distancing/
 
 # 1) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
-docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:applications-smart-distancing" .
+docker build -f amd64-usbtpu.Dockerfile -t "neuralet/amd64:applications-smart-distancing" .
 # 2) Run Docker container:
 docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:applications-smart-distancing
 ```
@@ -94,7 +94,7 @@ docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/rep
 cd neuralet/applications/smart-distancing/
 
 # 1) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
-docker build -f Dockerfile-x86 -t "neuralet/x86_64:applications-smart-distancing" .
+docker build -f x86.Dockerfile -t "neuralet/x86_64:applications-smart-distancing" .
 # 2) Run Docker container:
 docker run -it -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/x86_64:applications-smart-distancing
 ```
@@ -108,7 +108,7 @@ cd neuralet/applications/smart-distancing/
 ./download_openvino_model.sh
 
 # 1) Build Docker image (This step is optional, you can skip it if you want to pull the container from neuralet dockerhub)
-docker build -f Dockerfile-x86-openvino -t "neuralet/x86_64-openvino:applications-smart-distancing" .
+docker build -f x86-openvino.Dockerfile -t "neuralet/x86_64-openvino:applications-smart-distancing" .
 # 2) Run Docker container:
 docker run -it -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/x86_64-openvino:applications-smart-distancing
 ```
