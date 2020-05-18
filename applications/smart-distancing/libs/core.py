@@ -159,12 +159,12 @@ class Distancing:
                 if (not (condition_w and condition_h)) and self.box_priors.count[cy, cx] > 10:
                     objects_list.remove(box)
                     continue
+
                 x_min = max(0, int(box["bboxReal"][0]))
                 y_min = max(0, int(box["bboxReal"][1]))
                 x_max = min(self.resolution[0] - 1, int(box["bboxReal"][2]))
                 y_max = min(self.resolution[1] - 1, int(box["bboxReal"][3]))
                 bbox_mask_window = self.foreground_mask[y_min:y_max, x_min:x_max]
-
                 foreground_portion = bbox_mask_window.sum() / bbox_mask_window.size
                 if foreground_portion < .1:
                     objects_list.remove(box)
@@ -345,9 +345,8 @@ class WelfordBoxDist:
         self.num_calls += 1
         for item in new_objects:
             cx, cy, w, h = [int(i) for i in item["centroidReal"]]
-            cx = min(cx,self.img_width - 1)
-            cy = min(cy,self.img_height - 1)
-            print(cx, cy,item["centroid"][0],item["centroid"][1])
+            cx = min(cx, self.img_width - 1)
+            cy = min(cy, self.img_height - 1)
             self.count[cy, cx] += 1
             offset_old = [w, h] - self.mean[:, cy, cx]
             self.mean[:, cy, cx] += offset_old / self.count[cy, cx]
