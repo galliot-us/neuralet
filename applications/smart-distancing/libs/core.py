@@ -1,4 +1,5 @@
 import time
+import copy
 import cv2 as cv
 import numpy as np
 import math
@@ -121,13 +122,10 @@ class Distancing:
 
         """
         new_objects_list = self.ignore_large_boxes(objects_list)
-        # TODO: add the number of frames for calculating boxes priors distribution to the config file
-        if self.box_priors.num_calls < self.config[...]:
-            self.box_priors.update(new_objects_list)
-        else:
-            if self.box_priors.num_calls == self.config[...]:
-                self.box_priors.compute_stats()
-            # TODO: add filtering logic
+        new_objects_list = self.non_max_suppression_fast(new_objects_list,
+                                                         float(self.config.get_section_dict("PostProcessor")[
+                                                                   "NMSThreshold"]))
+        new_objects_list = self.filter_boxes(new_objects_list)
         tracked_boxes = self.tracker.update(new_objects_list)
         new_objects_list = [tracked_boxes[i] for i in tracked_boxes.keys()]
         for i, item in enumerate(new_objects_list):
@@ -137,6 +135,29 @@ class Distancing:
         distances = self.calculate_box_distances(new_objects_list)
 
         return new_objects_list, distances
+
+    def filter_boxes(self, objects_list):
+        # TODO: add the number of frames for calculating boxes priors distribution to the config file
+        if self.box_priors.num_calls < self.config[...]:
+            self.box_priors.update(objects_list)
+        else:
+            if self.box_priors.num_calls == self.config[...]:
+                self.box_priors.compute_stats()
+            objects_list_copy = copy.copy(objects_list)
+            for i, box in enumerate(objects_list_copy):
+                cx, cy, w, h = [int(i) for i in box["centroidReal"]]
+                condition_w = self.box_priors.mean[0, cy, cx] - 3 * self.box_priors.std[0, cy, cx] <\
+                              w\
+                              < self.box_priors.mean[0, cy, cx] + 3 * self.box_priors.std[0, cy, cx]
+                condition_h = self.box_priors.mean[1, cy, cx] - 3 * self.box_priors.std[1, cy, cx] <\
+                              h <\
+                              self.box_priors.mean[1, cy, cx] + 3 * self.box_priors.std[1, cy, cx]
+                if not (condition_w and condition_h):
+                    del objects_list[i]
+        return objects_list
+
+
+
 
     @staticmethod
     def ignore_large_boxes(object_list):
@@ -320,3 +341,4 @@ class WelfordBoxDist:
         self.mean = self.mean
         self.var = self.m2 / np.where(self.count != 0, self.count, 1.0)
         self.sample_var = self.m2 / np.where(self.count != 0, self.count - 1, 1.0)
+        self.std = np.sqrt(self.sample_var)
