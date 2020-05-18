@@ -145,14 +145,14 @@ class Distancing:
                 self.box_priors.compute_stats()
             objects_list_copy = copy.copy(objects_list)
             for i, box in enumerate(objects_list_copy):
-                cx, cy, w, h = [int(i) for i in box["centroidReal"]]
+                cx, cy, w, h = [int(j) for j in box["centroidReal"]]
                 condition_w = self.box_priors.mean[0, cy, cx] - 3 * self.box_priors.std[0, cy, cx] <\
                               w\
                               < self.box_priors.mean[0, cy, cx] + 3 * self.box_priors.std[0, cy, cx]
                 condition_h = self.box_priors.mean[1, cy, cx] - 3 * self.box_priors.std[1, cy, cx] <\
                               h\
                               < self.box_priors.mean[1, cy, cx] + 3 * self.box_priors.std[1, cy, cx]
-                if not (condition_w and condition_h):
+                if (not (condition_w and condition_h)) and self.box_priors.count[cy,cx] > 10:
                     del objects_list[i]
         return objects_list
 
@@ -340,5 +340,4 @@ class WelfordBoxDist:
     def compute_stats(self):
         self.mean = self.mean
         self.var = self.m2 / np.where(self.count != 0, self.count, 1.0)
-        self.sample_var = self.m2 / np.where(self.count != 0, self.count - 1, 1.0)
-        self.std = np.sqrt(self.sample_var)
+        self.std = np.sqrt(self.var)
