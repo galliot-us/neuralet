@@ -91,8 +91,7 @@ class Distancing:
 
         encoder = self.config.get_section_dict('App')['Encoder']
         out = cv.VideoWriter(
-            'appsrc ! videoconvert ! '
-            f'{encoder}',
+            f'appsrc ! {encoder}',
             0, fps, self.resolution
         )
         if not out.isOpened():
