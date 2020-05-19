@@ -90,8 +90,10 @@ class Distancing:
         os.environ['GST_DEBUG'] = "*:1"  # log gstreamer Errors (https://stackoverflow.com/questions/3298934/how-do-i-view-gstreamer-debug-output)
 
         encoder = self.config.get_section_dict('App')['Encoder']
+        pipeline = f'appsrc ! {encoder} ! mpegtsmux ! hlssink max-files=5  playlist-root=http://127.0.0.1:8080 location=/tmp/hlssink playlist-location=playlist.m3u8'
+        print(f'output pipeline: {pipeline}')
         out = cv.VideoWriter(
-            f'appsrc ! {encoder}',
+            pipeline,
             0, fps, self.resolution
         )
         if not out.isOpened():
