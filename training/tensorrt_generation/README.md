@@ -52,7 +52,7 @@ cd neuralet/training/tensorrt_generation/
 docker build -f Dockerfile-nkh -t "neuralet/l4t-tensorrt-conversion" .
 
 # 2) Run Docker container:
-docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/l4t-tensorrt-conversion:latest
+docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/l4t-tensorrt-conversion:latest
 ```
 
 ### Configurations
