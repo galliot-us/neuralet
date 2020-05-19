@@ -95,6 +95,7 @@ class Distancing:
         # the entire encoding pipeline, as a string:
         pipeline = f'appsrc ! {encoder} ! hlssink max-files=5 ' \
                    f'playlist-root={playlist_root} ' \
+                   f'location={video_root}/video_%05d.ts ' \
                    f'playlist-location={video_root}/playlist.m3u8'
 
         print(f'output pipeline: {pipeline}')
