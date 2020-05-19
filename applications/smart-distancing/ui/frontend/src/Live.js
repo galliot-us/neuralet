@@ -7,6 +7,9 @@ import Plot from "react-plotly.js"
 import Plotly from "plotly.js"
 import {mergeDeepLeft} from "ramda";
 import ContainerDimensions from "react-container-dimensions";
+import {Player} from 'video-react';
+import HLSSource from './components/HLSSource';
+import "video-react/dist/video-react.css";
 
 const useStyle = makeStyles((theme) => ({
     fullWidth: {
@@ -35,7 +38,6 @@ function CameraFeed() {
             <Typography variant="h6" color="textSecondary">
                 Camera Feed
             </Typography>
-            <img src="/video_feed" className={classes.fullWidth}/>
         </Card>
     );
 }
@@ -185,11 +187,14 @@ export default function Live() {
     return (
         <Grid container spacing={3}>
             <Grid item xs={12} md={7}>
-                <video autoPlay controls width="640" height="480">
-                    {cameras ? (
-                        <source src={`${cameras[0].streams[0].src}?${now}`} type={cameras[0].streams[0].type}/>
-                    ) : null}
-                </video>
+                {cameras ? (
+                    <Player>
+                        <HLSSource
+                            isVideoChild
+                            src={cameras[0].streams[0].src}
+                        />
+                    </Player>
+                ) : null}
             </Grid>
             <Grid item container xs={12} md={5} spacing={3}>
                 {process.env.NODE_ENV === 'development' /* IN_PROGRESS */ ? (

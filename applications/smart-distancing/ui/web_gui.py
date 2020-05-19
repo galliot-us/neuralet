@@ -60,7 +60,7 @@ class WebGUI:
             return [{
                 'id': 'default',
                 'streams': [
-                    {'src': f'{self._public_url}:8080/', 'type': 'video/webm; codecs="vp8"'},
+                    {'src': 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8'},
                 ],
             }]
 

@@ -92,8 +92,7 @@ class Distancing:
         encoder = self.config.get_section_dict('App')['Encoder']
         out = cv.VideoWriter(
             'appsrc ! videoconvert ! '
-            f'{encoder} ! '
-            'tcpserversink host=0.0.0.0 port=8080',
+            f'{encoder}',
             0, fps, self.resolution
         )
         if not out.isOpened():
@@ -131,7 +130,7 @@ class Distancing:
                 out.write(cv_image)
             else:
                 continue
-            # self.logger.update(objects, distancings)
+            self.logger.update(objects, distancings)
             # self.ui.update(cv_image, objects, distancings)
 
         input_cap.release()

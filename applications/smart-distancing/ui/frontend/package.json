@@ -12,6 +12,7 @@
     "babel-plugin-ramda": "2.0.0",
     "babel-plugin-transform-imports": "2.0.0",
     "customize-cra": "0.9.1",
+    "hls.js": "0.13.2",
     "plotly.js": "1.54.1",
     "ramda": "0.27.0",
     "react": "^16.13.1",
@@ -20,7 +21,8 @@
     "react-dom": "^16.13.1",
     "react-plotly.js": "2.4.0",
     "react-router-dom": "5.1.2",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "video-react": "0.14.1"
   },
   "devDependencies": {},
   "scripts": {
