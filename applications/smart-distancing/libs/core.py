@@ -91,7 +91,9 @@ class Distancing:
 
         encoder = self.config.get_section_dict('App')['Encoder']
         video_root = '/tmp'  # this needs to be changed to something inside the video path
-        playlist_root = 'http://127.0.0.1:8080'
+        playlist_root = self.config.config['App']['PublicUrl']
+        if not playlist_root.endswith('/'):
+            playlist_root = f'{playlist_root}/'
         # the entire encoding pipeline, as a string:
         pipeline = f'appsrc ! {encoder} ! hlssink max-files=5 ' \
                    f'playlist-root={playlist_root} ' \
