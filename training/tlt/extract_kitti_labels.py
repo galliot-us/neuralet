@@ -5,8 +5,15 @@ from pathlib import Path
 
 
 def extract_labels(args):
+    """
+    This function will create KITTI format annotation from the Oxford Town Center csv annotation file
+    your should specify the csv file path, images width and height.
+    The function will create a `label` directory and for each frame create a KITTI format `txt` file in the directory
+    """
     gt = pd.read_csv(args.annotation_path, header=None)
+    # The width of original frames are 1920
     width_ratio = args.image_width / 1920
+    # The height of original frames are 1080
     height_ratio = args.image_height / 1080
     annotation_path = Path(args.annotation_path)
     dataset_dir = annotation_path.parent
@@ -22,7 +29,7 @@ def extract_labels(args):
         return bbox
 
     print("==================== Start Preparing Annotations in Kitti Format ! ====================")
-    for frame_number in range(4501):
+    for frame_number in range(4501): # only first 4501 frames of Oxford Town Center Dataset has annotations.
         frame = gt[gt[1] == frame_number]
         x_min = list(frame[8])
         y_min = list(frame[9])

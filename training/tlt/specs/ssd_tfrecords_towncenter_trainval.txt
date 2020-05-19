@@ -1,5 +1,5 @@
 kitti_config {
-  root_directory_path: "/work/tlt/oxford_town_center"
+  root_directory_path: "/experiment_dir/dataset"
   image_dir_name: "images"
   label_dir_name: "labels"
   image_extension: ".jpg"
@@ -8,4 +8,4 @@ kitti_config {
   val_split: 14
   num_shards: 10
 }
-image_directory_path: "/work/tlt/oxford_town_center"
+image_directory_path: "/experiment_dir/dataset"

@@ -65,8 +65,8 @@ augmentation_config {
 }
 dataset_config {
   data_sources: {
-    tfrecords_path: "/work/tlt/oxford_town_center/tfrecords/-fold*"
-    image_directory_path: "/work/tlt/oxford_town_center/"
+    tfrecords_path: "/experiment_dir/dataset/tfrecords/-fold*"
+    image_directory_path: "/experiment_dir/dataset"
   }
   image_extension: "jpg"
   target_class_mapping {
