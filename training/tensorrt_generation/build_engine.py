@@ -30,10 +30,10 @@ def add_plugin(graph, model, config):
     2. https://github.com/AastaNV/TRT_object_detection/blob/master/config/model_ssd_mobilenet_v2_coco_2018_03_29.py
     3. https://devtalk.nvidia.com/default/topic/1050465/jetson-nano/how-to-write-config-py-for-converting-ssd-mobilenetv2-to-uff-format/post/5333033/#5333033
     """
-    numClasses = int(config['MODEL']['NumberOfClasses'])
-    minSize = float(config['MODEL']['MinSize']) 
-    maxSize = float(config['MODEL']['MaxSize'])
-    inputOrder = [int(n) for n in config['MODEL']['InputOrder'].split(',')]# (config['MODEL']['InputOrder'])
+    num_classes = int(config['MODEL']['NumberOfClasses'])
+    min_size = float(config['MODEL']['MinSize']) 
+    max_size = float(config['MODEL']['MaxSize'])
+    input_order = [int(n) for n in config['MODEL']['InputOrder'].split(',')]# (config['MODEL']['InputOrder'])
     input_dims = tuple([int(x) for x in config['MODEL']['InputDims'].split(',')])
 
     all_assert_nodes = graph.find_nodes_by_op("Assert")
@@ -50,8 +50,8 @@ def add_plugin(graph, model, config):
     PriorBox = gs.create_plugin_node(
         name="MultipleGridAnchorGenerator",
         op="GridAnchor_TRT",
-        minSize=minSize,  # was 0.2
-        maxSize=maxSize,  # was 0.95
+        minSize=min_size,  # was 0.2
+        maxSize=max_size,  # was 0.95
         aspectRatios=[1.0, 2.0, 0.5, 3.0, 0.33],
         variance=[0.1, 0.1, 0.2, 0.2],
         featureMapShapes=[19, 10, 5, 3, 2, 1],
@@ -68,8 +68,8 @@ def add_plugin(graph, model, config):
         nmsThreshold=0.6,
         topK=100,
         keepTopK=100,
-        numClasses=numClasses,  # was 91
-        inputOrder=inputOrder,
+        numClasses=num_classes,  # was 91
+        inputOrder=input_order,
         confSigmoid=1,
         isNormalized=1
     )
