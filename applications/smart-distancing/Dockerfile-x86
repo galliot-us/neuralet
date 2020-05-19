@@ -18,7 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         g++ \
         gcc \
         git \
+        gstreamer1.0-plugins-bad \
         gstreamer1.0-plugins-good \
+        gstreamer1.0-plugins-ugly \
+        gstreamer1.0-vaapi \
         libavcodec-dev \
         libavformat-dev \
         libgstreamer-plugins-base1.0-dev \
