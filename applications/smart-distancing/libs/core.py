@@ -90,7 +90,13 @@ class Distancing:
         os.environ['GST_DEBUG'] = "*:1"  # log gstreamer Errors (https://stackoverflow.com/questions/3298934/how-do-i-view-gstreamer-debug-output)
 
         encoder = self.config.get_section_dict('App')['Encoder']
-        pipeline = f'appsrc ! {encoder} ! mpegtsmux ! hlssink max-files=5  playlist-root=http://127.0.0.1:8080 location=/tmp/hlssink playlist-location=playlist.m3u8'
+        video_root = '/tmp'  # this needs to be changed to something inside the video path
+        playlist_root = 'http://127.0.0.1:8080'
+        # the entire encoding pipeline, as a string:
+        pipeline = f'appsrc ! {encoder} ! hlssink max-files=5 ' \
+                   f'playlist-root={playlist_root} ' \
+                   f'playlist-location={video_root}/playlist.m3u8'
+
         print(f'output pipeline: {pipeline}')
         out = cv.VideoWriter(
             pipeline,
