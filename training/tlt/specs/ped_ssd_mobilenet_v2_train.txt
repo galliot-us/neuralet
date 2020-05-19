@@ -1,0 +1,78 @@
+random_seed: 42
+ssd_config {
+  aspect_ratios_global: "[1.0, 2.0, 0.5, 3.0, 1.0/3.0]"
+  scales: "[0.1, 0.24166667, 0.38333333, 0.525, 0.66666667, 0.80833333, 0.95]"
+  two_boxes_for_ar1: true
+  clip_boxes: false
+  loss_loc_weight: 1.0
+  focal_loss_alpha: 0.25
+  focal_loss_gamma: 2.0
+  variances: "[0.1, 0.1, 0.2, 0.2]"
+  arch: "mobilenet_v2"
+  freeze_bn: false
+}
+training_config {
+  batch_size_per_gpu: 16
+  num_epochs: 250
+  learning_rate {
+  soft_start_annealing_schedule {
+    min_learning_rate: 5e-5
+    max_learning_rate: 2e-2
+    soft_start: 0.15
+    annealing: 0.5
+    }
+  }
+  regularizer {
+    type: L1
+    weight: 3e-06
+  }
+}
+eval_config {
+  validation_period_during_training: 10
+  average_precision_mode: SAMPLE
+  batch_size: 32
+  matching_iou_threshold: 0.5
+}
+nms_config {
+  confidence_threshold: 0.01
+  clustering_iou_threshold: 0.6
+  top_k: 200
+}
+augmentation_config {
+  preprocessing {
+    output_image_width: 320
+    output_image_height: 320
+    output_image_channel: 3
+    crop_right: 320
+    crop_bottom: 320
+    min_bbox_width: 1.0
+    min_bbox_height: 1.0
+  }
+  spatial_augmentation {
+    hflip_probability: 0.5
+    vflip_probability: 0.0
+    zoom_min: 0.7
+    zoom_max: 1.8
+    translate_max_x: 8.0
+    translate_max_y: 8.0
+  }
+  color_augmentation {
+    hue_rotation_max: 25.0
+    saturation_shift_max: 0.20000000298
+    contrast_scale_max: 0.10000000149
+    contrast_center: 0.5
+  }
+}
+dataset_config {
+  data_sources: {
+    tfrecords_path: "/work/tlt/oxford_town_center/tfrecords/-fold*"
+    image_directory_path: "/work/tlt/oxford_town_center/"
+  }
+  image_extension: "jpg"
+  target_class_mapping {
+      key: "pedestrian"
+      value: "pedestrian"
+  }
+  
+validation_fold: 0
+}
