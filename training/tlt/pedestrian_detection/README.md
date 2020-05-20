@@ -23,7 +23,7 @@ docker run --runtime=nvidia -it -v [EXPERIMENT DIRECTORY]:/experiment_dir \
 ```
 8. Install the dependencies:
 ```
-apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev
+apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev ffmpeg
 pip3 install opencv-python pandas==0.24.0
 ```
 10. Move to the repository TLT directory
