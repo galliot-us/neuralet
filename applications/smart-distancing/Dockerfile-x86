@@ -30,6 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libswscale-dev \
         libxext6 \
         libxrender-dev \
+        mesa-va-drivers \
         pkg-config \
         python3-numpy \
     && rm -rf /var/lib/apt/lists/*
