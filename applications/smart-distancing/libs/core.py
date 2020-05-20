@@ -103,6 +103,7 @@ class Distancing:
         print(f'output pipeline: {pipeline}')
         out = cv.VideoWriter(
             pipeline,
+            cv.CAP_GSTREAMER,
             0, fps, self.resolution
         )
         if not out.isOpened():
