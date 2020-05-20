@@ -32,7 +32,7 @@ docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval
 ```
 You can also run the docker image with optional arguments
 ```
-docker run -it -v $(pwd)/../../../:/repo detector-eval -gt 'eval_files/groundtruths_1' -det eval_files/detresults_1 -t 0.75
+docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval -gt 'eval_files/groundtruths_1' -det eval_files/detresults_1 -t 0.75
 ```
 
 
