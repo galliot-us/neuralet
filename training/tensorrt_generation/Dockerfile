@@ -1,7 +1,7 @@
 # docker can be installed on the dev board following these instructions:
 # https://docs.docker.com/install/linux/docker-ce/debian/#install-using-the-repository , step 4: arm64
-# 1) build: docker build -f Dockerfile -t "neuralet/l4t-tensorrt-conversion" .
-# 2) run: docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/l4t-tensorrt-conversion:latest
+# 1) build: docker build -f Dockerfile -t "neuralet/jetson-nano:tf-ssd-to-trt" .
+# 2) run: docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/jetson-nano:tf-ssd-to-trt:latest
 
 FROM nvcr.io/nvidia/l4t-base:r32.3.1
 
