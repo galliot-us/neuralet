@@ -18,9 +18,7 @@ Make sure you have all the prerequisites before continuing to the next section.
   * NVIDIA Jetson Nano
 
 **Software**
-* [Docker](https://docs.docker.com/get-docker/)
-Follow [these instructions](https://docs.docker.com/install/linux/docker-ce/debian) to make sure you have Docker installed on your Jetson Nano.
-* [JetPack 4.3](https://developer.nvidia.com/jetpack-4_3_DP)
+  * [JetPack 4.3](https://developer.nvidia.com/jetpack-4_3_DP)
 
 ### Install
 
