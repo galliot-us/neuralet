@@ -40,17 +40,19 @@ setuptools.setup(
     python_requires='>=3.6',
     install_requires=INSTALL_REQUIRES,
     packages=[
-        'smart_distancing',
         'smart_distancing.core',
-        'smart_distancing.detectors',
+        'smart_distancing.detectors.dummy',
         'smart_distancing.detectors.edgetpu',
         'smart_distancing.detectors.jetson',
+        'smart_distancing.detectors.openvino',
         'smart_distancing.detectors.x86',
+        'smart_distancing.detectors',
         'smart_distancing.loggers',
         'smart_distancing.tools',
-        'smart_distancing.ui',
         'smart_distancing.ui.utils',
+        'smart_distancing.ui',
         'smart_distancing.utils',
+        'smart_distancing',
     ],
     package_data={
         'smart_distancing': [
