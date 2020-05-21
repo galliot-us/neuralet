@@ -49,10 +49,10 @@ The provided Docker container runs `build_engine.py` script with the configurati
 cd neuralet/training/tensorrt_generation/
 
 # 1) Build Docker image (this step is optional, you can skip it if you want to pull the container from Neuralet's Docker Hub)
-docker build -f Dockerfile-nkh -t "neuralet/l4t-tensorrt-conversion" .
+docker build -f Dockerfile -t "neuralet/jetson-nano:tf-ssd-to-trt" .
 
 # 2) Run Docker container:
-docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/l4t-tensorrt-conversion:latest
+docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/jetson-nano:tf-ssd-to-trt:latest
 ```
 
 ### Configurations
