@@ -23,7 +23,7 @@ class CvDistancing(BaseDistancing):
     def __init__(self, config):
         super().__init__(config)
         self.running_video = False
-        self.logger = logging.getLogger(__class__.__name__)
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.frame_counter = itertools.count(0)
         self.tracker = CentroidTracker(
             max_disappeared=int(self.config.get_section_dict("PostProcessor")["MaxTrackFrame"]))
@@ -45,6 +45,8 @@ class CvDistancing(BaseDistancing):
             else:
                 raise ValueError('Failed to initiate Detector, as ' + detector_name_tmp + \
                                  ' on device ' + self.device + ' is not supported')
+        elif self.device == 'OpenVino':
+            from smart_distancing.detectors.openvino import OpenVinoDetector as Detector
         elif self.device == 'x86':
             if detector_name_tmp == 'mobilenet_ssd_v2_coco_2018_03_29':
                 from smart_distancing.detectors.x86 import TfDetector as Detector
@@ -58,7 +60,6 @@ class CvDistancing(BaseDistancing):
             self.detector = Detector(self.config)
         # set the callback on the detector process, so it's called 
         self.detector.on_frame = self._on_detections
-
 
     def _resize(self, cv_image):
         cv_image = cv.resize(cv_image, self.resolution)

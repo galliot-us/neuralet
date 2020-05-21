@@ -33,9 +33,8 @@ class BaseDistancing(abc.ABC):
         self.config = config
 
         # log the device type
-        if self.device != 'Dummy':
-            logger.info(f'device is: {self.device}')
-            logger.info(f'image size: {self.image_size}')
+        logger.info(f'device is: {self.device}')
+        logger.info(f'image size: {self.image_size}')
 
         # set the output resolution
         # this is here rather than as a property becuase it's accessed repeatedly
