@@ -3,9 +3,6 @@ import argparse
 
 import cv2 as cv
 import os
-import os, sys
-from libs.config_engine import ConfigEngine
-import os
 import time
 import numpy as np
 
@@ -35,7 +32,7 @@ class Detector:
 
         # Get class id from config
         self.class_id = 0
-        self.score_threshold = args.minscore
+        self.score_threshold = float(args.minscore)
 
     def inference(self, resized_rgb_image):
         """
@@ -57,8 +54,9 @@ class Detector:
         labels = self.interpreter.get_tensor(self.output_details[1]['index'])
         scores = self.interpreter.get_tensor(self.output_details[2]['index'])
         result = []
+        print(labels)
         for i in range(boxes.shape[1]):  # number of boxes
-            if labels[0, i] == self.class_id and scores[0, i] > self.score_threshold:
+            if  scores[0, i] > self.score_threshold:
                 result.append({"id": str(self.class_id) + '-' + str(i), "bbox": boxes[0, i, :], "score": scores[0, i]})
 
         return result
@@ -66,7 +64,6 @@ class Detector:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', required=True)
     parser.add_argument('--model_path', required=True)
     parser.add_argument('--minscore', required=True)
     parser.add_argument('--img_path', required=True)
@@ -74,7 +71,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     det_engine = Detector(args)
 
-    image_size = args.img_size
+    image_size = (300, 300, 3)#args.img_size
     image_path = args.img_path
     for filename in os.listdir(image_path):
         if not (filename.endswith('.jpg') or filename.endswith('jpeg')): continue
@@ -83,4 +80,3 @@ if __name__ == '__main__':
         resized_image = cv.resize(cv_image, tuple(image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         tmp_objects_list = det_engine.inference(rgb_resized_image)
-        print(tmp_objects_list)
