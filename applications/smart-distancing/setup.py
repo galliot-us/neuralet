@@ -48,6 +48,7 @@ setuptools.setup(
         'smart_distancing.detectors.x86',
         'smart_distancing.detectors',
         'smart_distancing.loggers',
+        'smart_distancing.meta_pb2',
         'smart_distancing.tools',
         'smart_distancing.ui.utils',
         'smart_distancing.ui',
