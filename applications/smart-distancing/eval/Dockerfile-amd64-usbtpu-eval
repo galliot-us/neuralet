@@ -20,5 +20,5 @@ RUN apt-get install -y python3-flask python3-opencv python3-scipy
 
 WORKDIR /repo/applications/smart-distancing/eval
 
-ENTRYPOINT ["python3", "edge_eval.py"]
-CMD ["--config", "config-edgetpu.ini"]
+ENTRYPOINT ["python3", "edgetpu_eval.py"]
+CMD ["--model_path", "edgetpu/data/mobilenet_v1_face_mask_edgetpu.tflite", "--minscore", "0.25", "--img_path", "val_images", "--img_size", "300,300,3"]
