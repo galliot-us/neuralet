@@ -2,14 +2,15 @@
 import argparse
 
 from eval.libs.edgetpu.detector import Detector
-from libs.config_engine import ConfigEngine
 import cv2 as cv
 import os
+import os, sys
+from libs.config_engine import ConfigEngine
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', required=True)
-    image_path = 'libs/edgetpu/data/test_images'
+    image_path = 'val_images'
     args = parser.parse_args()
     config = ConfigEngine(args.config)
     image_size = [int(i) for i in config.get_section_dict('Detector')['ImageSize'].split(',')]
