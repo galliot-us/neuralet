@@ -6,3 +6,4 @@
 *.idea
 venv
 .vscode
+*.tbz2
