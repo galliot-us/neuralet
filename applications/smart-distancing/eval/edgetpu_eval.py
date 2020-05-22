@@ -71,7 +71,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     det_engine = Detector(args)
 
-    image_size = (300, 300, 3)#args.img_size
+    image_size = tuple(map(int, args.img_size.split(',')))
     image_path = args.img_path
     for filename in os.listdir(image_path):
         if not (filename.endswith('.jpg') or filename.endswith('jpeg')): continue
