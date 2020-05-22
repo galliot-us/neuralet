@@ -21,6 +21,12 @@ import smart_distancing as sd
 from smart_distancing.detectors.deepstream import _ds_engine
 from smart_distancing.detectors.deepstream import DsEngine, DsConfig
 
+from smart_distancing.meta_pb2 import (
+    Frame,
+    Person,
+    BBox,
+)
+
 DS_ONE_SOURCE_CONFIG = os.path.join(
     THIS_DIR, 'data', 'deepstream_one_source.ini')
 DS_TWO_SOURCE_CONFIG = os.path.join(
@@ -79,13 +85,16 @@ class TestDsEngineInteractive(unittest.TestCase):
         config = DsConfig(master_config)
         engine = DsEngine(config)
         engine.queue_timeout = 1000
+        print('STARTING ENGINE')
         engine.start()
+        frame = Frame()
         try:
             while True:
-                time.sleep(1)
                 results = engine.results
                 if results:
-                    print(results)
+                    for frame_str in results:
+                        frame.ParseFromString(frame_str)
+                        print(len(frame.people))
         except KeyboardInterrupt:
             engine.stop()
             engine.join()

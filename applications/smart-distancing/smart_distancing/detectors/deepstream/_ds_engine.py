@@ -37,6 +37,12 @@ from smart_distancing.detectors.deepstream._ds_config import (
     DsConfig,
     ElemConfig,
 )
+# import metadata stuff
+from smart_distancing.meta_pb2 import (
+    Frame,
+    Person,
+    BBox,
+)
 from smart_distancing.detectors.deepstream._gst_engine import GstEngine
 # typing
 from typing import (
@@ -157,34 +163,34 @@ class DsEngine(GstEngine):
         # the __hash__ of a gst_buffer is a pointer
         batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
 
-        # a dict of dicts to store the detections
-        # the key is an integer
-        results = dict()
+        results = []
 
         # iterate through the metadata and add results to the list
         for frame_meta in frame_meta_iterator(batch_meta.frame_meta_list):
+            people = []
             for obj_meta in obj_meta_iterator(frame_meta.obj_meta_list):
                 # we need an object id assigned by the tracker to know what
                 # box to color when the results come back.  likewise we can
                 # only score objects whose uid still exists when the scores
                 # come back in the self.osd_queue
                 if obj_meta.object_id:
-                    rect = obj_meta.rect_params  # type: pyds.NvOSD_RectParams
-                    results[obj_meta.object_id] = {
-                        'fnum': frame_meta.frame_num,
-                        'id': obj_meta.class_id,
-                        'bbox': [
-                            rect.left,  # x1
-                            rect.top,  # y1
-                            rect.left + rect.width,  # x2
-                            rect.top + rect.height,  # y2
-                        ],
-                        'score': obj_meta.confidence,
-                        'uid': obj_meta.object_id,  # the object's unique id assigned by the tracker
-                    }
+                    people.append(Person(
+                        uid=obj_meta.object_id,
+                        bbox=BBox(
+                            left=int(obj_meta.rect_params.left),
+                            top=int(obj_meta.rect_params.top),
+                            width=int(obj_meta.rect_params.width),
+                            height=int(obj_meta.rect_params.height),
+                        )
+                    ))
                 else:
                     # todo(mdegans): do some default/test drawing here?
                     pass
+            results.append(Frame(
+                frame_num=frame_meta.frame_num,
+                source_id=frame_meta.source_id,
+                people=people
+            ).SerializeToString())
 
         # we try to update the results queue, but it might be full if
         # the results queue is full becauase the ui process is too slow
@@ -192,6 +198,7 @@ class DsEngine(GstEngine):
             # NOTE(mdegans): we can drop the whole buffer here if we want to drop
             # frames when we're unable to update the metadata queue
             # return Gst.PadProbeReturn.DROP
+            # self.logger.warning(f"dropping results: {results}")
             pass
 
         # we try to get the latest scores if they're ready
@@ -205,8 +212,9 @@ class DsEngine(GstEngine):
         # but using an integer as a dict key is pretty effecient
         # TODO(mdegans): time this
         if self._previous_scores:
-            for frame_meta in frame_meta_iterator(batch_meta.frame_meta_list):
-            for obj_meta in obj_meta_iterator(frame_meta.obj_meta_list):
+            pass
+            # for frame_meta in frame_meta_iterator(batch_meta.frame_meta_list):
+            # for obj_meta in obj_meta_iterator(frame_meta.obj_meta_list):
 
 
         # return pad probe ok, which passes the buffer on

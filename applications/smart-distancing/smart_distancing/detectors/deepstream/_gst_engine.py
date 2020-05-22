@@ -17,6 +17,7 @@ from typing import (
     Callable,
     Iterable,
     Optional,
+    Sequence,
 )
 from smart_distancing.detectors.deepstream._ds_utils import bin_to_pdf
 from smart_distancing.detectors.deepstream._ds_config import GstConfig
@@ -158,7 +159,7 @@ class GstEngine(multiprocessing.Process):
         self._reset_requested = multiprocessing.Event()
 
     @property
-    def results(self) -> Optional[Detections]:
+    def results(self) -> Sequence[str]:
         """
         Get results waiting in the queue.
 
@@ -175,7 +176,7 @@ class GstEngine(multiprocessing.Process):
                 self.logger.warning("failed to get results from queue (queue.Empty)")
                 return None
 
-    def _update_result_queue(self, results):
+    def _update_result_queue(self, results: Sequence[str]):
         """
         Called internally by the GStreamer process.
 
