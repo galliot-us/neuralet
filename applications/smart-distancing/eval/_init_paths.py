@@ -21,4 +21,9 @@ currentPath = os.path.dirname(os.path.realpath(__file__))
 
 # Add lib to PYTHONPATH
 libPath = os.path.join(currentPath, "lib")
+utilPath = os.path.join(currentPath, "utils")
+detPath = os.path.join(currentPath, "detectors")
+
 add_path(libPath)
+add_path(utilPath)
+add_path(detPath)
