@@ -2,3 +2,4 @@ Flask
 numpy
 scipy
 Pillow
+protobuf

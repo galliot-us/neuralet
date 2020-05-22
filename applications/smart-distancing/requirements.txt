@@ -102,6 +102,24 @@ pillow==7.1.2 \
     --hash=sha256:f54be399340aa602066adb63a86a6a5d4f395adfdd9da2b9a0162ea808c7b276 \
     --hash=sha256:f784aad988f12c80aacfa5b381ec21fd3f38f851720f652b9f33facc5101cf4d \
     # via -r requirements.in
+protobuf==3.12.1 \
+    --hash=sha256:04d0b2bd99050d09393875a5a25fd12337b17f3ac2e29c0c1b8e65b277cbfe72 \
+    --hash=sha256:05288e44638e91498f13127a3699a6528dec6f9d3084d60959d721bfb9ea5b98 \
+    --hash=sha256:175d85370947f89e33b3da93f4ccdda3f326bebe3e599df5915ceb7f804cd9df \
+    --hash=sha256:440a8c77531b3652f24999b249256ed01fd44c498ab0973843066681bd276685 \
+    --hash=sha256:49fb6fab19cd3f30fa0e976eeedcbf2558e9061e5fa65b4fe51ded1f4002e04d \
+    --hash=sha256:4c7cae1f56056a4a2a2e3b00b26ab8550eae738bd9548f4ea0c2fcb88ed76ae5 \
+    --hash=sha256:519abfacbb421c3591d26e8daf7a4957763428db7267f7207e3693e29f6978db \
+    --hash=sha256:60f32af25620abc4d7928d8197f9f25d49d558c5959aa1e08c686f974ac0b71a \
+    --hash=sha256:613ac49f6db266fba243daf60fb32af107cfe3678e5c003bb40a381b6786389d \
+    --hash=sha256:954bb14816edd24e746ba1a6b2d48c43576393bbde2fb8e1e3bd6d4504c7feac \
+    --hash=sha256:9b1462c033a2cee7f4e8eb396905c69de2c532c3b835ff8f71f8e5fb77c38023 \
+    --hash=sha256:c0767f4d93ce4288475afe0571663c78870924f1f8881efd5406c10f070c75e4 \
+    --hash=sha256:c45f5980ce32879391144b5766120fd7b8803129f127ce36bd060dd38824801f \
+    --hash=sha256:eeb7502f59e889a88bcb59f299493e215d1864f3d75335ea04a413004eb4fe24 \
+    --hash=sha256:fdb1742f883ee4662e39fcc5916f2725fec36a5191a52123fec60f8c53b70495 \
+    --hash=sha256:fe554066c4962c2db0a1d4752655223eb948d2bfa0fb1c4a7f2c00ec07324f1c \
+    # via -r requirements.in
 scipy==1.4.1 \
     --hash=sha256:00af72998a46c25bdb5824d2b729e7dabec0c765f9deb0b504f928591f5ff9d4 \
     --hash=sha256:0902a620a381f101e184a958459b36d3ee50f5effd186db76e131cbefcbb96f7 \
@@ -125,7 +143,15 @@ scipy==1.4.1 \
     --hash=sha256:dc60bb302f48acf6da8ca4444cfa17d52c63c5415302a9ee77b3b21618090521 \
     --hash=sha256:dee1bbf3a6c8f73b6b218cb28eed8dd13347ea2f87d572ce19b289d6fd3fbc59 \
     # via -r requirements.in
+six==1.15.0 \
+    --hash=sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259 \
+    --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced \
+    # via protobuf
 werkzeug==1.0.1 \
     --hash=sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43 \
     --hash=sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c \
     # via flask
+
+# WARNING: The following packages were not pinned, but pip requires them to be
+# pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
+# setuptools
