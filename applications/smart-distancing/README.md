@@ -2,6 +2,8 @@
 
 # Smart Social Distancing
 
+**NOTE** this branch is WIP and in the process of a major refactor. use neuralet/master if you want a working thing.
+
 ## Introduction
 
 Smart Distancing is an open-source application to quantify social distancing measures using edge computer vision systems. Since all computation runs on the device, it requires minimal setup and minimizes privacy and security concerns. It can be used in retail, workplaces, schools, construction sites, healthcare facilities, factories, etc.
