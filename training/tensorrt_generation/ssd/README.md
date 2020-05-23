@@ -50,7 +50,7 @@ cd neuralet/training/tensorrt_generation/
 docker build -f Dockerfile -t "neuralet/jetson-nano:tf-ssd-to-trt" .
 
 # 2) Run Docker container:
-docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/jetson-nano:tf-ssd-to-trt:latest
+docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/jetson-nano:tf-ssd-to-trt
 ```
 
 ### Configurations
