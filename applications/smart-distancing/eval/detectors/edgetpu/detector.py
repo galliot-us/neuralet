@@ -2,6 +2,7 @@ import numpy as np
 from tflite_runtime.interpreter import load_delegate
 from tflite_runtime.interpreter import Interpreter
 
+
 class Detector:
     """
     Perform object detection with the given model. The model is a quantized tflite
@@ -46,10 +47,9 @@ class Detector:
         labels = self.interpreter.get_tensor(self.output_details[1]['index'])
         scores = self.interpreter.get_tensor(self.output_details[2]['index'])
         result = []
-        print(labels)
         for i in range(boxes.shape[1]):  # number of boxes
-            if  scores[0, i] > self.score_threshold:
-                result.append({"id": str(self.class_id) + '-' + str(i), "bbox": boxes[0, i, :], "score": scores[0, i]})
+            if scores[0, i] > self.score_threshold:
+                result.append(
+                    {"id": str(self.labels[0, i]) + '-' + str(i), "bbox": boxes[0, i, :], "score": scores[0, i]})
 
         return result
-
