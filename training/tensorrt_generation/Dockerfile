@@ -1,7 +1,7 @@
 # docker can be installed on the dev board following these instructions:
 # https://docs.docker.com/install/linux/docker-ce/debian/#install-using-the-repository , step 4: arm64
 # 1) build: docker build -f Dockerfile -t "neuralet/jetson-nano:tf-ssd-to-trt" .
-# 2) run: docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/jetson-nano:tf-ssd-to-trt:latest
+# 2) run: docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFILE_DIRECTORY/:/repo neuralet/jetson-nano:tf-ssd-to-trt
 
 FROM nvcr.io/nvidia/l4t-base:r32.3.1
 
@@ -31,6 +31,7 @@ RUN pip3 install protobuf
 RUN apt-get install -y pkg-config libhdf5-100 libhdf5-dev
 RUN apt-get install -y python3-h5py
 RUN pip3 install --extra-index-url https://developer.download.nvidia.com/compute/redist/jp/v43 tensorflow==1.15.2+nv20.2
+RUN pip3 install wget
 
 COPY libflattenconcat.so.6 /repo
 COPY graphsurgeon.patch-4.2.2 /repo 
@@ -39,4 +40,4 @@ RUN chmod +x /repo/install.sh && /repo/install.sh
 
 WORKDIR /repo
 ENTRYPOINT ["python3", "build_engine.py"]
-CMD ["--config", "config.ini"]
+CMD ["--config", "configs/config_ssd_mobilenet_v2_pedestrian.ini"]
