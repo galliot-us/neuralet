@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# TensorRT Engine Generation from a Custom SSD-MobileNet-V2 Model 
+# TensorRT Engine Generation from a Custom SSD-MobileNet Model 
 
 
 This repo contains instructions on how to use Neuralet's `l4t-tensorrt-conversion` Docker container. This Docker container installs all the required prerequisites on your [NVIDIA Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) and generates a [TensorRT](https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html) engine from a frozen graph.
