@@ -24,7 +24,6 @@ class Detector:
         self.output_details = self.interpreter.get_output_details()
 
         # Get class id from config
-        self.class_id = 0
         self.score_threshold = float(args.minscore)
 
     def inference(self, resized_rgb_image):
@@ -50,6 +49,6 @@ class Detector:
         for i in range(boxes.shape[1]):  # number of boxes
             if scores[0, i] > self.score_threshold:
                 result.append(
-                    {"id": str(self.labels[0, i]) + '-' + str(i), "bbox": boxes[0, i, :], "score": scores[0, i]})
+                    {"id": str(labels[0, i]) + '-' + str(i), "bbox": boxes[0, i, :], "score": scores[0, i]})
 
         return result

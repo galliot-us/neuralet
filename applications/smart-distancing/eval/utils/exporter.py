@@ -20,7 +20,7 @@ def export_results(nn_out, class_name, path, image_name, cv_img):
         width = x1 - x0
         height = y1 - y0
         score = obj['score']
-        cls = class_name[obj["id"]]
+        cls = class_name[int(float(obj["id"].split('-')[0]))]
         results += dt_fromat.format(str(cls), str(score), str(x0), str(y0), str(width),
                                     str(height))
 

@@ -14,11 +14,13 @@ RUN wget -qO - https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key a
 
 RUN apt-get update && apt-get install -y python3-pip pkg-config libedgetpu1-std python3-wget
 
-RUN python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_x86_64.whl 
+RUN python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_x86_64.whl matplotlib
 
-RUN apt-get install -y python3-flask python3-opencv python3-scipy
+RUN apt-get update
+
+RUN apt-get install -y python3-opencv python3-scipy
 
 WORKDIR /repo/applications/smart-distancing/eval
 
 ENTRYPOINT ["python3", "edgetpu_eval.py"]
-CMD ["--model_path", "edgetpu/data/mobilenet_v1_face_mask_edgetpu.tflite", "--minscore", "0.25", "--img_path", "val_images", "--img_size", "300,300,3"]
+CMD ["--model_path", "edgetpu/data/mobilenet_v1_face_mask_edgetpu.tflite", "--classes", "eval_files/sample_classes.txt","--minscore", "0.25", "--img_path", "val_images", "--img_size", "300,300,3", "--result_dir", "eval_files/detresults/", "-gt", "eval_files/groundtruths","-t", "0.5" ]
