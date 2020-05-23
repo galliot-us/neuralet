@@ -4,7 +4,7 @@ import cv2 as cv
 import os
 import _init_paths
 from edgetpu.detector import Detector
-
+from exporter import export_results
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_path', required=True)
@@ -14,6 +14,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     det_engine = Detector(args)
 
+    class_name = ['face', 'mask-face']
+    det_path = 'eval_files/detresults/'
+
     image_size = tuple(map(int, args.img_size.split(',')))
     image_path = args.img_path
     for filename in os.listdir(image_path):
@@ -22,4 +25,5 @@ if __name__ == '__main__':
         cv_image = cv.imread(img_path)
         resized_image = cv.resize(cv_image, tuple(image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
-        tmp_objects_list = det_engine.inference(rgb_resized_image)
+        nn_out = det_engine.inference(rgb_resized_image)
+        export_results(nn_out, class_name, det_path, filename, cv_image)
