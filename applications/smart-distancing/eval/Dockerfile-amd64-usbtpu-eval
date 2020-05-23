@@ -18,7 +18,7 @@ RUN python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1
 
 RUN apt-get update
 
-RUN apt-get install -y python3-flask python3-opencv python3-scipy
+RUN apt-get install -y python3-opencv python3-scipy
 
 WORKDIR /repo/applications/smart-distancing/eval
 
