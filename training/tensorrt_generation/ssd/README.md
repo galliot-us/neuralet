@@ -26,25 +26,21 @@ After installing the prerequisites, clone this repository to your local system b
 
 ```
 git clone https://github.com/neuralet/neuralet.git
-cd neuralet/training/tensorrt_generation
+cd neuralet/training/tensorrt_generation/ssd/
 ```
 
 #### Required Files
 
-You should pass the `frozen_inference_graph.pb` file to the script through the `config.ini` configuration file. You can download and use our provided retrained [ped_ssd_mobilenet_v2](https://github.com/neuralet/neuralet-models/blob/master/amd64/ped_ssd_mobilenet_v2/frozen_inference_graph.pb) model trained on the [Oxford Town Center](https://megapixels.cc/oxford_town_centre/) dataset.
-```
-cd neuralet/training/tensorrt_generation/
-
-# Download sample retrained pedestrian detector model 
-./download_model.sh
-```
+You should pass a Frozen Inference Graph file to the script through a configuration file from `configs` directory. 
+The script is called with `config_ssd_mobilenet_v2_pedestrian.ini` config file by default. It automatically downloads provided retrained pedestrian_ssd_mobilenet_v2 frozen inference graph  from [Neuralet-Models](https://github.com/neuralet/neuralet-models/blob/master/amd64/ped_ssd_mobilenet_v2/frozen_inference_graph.pb) repository which is trained on the [Oxford Town Center](https://megapixels.cc/oxford_town_centre/) dataset.
+You can also use other provided config files for `SSD-MOBILENET-V1-COCO` and `SSD-MOBILENET-V2-COCO` or your customized one by changing `CMD` command in Dockerfile to run the script with other configurations.
 
 ## Run on Jetson Nano
 
-The provided Docker container runs `build_engine.py` script with the configurations read from the `config.ini` file. This script generates a TensorRT Engine using the UFF Parser from the frozen graph specified in the config file. The generated engine can be used for the [Smart Social Distancing](https://github.com/neuralet/neuralet/tree/master/applications/smart-distancing) application. 
+The provided Docker container runs `build_engine.py` script with the configurations read from the `config_ssd_mobilenet_v2_pedestrian.ini` file. This script generates a TensorRT Engine using the UFF Parser from the frozen graph specified in the config file. The generated engine can be used for the [Smart Social Distancing](https://github.com/neuralet/neuralet/tree/master/applications/smart-distancing) application. 
 
 ```
-cd neuralet/training/tensorrt_generation/
+cd neuralet/training/tensorrt_generation/ssd/
 
 # 1) Build Docker image (this step is optional, you can skip it if you want to pull the container from Neuralet's Docker Hub)
 docker build -f Dockerfile -t "neuralet/jetson-nano:tf-ssd-to-trt" .
@@ -55,7 +51,7 @@ docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFI
 
 ### Configurations
 
-You can read and modify the configurations in the `config.ini` file. Under the `[MODEL]` section, you can customize the model specs, such as model name, model path, the number of classes, objects min size, max size, and input image dimensions.
+You can read and modify the configurations in the `config_ssd_mobilenet_v2_pedestrian.ini` file. Under the `[MODEL]` section, you can customize the model specs, such as model name, model path, the number of classes, objects min size, max size, and input image dimensions.
 The `InputOrder` parameter determines the order of `loc_data`, `conf_data`, and `priorbox_data` of the model, which is set equal to the “NMS” node input order in the `.pbtxt` file.
 
 ## References
