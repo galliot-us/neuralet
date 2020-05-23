@@ -143,6 +143,10 @@ def replace_fusedbnv3(graph):
     return graph
 
 def parse_gridAnchor(graph):
+    """
+    define a constant input tensor and set that as the input for the GridAnchor node 
+    as UFF file does not provide an input element for the GridAnchor node
+    """
 
     data = np.array([1, 1], dtype=np.float32) 
     anchor_input = gs.create_node("AnchorInput", "Const", value=data)  
