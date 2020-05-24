@@ -31,8 +31,8 @@ cd /repo/training/tf_object_detection_api/pedestrian_detection
 ```
 jupyter notebook --ip 0.0.0.0 --allow-root
 ```
-10. Copy and paste the the link into your browser to open the Jupyter Notebook.
-12. open the `pedestrian_ssd_mobilenet_v2.ipynb` and follow it to train the model.
+9. Copy and paste the the link into your browser to open the Jupyter Notebook.
+10. open the `pedestrian_ssd_mobilenet_v2.ipynb` and follow it to train the model.
 
 P.S. You can track the training procedure by executing the Neuralet TensorFlow Object Detection API docker container you ran earlier by `docker exec -it [container name] bash` and run:
 ```
