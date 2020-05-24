@@ -36,17 +36,48 @@ docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval -gt 'eval_files
 ```
 
 
-| Argument | Description | Defauls |
+| Argument | Description | Default |
 | -------- | -------- | -------- |
-| `-gt` | folder that contains the ground truth bounding boxes files (Must be located at /eval directory)     | `/eval/eval_files/groundtruths`     |
-| `-det` | folder that contains your detected bounding boxes files (Must be located at /eval directory)     | `/eval/eval_files/detresults`     |
+| `-gt` | folder that contains the ground truth bounding boxes files (Must be located at /eval directory)     | `/eval_files/groundtruths`     |
+| `-det` | folder that contains your detected bounding boxes files (Must be located at /eval directory)     | `/eval_files/detresults`     |
+| `-t` | IOU thershold that tells if a detection is TP or FP     | `0.50`     |
+
+
+
+### Run on Edgetpu Devices
+It's also possible to evaluate a quantized tflite model on edgetpu, below is the instruction for evaluting models on edgetpu devices.
+
+#### Run on AMD64 node with a connected Coral USB Accelerator
+Create a separate ground truth text file for each image in the directory `neuralet/applications/smart-distancing/eval/eval_files/groundtruths/`.
+
+Create a .txt file and add the classId and its name to that file.
+E.g.
+```
+# PATH/classes.txt
+0:face
+1:face-mask
+```
+Build and Run Docker Image
+```
+cd neuralet/applications/smart-distancing/eval
+# Build Docker image
+docker build -f Dockerfile-amd64-usbtpu-eval -t detector-eval-usbtpu .
+docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval-usbtpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --img_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
+```
+| Argument | Description | Default |
+| -------- | -------- | -------- |
+| `--model_path` | the path of tflite model    | `edgetpu/data/mobilenet_v1_face_mask_edgetpu.tflite`     | 
+| `--classes` | the path of .txt files contains class Ids and its name     | `eval_files/sample_classes.txt`     |
+| `--minscore` | the minimum confidence score for detecting objects     | `0.25`     |
+| `--img_path` | folder that contains the validation set data (images)     | `val_images`     |
+| `--img_size` | the input size of the model  | `300,300,3`     |
+| `--result_dir` | folder that the detector results will be    | `/eval_files/detresults`     |
+| `-gt` | folder that contains the ground truth bounding boxes files     | `/eval_files/groundtruths`     |
 | `-t` | IOU thershold that tells if a detection is TP or FP     | `0.50`     |
 
 [More details of how mAP is calculated](https://github.com/rafaelpadilla/Object-Detection-Metrics/blob/master/README.md).[[1]](#1)
-
 ## References
 <a id="1">[1]</a>
 Rafael Padilla, Sergio Lima Netto and Eduardo A. B. da Silva  (2020). 
 Survey on Performance Metrics for Object-Detection Algorithms. 
 International Conference on Systems, Signals and Image Processing (IWSSIP)
- 
