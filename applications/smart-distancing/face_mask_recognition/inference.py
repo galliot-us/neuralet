@@ -44,11 +44,11 @@ def main(_):
             tensor_name_output["scores"]
         )
 
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(2, 2))
 
         for i, file_name in enumerate(os.listdir(FLAGS.imgs_dir)):
-            if i < 25:
-                plt.subplot(5, 5, i + 1)
+            if i < 5:
+                plt.subplot(2, 2, i + 1)
                 plt.xticks([])
                 plt.yticks([])
                 plt.grid(False)
