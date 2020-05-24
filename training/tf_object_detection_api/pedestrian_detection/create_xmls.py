@@ -6,6 +6,15 @@ from lxml import etree
 
 
 def convert_to_xml(boxes, frame_number):
+    """
+    this function will create the xml tree from each frame annotation.
+    Args:
+        boxes: list of bounding boxes
+        frame_number: the number of frame that its xml file is creating
+
+    Returns:
+        an etree object
+    """
     annotation = etree.Element("annotation")
     etree.SubElement(annotation, "filename").text = str(frame_number) + ".jpg"
     size = etree.SubElement(annotation, "size")
@@ -25,6 +34,14 @@ def convert_to_xml(boxes, frame_number):
 
 
 def prepare_boxes(bbox):
+    """
+    This function will clip the bounding box and cast its value to string to be appropriate for xml exporter.
+    Args:
+        bbox: a list of bounding box coordinate [x_min,y_min,x_max,y_max]
+
+    Returns:
+        the clipped and casted version of input
+    """
     bbox[0] = str(int(max(0.0, bbox[0])))
     bbox[1] = str(int(max(0.0, bbox[1])))
     bbox[2] = str(int(min(1920, bbox[2])))
