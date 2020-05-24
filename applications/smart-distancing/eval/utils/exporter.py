@@ -3,6 +3,18 @@ import os
 
 
 def export_results(nn_out, class_name, path, image_name, cv_img):
+    """
+    Exports results for each image in a txt file
+    Args:
+        nn_out: List of dicionary contains normalized numbers of bounding boxes
+            {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
+        class_name: List of class names e.g. ['face', 'face_mask']
+        path: The path of exporting results (.txt files for each image)
+        image_name: The image file name without its postfix
+        cv_img: A numpy array with shape [height, width, channels]
+    Return:
+    """
+
     img_resolution = cv_img.shape
     img_h, img_w = img_resolution[0], img_resolution[1]
     results = ''
