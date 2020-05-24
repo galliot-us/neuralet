@@ -19,12 +19,12 @@ mkdir pedestrian_detection_tlt
 7. Pull and run the TLT docker container by running:
 ```
 docker run --runtime=nvidia -it -v [EXPERIMENT DIRECTORY]:/experiment_dir \
--v [PATH TO CLONED REPOSITORY]:/repo -p 8888:8888 nvcr.io/nvidia/tlt-streamanalytics:v2.0_dp_py2>
+-v [PATH TO CLONED REPOSITORY]:/repo -p 8888:8888 nvcr.io/nvidia/tlt-streamanalytics:v2.0_dp_py2
 ```
 8. Install the dependencies:
 ```
-apt-get update && apt-get install -y pkg-config libsm6 libxext6 libxrender-dev ffmpeg
-pip3 install opencv-python pandas==0.24.0
+apt-get update && apt-get install -y ffmpeg
+pip3 install pandas==0.24.0
 ```
 10. Move to the repository TLT directory
 ```
