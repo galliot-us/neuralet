@@ -6,10 +6,7 @@ from tflite_runtime.interpreter import Interpreter
 class Detector:
     """
     Perform object detection with the given model. The model is a quantized tflite
-    file which if the detector can not find it at the path it will download it
-    from neuralet repository automatically.
-
-    :param config: Is a ConfigEngine instance which provides necessary parameters.
+    file.
     """
 
     def __init__(self, args):
