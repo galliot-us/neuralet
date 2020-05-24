@@ -62,7 +62,7 @@ Build and Run Docker Image
 cd neuralet/applications/smart-distancing/eval
 # Build Docker image
 docker build -f Dockerfile-amd64-usbtpu-eval -t detector-eval-usbtpu .
-docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval-usbtpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --img_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
+docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval-usbtpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
 ```
 | Argument | Description | Default |
 | -------- | -------- | -------- |
@@ -70,7 +70,7 @@ docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval-usbtpu --model_
 | `--classes` | the path of .txt files contains class Ids and its name     | `eval_files/sample_classes.txt`     |
 | `--minscore` | the minimum confidence score for detecting objects     | `0.25`     |
 | `--img_path` | folder that contains the validation set data (images)     | `val_images`     |
-| `--img_size` | the input size of the model  | `300,300,3`     |
+| `--input_size` | the input size of the model  | `300,300,3`     |
 | `--result_dir` | folder that the detector results will be    | `/eval_files/detresults`     |
 | `-gt` | folder that contains the ground truth bounding boxes files     | `/eval_files/groundtruths`     |
 | `-t` | IOU thershold that tells if a detection is TP or FP     | `0.50`     |

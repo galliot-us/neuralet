@@ -22,13 +22,13 @@ def read_class_name(file_path):
 
 
 if __name__ == "__main__":
-    # python edgetpu_eval.py --model_path PATH/model.tflite --classes PATH/cls.txt --minscore 0.25 --img_path TEST_IMG/ --img_size 300,300,3 --result_dir results/ -gt groundtruths -t 0.5
+    # python edgetpu_eval.py --model_path PATH/model.tflite --classes PATH/cls.txt --minscore 0.25 --img_path TEST_IMG/ --input_size 300,300,3 --result_dir results/ -gt groundtruths -t 0.5
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_path", required=True)
     parser.add_argument("--classes", required=True)
     parser.add_argument("--minscore", required=True)
     parser.add_argument("--img_path", required=True)
-    parser.add_argument("--img_size", required=True)
+    parser.add_argument("--input_size", required=True)
     parser.add_argument("--result_dir", required=True)
     parser.add_argument("-gt", "--groundtruths", required=True)
     parser.add_argument("-t", "--threshold", required=True)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         os.mkdir(det_path)
 
     # The size of images based on the models input size
-    image_size = tuple(map(int, args.img_size.split(",")))
+    image_size = tuple(map(int, args.input_size.split(",")))
     image_path = args.img_path
     print('Start exporting results at "{}"'.format(det_path))
     # Inference all images in image_path directory
