@@ -13,13 +13,13 @@ import wget
 
 flags.DEFINE_string(
     "train_dir",
-    "/work/tensorflow/face_mask_classifier/tpu/dataset/train",
+    None,
     "The directory of train dataset",
 )
 
 flags.DEFINE_string(
     "validation_dir",
-    "/work/tensorflow/face_mask_classifier/tpu/dataset/validation",
+    None,
     "The directory of validation dataset",
 )
 
@@ -41,7 +41,7 @@ flags.DEFINE_integer("batch_size", 64, "Batch size")
 
 flags.DEFINE_string("result_dir", "results", "Exported images path")
 
-flags.DEFINE_list("classes", ["face", "face-mask"], "List of classes names")
+flags.DEFINE_list("classes", ["face", "face-mask"], "List of class names")
 
 flags.DEFINE_bool("pretraining", True, "True: Download the fine-tune model and retrain it")
 
