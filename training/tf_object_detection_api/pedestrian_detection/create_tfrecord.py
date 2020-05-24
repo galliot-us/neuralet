@@ -1,27 +1,16 @@
-# Copyright 2017 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# This script is a modification of TensorFlow sample file. you can reach the file here:
+# https://github.com/tensorflow/models/blob/master/research/object_detection/dataset_tools/create_pet_tf_record.py
+# license of original implementation is Apache V2
 # ==============================================================================
 
-r"""Convert the Oxford pet dataset to TFRecord for object_detection.
-See: O. M. Parkhi, A. Vedaldi, A. Zisserman, C. V. Jawahar
-     Cats and Dogs
-     IEEE Conference on Computer Vision and Pattern Recognition, 2012
-     http://www.robots.ox.ac.uk/~vgg/data/pets/
+r"""Convert the Oxford Town Center dataset to TFRecord for object_detection.
+See: https://www.robots.ox.ac.uk/ActiveVision/Research/Projects/2009bbenfold_headpose/project.html
 Example usage:
-    python object_detection/dataset_tools/create_pet_tf_record.py \
-        --data_dir=/home/user/pet \
-        --output_dir=/home/user/pet/output
+    python create_tfrecord.py \
+        --data_dir $DATASET_DIR \
+        --output_dir $DATASET_DIR \
+        --label_map_path ./label_map.pbtxt \
+        --validation_split 0.25
 """
 
 import hashlib
@@ -40,6 +29,7 @@ flags.DEFINE_string('data_dir', '', 'Root directory to raw pet dataset.')
 flags.DEFINE_string('output_dir', '', 'Path to directory to output TFRecords.')
 flags.DEFINE_string('label_map_path', 'data/pet_label_map.pbtxt',
                     'Path to label map proto')
+flags.DEFINE_float('validation_split', 0.25, 'Percentage of Validation Set')
 
 FLAGS = flags.FLAGS
 
@@ -163,6 +153,7 @@ def create_tf_record(output_filename,
 
 def main(_):
     data_dir = FLAGS.data_dir
+    validation_split = FLAGS.validation_split
     label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
 
     logging.info('Reading from Oxford Town Center Dataset.')
@@ -170,11 +161,9 @@ def main(_):
     annotations_dir = os.path.join(data_dir, 'xmls')
     examples_list = list(range(4501))
 
-    # Test images are not included in the downloaded data set, so we shall perform
-    # our own split.
     random.seed(42)
     num_examples = len(examples_list)
-    num_train = int(0.7 * num_examples)
+    num_train = int((1 - validation_split) * num_examples)
     train_examples = examples_list[:num_train]
     val_examples = examples_list[num_train:]
     random.shuffle(train_examples)
