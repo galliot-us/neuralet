@@ -1,7 +1,7 @@
-# docker can be installed on the dev board following these instructions: 
-# https://docs.docker.com/install/linux/docker-ce/debian/#install-using-the-repository , step 4: x86_64 / amd64
-# 1) build: docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:applications-smart-distancing" .
-# 2) run: docker run -it --privileged -p HOST_PORT:8000 -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:applications-smart-distancing
+# docker can be installed on the dev board following these instructions:
+# 1) build: docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:eval-edgetpu" .
+# 2) run: docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:eval-edgetpu
+
 
 FROM amd64/debian:buster
 
@@ -22,5 +22,8 @@ RUN apt-get install -y python3-opencv python3-scipy
 
 WORKDIR /repo/applications/smart-distancing/eval
 
+# --model_path: tflite model path | --classes: the classes text file path | --minscore: the minimum confidence for deteting objects
+# --img_path: validation set directory | --img_size: the input size of the model | --result_dir: the detection results with export here
+# -gt: the groundtruth path | -t: minimum IOU threshold
 ENTRYPOINT ["python3", "edgetpu_eval.py"]
 CMD ["--model_path", "edgetpu/data/mobilenet_v1_face_mask_edgetpu.tflite", "--classes", "eval_files/sample_classes.txt","--minscore", "0.25", "--img_path", "val_images", "--img_size", "300,300,3", "--result_dir", "eval_files/detresults/", "-gt", "eval_files/groundtruths","-t", "0.5" ]
