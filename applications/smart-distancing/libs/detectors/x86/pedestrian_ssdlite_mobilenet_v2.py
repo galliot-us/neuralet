@@ -2,7 +2,6 @@ import pathlib
 import time
 import os
 import numpy as np
-import tarfile
 import wget
 import tensorflow as tf
 
