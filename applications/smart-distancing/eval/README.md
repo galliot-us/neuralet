@@ -62,7 +62,7 @@ Build and Run Docker Image
 cd neuralet/applications/smart-distancing/eval
 # Build Docker image
 docker build -f Dockerfile-amd64-usbtpu-eval -t detector-eval-usbtpu .
-docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval-usbtpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
+docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval-usbtpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
 ```
 | Argument | Description | Default |
 | -------- | -------- | -------- |
