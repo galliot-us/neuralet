@@ -1,27 +1,31 @@
 import pathlib
 import time
-
+import os
 import numpy as np
-
+import tarfile
+import wget
 import tensorflow as tf
 
 from libs.detectors.utils.fps_calculator import convert_infr_time_to_fps
 
 
 def load_model(model_name):
-  base_url = 'http://download.tensorflow.org/models/object_detection/'
-  model_file = model_name + '.tar.gz'
-  model_dir = tf.keras.utils.get_file(
-    fname=model_name,
-    origin=base_url + model_file,
-    untar=True)
+    base_url = 'http://download.tensorflow.org/models/object_detection/'
+    model_file = model_name + '.tar.gz'
+    base_dir = "libs/detectors/x86/data/"
+    model_dir = os.path.join(base_dir, model_name)
+    if not os.path.isdir(model_dir):
+        print('model does not exist under: ', model_dir, 'downloading from ', base_url + model_file)
+        wget.download(base_url + model_file, base_dir)
+        with tarfile.open(base_dir + model_file, "r") as tar:
+            tar.extractall(path=base_dir)
 
-  model_dir = pathlib.Path(model_dir) / "saved_model"
+    model_dir = pathlib.Path(model_dir) / "saved_model"
 
-  model = tf.saved_model.load(str(model_dir))
-  model = model.signatures['serving_default']
+    model = tf.saved_model.load(str(model_dir))
+    model = model.signatures['serving_default']
 
-  return model
+    return model
 
 
 class Detector:
