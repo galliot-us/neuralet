@@ -47,7 +47,6 @@ docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval -gt 'eval_files
 ### Run on Edgetpu Devices
 It's also possible to evaluate a quantized tflite model on edgetpu, below is the instruction for evaluting models on edgetpu devices.
 
-#### Run on AMD64 node with a connected Coral USB Accelerator
 Create a separate ground truth text file for each image in the directory `neuralet/applications/smart-distancing/eval/eval_files/groundtruths/`.
 
 Create a .txt file and add the classId and its name to that file.
@@ -57,13 +56,21 @@ E.g.
 0:face
 1:face-mask
 ```
-Build and Run Docker Image
+#### Run on AMD64 node with a connected Coral USB Accelerator
 ```
 cd neuralet/applications/smart-distancing/eval
 # Build Docker image
-docker build -f Dockerfile-amd64-usbtpu-eval -t detector-eval-usbtpu .
-docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval-usbtpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
+docker build -f Dockerfile-amd64-usbtpu-eval -t neuralet/amd64:eval-usbtpu .
+docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:eval-usbtpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
 ```
+#### Run on Coral Dev Board
+```
+cd neuralet/applications/smart-distancing/eval
+cp -r ../data .
+# Build Docker image
+docker build -f Dockerfile-coralDev-eval -t "neuralet/coral-dev:eval-edgetpu" .
+docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/coral-dev:eval-edgetpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PA
+
 | Argument | Description | Default |
 | -------- | -------- | -------- |
 | `--model_path` | the path of tflite model    | `edgetpu/data/mobilenet_v1_face_mask_edgetpu.tflite`     | 
