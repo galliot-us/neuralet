@@ -22,6 +22,9 @@ class Detector:
         elif self.name == "pedestrian_ssd_mobilenet_v2":
             from libs.detectors.x86 import pedestrian_ssd_mobilenet_v2
             self.net = pedestrian_ssd_mobilenet_v2.Detector(self.config)
+        elif self.name == "pedestrian_ssdlite_mobilenet_v2":
+            from libs.detectors.x86 import pedestrian_ssdlite_mobilenet_v2
+            self.net = pedestrian_ssdlite_mobilenet_v2.Detector(self.config)
         else:
             raise ValueError('Not supported network named: ', self.name)
 
