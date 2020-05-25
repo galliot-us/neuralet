@@ -1,0 +1,31 @@
+# docker can be installed on the dev board following these instructions:
+# 1) build: docker build -f Dockerfile-coralDev-eval -t "neuralet/coral-dev:eval-edgetpu" .
+# 2) run: docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/coral-dev:eval-edgetpu
+
+
+FROM arm64v8/debian:buster
+
+VOLUME  /repo
+
+RUN apt-get update && apt-get install -y wget gnupg \
+    && rm /etc/apt/sources.list  && rm -rf /var/lib/apt/lists \
+    && wget -qO - https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+
+COPY data/multistrap* /etc/apt/sources.list.d/
+
+RUN apt-get update && apt-get install -y python3-pip pkg-config libedgetpu1-std
+
+RUN python3 -m pip install --upgrade pip==19.3.1 setuptools==41.0.0 && python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_aarch64.whl 
+
+RUN apt-get install -y python3-wget
+
+RUN apt-get install -y python3-flask python3-opencv python3-scipy
+
+WORKDIR /repo/applications/smart-distancing/eval
+
+# --model_path: tflite model path | --classes: the classes text file path | --minscore: the minimum confidence for detecting objects
+# --img_path: validation set directory | --input_size: the input size of the model | --result_dir: the detection results with export here
+# -gt: the groundtruth path | -t: minimum IOU threshold
+
+ENTRYPOINT ["python3", "edgetpu_eval.py"]
+CMD ["--model_path", "edgetpu/data/mobilenet_v1_face_mask_edgetpu.tflite", "--classes", "eval_files/sample_classes.txt","--minscore", "0.25", "--img_path", "val_images", "--input_size", "300,300,3", "--result_dir", "eval_files/detresults/", "-gt", "eval_files/groundtruths","-t", "0.5" ]
