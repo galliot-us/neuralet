@@ -69,7 +69,8 @@ cd neuralet/applications/smart-distancing/eval
 cp -r ../data .
 # Build Docker image
 docker build -f Dockerfile-coralDev-eval -t "neuralet/coral-dev:eval-edgetpu" .
-docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/coral-dev:eval-edgetpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PA
+docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/coral-dev:eval-edgetpu --model_path 'PATH/model.tflite' --classes 'PATH/classes.txt' --minscore '0.25' --img_path 'PATH/test_imgs' --input_size '300,300,3' --result_dir 'PATH/detresults/' -gt 'PATH/groundtruths' -t '0.5'
+```
 
 | Argument | Description | Default |
 | -------- | -------- | -------- |
