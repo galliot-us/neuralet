@@ -1,6 +1,6 @@
 # docker can be installed on the dev board following these instructions:
-# 1) build: docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:eval-edgetpu" .
-# 2) run: docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:eval-edgetpu
+# 1) build: docker build -f Dockerfile-amd64-usbtpu -t "neuralet/amd64:eval-usbtpu" .
+# 2) run: docker run -it --privileged -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/amd64:eval-usbtpu
 
 
 FROM amd64/debian:buster
