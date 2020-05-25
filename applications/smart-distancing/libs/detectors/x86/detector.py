@@ -13,9 +13,9 @@ class Detector:
         self.config = config
         self.name = self.config.get_section_dict('Detector')['Name']
 
-        if self.name == 'mobilenet_ssd_v2':
-            from libs.detectors.x86 import mobilenet_ssd
-            self.net = mobilenet_ssd.Detector(self.config)
+        if self.name == 'ssd_mobilenet_v2':
+            from libs.detectors.x86 import ssd_mobilenet_v2
+            self.net = ssd_mobilenet_v2.Detector(self.config)
         elif self.name == "openvino":
             from libs.detectors.x86 import openvino
             self.net = openvino.Detector(self.config)
