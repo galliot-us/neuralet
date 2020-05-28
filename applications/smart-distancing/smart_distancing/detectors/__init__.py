@@ -9,23 +9,25 @@ import itertools
 
 import smart_distancing as sd
 
-from smart_distancing.meta_pb2 import (
+from smart_distancing.distance_pb2 import (
     Frame,
     Person,
     BBox,
 )
 
 from typing import (
+    Any,
     List,
     Sequence,
     Tuple,
     Dict,
     Optional,
+    Callable,
 )
 
-__all__ = ['BaseDetector', 'calculate_distances']
+OnFrameCallback = Callable[[Frame], Any]
 
-logger = logging.getLogger(__name__)
+__all__ = ['BaseDetector', 'OnFrameCallback']
 
 class BaseDetector(abc.ABC):
     """
@@ -38,19 +40,34 @@ class BaseDetector(abc.ABC):
     load_model() to load the model. This is called for you on __init__.
 
     Something should also call on_frame() with a sequence of sd.Detection
+
+    Arguments:
+        config (:obj:`sd.core.ConfigEngine`):
+            the global config class
+        on_frame (:obj:`OnFrameCallback`):
+            A callback to call on every frame. 
     """
 
     PLATFORM = None  # type: Tuple
     DEFAULT_MODEL_FILE = None  # type: str
     DEFAULT_MODEL_URL = None  # type: str
 
-    def __init__(self, config):
+    def __init__(self, config, on_frame:OnFrameCallback=None):
         # set the config
         self.config = config
 
+        # assign the on_frame callback if any
+        if on_frame:
+            self.on_frame = on_frame
+        else:
+            self.on_frame = self._on_frame
+
+        # set up a logger on the class
+        self.logger = logging.getLogger(self.__class__.__name__)
+
         # download the model if necessary
         if not os.path.isfile(self.model_file):
-            logger.info(
+            self.logger.info(
                 f'model does not exist under: "{self.model_path}" '
                 f'downloading from  "{self.model_url}"')
             os.makedirs(self.model_path, mode=0o755, exist_ok=True)
@@ -126,18 +143,28 @@ class BaseDetector(abc.ABC):
     def load_model(self):
         """load the model. Called by the default implementation of __init__."""
 
-    def on_frame(self, frame: Frame):
+    @abc.abstractmethod
+    def start(self):
         """
-        Calculate distances between detections and updates UI. Default concrete
-        implementation. Should be called by the subclass on every frame with
-        an instance of Frame.
-
-        Arguments:
-            frame: The Input frame metadata.
+        Start the detector (should do inferences and call on_frame).
         """
         pass
-        # if self.tracker:
-        #     frame = self.tracker.update(frame)
 
-        # frame = calculate_distances(frame)
-        
+    @abc.abstractmethod
+    def stop(self):
+        """
+        Start the detector (should do inferences and call on_frame).
+        """
+        pass
+
+    def _on_frame(self, frame: Frame):  # pylint: disable=method-hidden
+        """
+        Calculate distances between detections and updates UI.
+        This default implementation just logs serialized frames to the INFO
+        level and is called if on_frame is not specified on __init__.
+
+        Arguments:
+            frame (:obj:`Frame`): frame level deserialized protobuf metadata.
+        """
+        self.logger.info({'frame': frame.SerializeToString()})
+        pass

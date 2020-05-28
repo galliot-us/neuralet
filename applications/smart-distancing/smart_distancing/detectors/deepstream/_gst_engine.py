@@ -176,18 +176,18 @@ class GstEngine(multiprocessing.Process):
             self.logger.warning("failed to get results from queue (queue.Empty)")
             return None
         except TimeoutError:
-            self.logger.warning("timed out waiting for results")
+            self.logger.info("waiting for results...")
             return None
 
-    def _update_result_queue(self, results: Sequence[str]):
+    def _update_result_queue(self, results: str):
         """
         Called internally by the GStreamer process.
 
-        Update results queue. Should probably be called by the subclass
-        implemetation of on_buffer().
+        Update results queue with serialize payload. Should probably be called
+        by the subclass implemetation of on_buffer().
 
         Does not block (because this would block the GLib.MainLoop).
-        
+
         Can fail if the queue is full in which case the results will
         be dropped and logged to the WARNING level.
 
@@ -199,8 +199,7 @@ class GstEngine(multiprocessing.Process):
                 self._result_queue.put_nowait(results)
                 return True
             except queue.Full:
-                # this really should't ever happen
-                self.logger.warning("failed to put results in queue (queue.Full)")
+                self.logger.warning({'dropped': results})
                 return False
 
     def on_bus_message(self, bus: Gst.Bus, message: Gst.Message, *_) -> bool:

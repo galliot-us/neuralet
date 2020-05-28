@@ -38,7 +38,8 @@ from smart_distancing.detectors.deepstream._ds_config import (
     ElemConfig,
 )
 # import metadata stuff
-from smart_distancing.meta_pb2 import (
+from smart_distancing.distance_pb2 import (
+    Batch,
     Frame,
     Person,
     BBox,
@@ -163,7 +164,7 @@ class DsEngine(GstEngine):
         # the __hash__ of a gst_buffer is a pointer
         batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
 
-        results = []
+        frames = []
 
         # iterate through the metadata and add results to the list
         for frame_meta in frame_meta_iterator(batch_meta.frame_meta_list):
@@ -186,36 +187,22 @@ class DsEngine(GstEngine):
                 else:
                     # todo(mdegans): do some default/test drawing here?
                     pass
-            results.append(Frame(
+            frames.append(Frame(
                 frame_num=frame_meta.frame_num,
                 source_id=frame_meta.source_id,
                 people=people
-            ).SerializeToString())
+            ))
+
+        batch = Batch(frames=frames)
+        batch_str = batch.SerializeToString()
 
         # we try to update the results queue, but it might be full if
         # the results queue is full becauase the ui process is too slow
-        if not self._update_result_queue(results):
+        if not self._update_result_queue(batch_str):
             # NOTE(mdegans): we can drop the whole buffer here if we want to drop
             # frames when we're unable to update the metadata queue
             # return Gst.PadProbeReturn.DROP
-            # self.logger.warning(f"dropping results: {results}")
             pass
-
-        # we try to get the latest scores if they're ready
-        try:
-            self._previous_scores = self.osd_queue.get_nowait()
-        except queue.Empty:
-            pass
-
-        # if we have scores, we draw them
-        # there may be room for optimization here,
-        # but using an integer as a dict key is pretty effecient
-        # TODO(mdegans): time this
-        if self._previous_scores:
-            pass
-            # for frame_meta in frame_meta_iterator(batch_meta.frame_meta_list):
-            # for obj_meta in obj_meta_iterator(frame_meta.obj_meta_list):
-
 
         # return pad probe ok, which passes the buffer on
         return Gst.PadProbeReturn.OK

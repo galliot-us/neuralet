@@ -84,19 +84,3 @@ class BaseDistancing(abc.ABC):
     @abc.abstractmethod
     def process_video(self, video_path:str):
         """process video and update the ui"""
-
-    def calculate_distancing(self, objects:dict):
-        """
-        todo(Mohsen?): implementation
-        """
-        pass
-        # objects = self.ignore_large_boxes(objects)
-        # # we can skip this if we already have a uid for each object (eg. DsEngine)
-        # if self.tracker:
-        #     overlap_thresh = float(self.config.get_section_dict("PostProcessor")["NMSThreshold"])
-        #     objects = self.non_max_suppression_fast(objects, overlap_thresh)
-        #     objects = self.tracker.update(objects)
-
-        # objects = self.calculate_box_distances(objects)
-
-        # return objects

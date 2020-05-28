@@ -21,7 +21,8 @@ import smart_distancing as sd
 from smart_distancing.detectors.deepstream import _ds_engine
 from smart_distancing.detectors.deepstream import DsEngine, DsConfig
 
-from smart_distancing.meta_pb2 import (
+from smart_distancing.distance_pb2 import (
+    Batch,
     Frame,
     Person,
     BBox,
@@ -84,20 +85,20 @@ class TestDsEngineInteractive(unittest.TestCase):
         master_config = sd.core.ConfigEngine(DS_THREE_SOURCE_CONFIG)
         config = DsConfig(master_config)
         engine = DsEngine(config)
-        engine.queue_timeout = 1000
+        engine.queue_timeout = 1
         engine.blocking = True
         print('STARTING ENGINE')
         engine.start()
-        frame = Frame()
+        batch = Batch()
         try:
-            while True:
-                print('WAITING FOR RESULTS')
+            while engine.is_alive():
                 results = engine.results
-                print('GOT_RESULTS')
-                if results:
-                    for frame_str in results:
-                        frame.ParseFromString(frame_str)
-                        print(frame)
+                if not results:
+                    print('WAITING FOR RESULTS')
+                    continue
+                print(f'GOT_RESULTS: {results}')
+                batch.ParseFromString(results)
+                print(batch)
         except KeyboardInterrupt:
             engine.stop()
             engine.join()
