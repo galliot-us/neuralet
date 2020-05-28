@@ -87,31 +87,16 @@ class BaseDistancing(abc.ABC):
 
     def calculate_distancing(self, objects:dict):
         """
-        this function post-process the raw boxes of object detector and calculate a distance matrix
-        for detected bounding boxes.
-        post processing is consist of:
-        1. omitting large boxes by filtering boxes which are biger than the 1/4 of the size the image.
-        2. omitting duplicated boxes by applying an auxilary non-maximum-suppression.
-        3. apply a simple object tracker to make the detection more robust.
-
-        params:
-        object_list: a dict of dictionaries. each item has attributes of a detected object such as
-        "id", "centroid" (a tuple of the normalized centroid coordinates (cx,cy,w,h) of the box) and "bbox" (a tuple
-        of the normalized (xmin,ymin,xmax,ymax) coordinate of the box) each key is a bbox unique id or
-        other unique integer.
-
-        returns:
-        object_list: the post processed version of the input
-        distances: a NxN ndarray which i,j element is distance between i-th and l-th bounding box
-
+        todo(Mohsen?): implementation
         """
-        objects = self.ignore_large_boxes(objects)
-        # we can skip this if we already have a uid for each object (eg. DsEngine)
-        if self.tracker:
-            overlap_thresh = float(self.config.get_section_dict("PostProcessor")["NMSThreshold"])
-            objects = self.non_max_suppression_fast(objects, overlap_thresh)
-            objects = self.tracker.update(objects)
+        pass
+        # objects = self.ignore_large_boxes(objects)
+        # # we can skip this if we already have a uid for each object (eg. DsEngine)
+        # if self.tracker:
+        #     overlap_thresh = float(self.config.get_section_dict("PostProcessor")["NMSThreshold"])
+        #     objects = self.non_max_suppression_fast(objects, overlap_thresh)
+        #     objects = self.tracker.update(objects)
 
-        objects = self.calculate_box_distances(objects)
+        # objects = self.calculate_box_distances(objects)
 
-        return objects
+        # return objects
