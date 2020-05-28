@@ -1,3 +1,8 @@
+# NOTE(mdegans): this code seems to be copied from here without attribution:
+# https://github.com/Neoanarika/object-tracking-detection
+# the license would seem to be all rights reserved Ang Ming Liang
+# @neoanakira give a shout to the Neuralet team if you see this.
+
 # import the necessary packages
 from collections import OrderedDict
 
