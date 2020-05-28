@@ -69,8 +69,9 @@ class DsDetector(BaseDetector):
 
         Arguments:
             blocking (bool):
-                Whether to block while waiting for results. If false, busy waits
-                with a sleep(0) in the loop (set True if you launch in a thread)
+                Whether to block this thread while waiting for results. If
+                false, busy waits with a sleep(0) in the loop.
+                (set False if you launch in a thread and have other work to do)
             timeout:
                 If blocking is True,  
         """
