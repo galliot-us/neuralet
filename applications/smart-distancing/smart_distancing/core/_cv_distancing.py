@@ -79,31 +79,23 @@ class CvDistancing(BaseDistancing):
         # run the Detector, which calls _on_detections when it's done
         self.detector.inference(cv_image)
 
-    def _on_detections(self, detections):
-        # TODO(mdegans): move to Detector class instead of setting it as on_frame callback on init?
-        # it does what's described in the Detector interface.
-        w, h = self.resolution
+    # def _on_detections(self, detections):
+    #     # TODO(mdegans): move to Detector class instead of setting it as on_frame callback on init?
+    #     # it does what's described in the Detector interface.
+    #     w, h = self.resolution
 
-        for obj in detections:
-            box = obj["bbox"]
-            x0 = box[1]
-            y0 = box[0]
-            x1 = box[3]
-            y1 = box[2]
-            obj["centroid"] = [(x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0]
-            obj["bbox"] = [x0, y0, x1, y1]
-            obj["centroidReal"] = [(x0 + x1) * w / 2, (y0 + y1) * h / 2, (x1 - x0) * w, (y1 - y0) * h]
-            obj["bboxReal"] = [x0 * w, y0 * h, x1 * w, y1 * h]
+    #     for obj in detections:
+    #         box = obj["bbox"]
+    #         x0 = box[1]
+    #         y0 = box[0]
+    #         x1 = box[3]
+    #         y1 = box[2]
+    #         obj["centroid"] = [(x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0]
+    #         obj["bbox"] = [x0, y0, x1, y1]
+    #         obj["centroidReal"] = [(x0 + x1) * w / 2, (y0 + y1) * h / 2, (x1 - x0) * w, (y1 - y0) * h]
+    #         obj["bboxReal"] = [x0 * w, y0 * h, x1 * w, y1 * h]
 
-        objects, distancings = self.calculate_distancing(detections)
-        record = {
-            # TODO(mdegans): fix serialization if desired. seems a lot to log.
-            'fnum': next(self.frame_counter),
-            'objects': len(objects),
-        }
-        self.logger.debug(serialize(record))
-        scored_objects = vis_util.visualization_preparation(objects, distancings, self.ui._dist_threshold)
-        self.ui.update(self._cv_img_tmp, scored_objects)
+    #     self.ui.update(self._cv_img_tmp, scored_objects)
 
     def process_video(self, video_uri):
 
