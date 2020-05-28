@@ -9,6 +9,11 @@ from tflite_runtime.interpreter import load_delegate
 from tflite_runtime.interpreter import Interpreter
 
 from smart_distancing.utils.fps_calculator import convert_infr_time_to_fps
+from smart_distancing.meta_pb2 import (
+    Frame,
+    Person,
+    BBox,
+)
 
 import smart_distancing as sd
 
@@ -93,13 +98,30 @@ class EdgeTpuDetector(sd.detectors.BaseDetector):
         # TODO: will be used for getting number of objects
         # num = self.interpreter.get_tensor(self.output_details[3]['index'])
 
-        result = []
+        people = []
         for i in range(boxes.shape[1]):  # number of boxes
             if labels[0, i] == self.class_id and scores[0, i] > self.score_threshold:
-                result.append({"id": str(self.class_id) + '-' + str(i), "bbox": boxes[0, i, :], "score": scores[0, i]})
+                # get box
+                box = boxes[0, i, :]
+                # get box values
+                x0 = box[1]
+                y0 = box[0]
+                x1 = box[3]
+                y1 = box[2]
+                people.append(Person(
+                    bbox=BBox(
+                        left=x0,
+                        top=y0,
+                        width=x1-x0,
+                        height=y1-y0,
+                    )
+                ))
 
         # call on_frame with the detections
-        self.on_frame(result)
+        self.on_frame(Frame(
+            frame_num=next(self._frame_count),
+            people=people,
+        ).SerializeToString())
 
 
 class MobilenetSsdDetector(EdgeTpuDetector):

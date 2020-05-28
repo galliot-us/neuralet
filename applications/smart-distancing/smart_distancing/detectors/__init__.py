@@ -5,8 +5,15 @@ import os
 import sys
 import urllib.parse
 import urllib.request
+import itertools
 
 import smart_distancing as sd
+
+from smart_distancing.meta_pb2 import (
+    Frame,
+    Person,
+    BBox,
+)
 
 from typing import (
     List,
@@ -16,7 +23,7 @@ from typing import (
     Optional,
 )
 
-__all__ = ['BaseDetector', ]
+__all__ = ['BaseDetector', 'calculate_distances']
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +55,9 @@ class BaseDetector(abc.ABC):
                 f'downloading from  "{self.model_url}"')
             os.makedirs(self.model_path, mode=0o755, exist_ok=True)
             urllib.request.urlretrieve(self.model_url, self.model_file)
+
+        # add a frame counter
+        self._frame_count = itertools.count()
 
         # load the model
         self.load_model()
@@ -116,11 +126,18 @@ class BaseDetector(abc.ABC):
     def load_model(self):
         """load the model. Called by the default implementation of __init__."""
 
-    def on_frame(self, detections: sd.Detections):
+    def on_frame(self, frame: Frame):
         """
         Calculate distances between detections and updates UI. Default concrete
         implementation. Should be called by the subclass on every frame with
-        an iterable of Detection.
+        an instance of Frame.
 
-        :param detections: a Sequence of sd.Detection
+        Arguments:
+            frame: The Input frame metadata.
         """
+        pass
+        # if self.tracker:
+        #     frame = self.tracker.update(frame)
+
+        # frame = calculate_distances(frame)
+        
