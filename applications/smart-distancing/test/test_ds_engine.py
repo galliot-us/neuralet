@@ -85,16 +85,19 @@ class TestDsEngineInteractive(unittest.TestCase):
         config = DsConfig(master_config)
         engine = DsEngine(config)
         engine.queue_timeout = 1000
+        engine.blocking = True
         print('STARTING ENGINE')
         engine.start()
         frame = Frame()
         try:
             while True:
+                print('WAITING FOR RESULTS')
                 results = engine.results
+                print('GOT_RESULTS')
                 if results:
                     for frame_str in results:
                         frame.ParseFromString(frame_str)
-                        print(len(frame.people))
+                        print(frame)
         except KeyboardInterrupt:
             engine.stop()
             engine.join()

@@ -157,6 +157,7 @@ class GstEngine(multiprocessing.Process):
         self.osd_queue = multiprocessing.Queue(maxsize=1)
         self._stop_requested = multiprocessing.Event()
         self._reset_requested = multiprocessing.Event()
+        self.blocking=False
 
     @property
     def results(self) -> Sequence[str]:
@@ -169,12 +170,14 @@ class GstEngine(multiprocessing.Process):
 
         Logs to WARNING level on failure to fetch result.
         """
-        if not self._result_queue.empty():
-            try:
-                return self._result_queue.get(block=False, timeout=self.queue_timeout)
-            except queue.Empty:
-                self.logger.warning("failed to get results from queue (queue.Empty)")
-                return None
+        try:
+            return self._result_queue.get(block=self.blocking, timeout=self.queue_timeout)
+        except queue.Empty:
+            self.logger.warning("failed to get results from queue (queue.Empty)")
+            return None
+        except TimeoutError:
+            self.logger.warning("timed out waiting for results")
+            return None
 
     def _update_result_queue(self, results: Sequence[str]):
         """
