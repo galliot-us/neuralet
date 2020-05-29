@@ -61,14 +61,6 @@ from typing import (
 Detection = MutableMapping[str, Any]
 Detections = Sequence[Detection]
 
-import smart_distancing.detectors
-import smart_distancing.loggers
-import smart_distancing.ui
-import smart_distancing.core
-import smart_distancing.utils
-import smart_distancing.distance_pb2
-
-
 # module/system level variables
 PACKAGE_ROOT = os.path.dirname(os.path.abspath(__file__))
 try:
@@ -141,3 +133,10 @@ FALLBACK_CONFIG_DIR = USER_CONFIG_DIR if not DEFAULT_TO_USER_PATHS else PACKAGE_
 MODEL_DIR = USER_MODEL_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_MODEL_DIR
 LOG_DIR = USER_LOG_DIR if DEFAULT_TO_USER_PATHS else PACKAGE_LOG_DIR
 SCRIPT_DIR = PACKAGE_SCRIPT_DIR
+
+import smart_distancing.detectors
+import smart_distancing.loggers
+import smart_distancing.ui
+import smart_distancing.core
+import smart_distancing.utils
+import smart_distancing.distance_pb2

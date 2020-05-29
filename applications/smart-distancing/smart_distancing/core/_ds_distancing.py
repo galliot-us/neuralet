@@ -6,7 +6,6 @@ from smart_distancing.detectors.deepstream import (
     pyds,
 )
 
-import smart_distancing.utils.visualization_utils as vis_util
 from smart_distancing.core._distancing import BaseDistancing
 import smart_distancing.detectors.deepstream as ds
 
