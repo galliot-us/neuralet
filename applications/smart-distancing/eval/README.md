@@ -7,11 +7,11 @@ This module provides easy-to-use functions which enables you to evaluate availab
 ```
 cd neuralet/applications/smart-distancing/eval
 # Build Docker image
-docker build -f Dockerfile-eval -t detector-eval .
+docker build -f Dockerfile-eval -t neuralet/edgetpu:detector-eval .
 ```
 **Step 2: Create The Input Files**
 
-* Create a separate ground truth text file for each image in the directory `neuralet/applications/smart-distancing/eval/eval_files/groundtruths/`.
+* Create a separate ground truth text file for each image in the directory `e.g. neuralet/applications/smart-distancing/eval/eval_files/groundtruths/`.
 * In these files each line should be in the format: `<class_name> <left> <top> <width> <height>`.
 * E.g. A sample of ground truth bounding boxes of an image:
 ```
@@ -20,23 +20,23 @@ person 1 156 102 180
 person 36 111 162 305
 person 91 42 247 458
 ```
-* Create a separate detection text file for each image in the directory `neuralet/applications/smart-distancing/eval/eval_files/detresults/`
-* The names of the detection files must match their correspond ground truth (e.g. "detections/2008_000182.txt" represents the detections of the ground truth: "groundtruths/2008_000182.txt").
+* Create a separate detection text file for each image in the directory `e.g. neuralet/applications/smart-distancing/eval/eval_files/detresults/`
+* The names of the detection files must match their correspond ground truth (e.g. "detresults/2008_000182.txt" represents the detections of the ground truth: "groundtruths/2008_000182.txt").
 * In these files each line should be in the following format: `<class_name> <confidence> <left> <top> <width> <height>`
 
 **Step 3: Run The Docker Image**
 ```
 cd neuralet/applications/smart-distancing/eval
 # Run Docker image
-docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval
+docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/edgetpu:detector-eval
 ```
 You can also run the docker image with optional arguments
 ```
-docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo detector-eval -gt 'eval_files/groundtruths_1' -det eval_files/detresults_1 -t 0.75
+docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/edgetpu:detector-eval -gt 'eval_files/groundtruths_1' -det eval_files/detresults_1 -t 0.75
 ```
 
 
-| Argument | Description | Defauls |
+| Argument | Description | Default |
 | -------- | -------- | -------- |
 | `-gt` | folder that contains the ground truth bounding boxes files (Must be located at /eval directory)     | `/eval/eval_files/groundtruths`     |
 | `-det` | folder that contains your detected bounding boxes files (Must be located at /eval directory)     | `/eval/eval_files/detresults`     |
