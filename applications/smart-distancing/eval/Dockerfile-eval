@@ -1,6 +1,6 @@
 # docker can be installed by following instructions: 
-# build: docker build -f Dockerfile-amd64usbtpu-eval -t neuralet/detector-eval .
-# run: docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/detector-eval
+# build: docker build -f Dockerfile-amd64usbtpu-eval -t neuralet/tools:detector-eval .
+# run: docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/tools:detector-eval
 
 FROM python:3.6
 
