@@ -1,6 +1,8 @@
 # Smart Social Distancing - Performance Metrics for Object Detection
 
-This module provides easy-to-use functions which enables you to evaluate available exported results from detectors.
+This module provides easy-to-use functions which enables you to evaluate available exported results from detectors. There are two workflows for evaluting models.
+**First:** Evaluate based ready to use files including detection results and groundtruth text files.
+**Second:** Evaluate based on groundtruth file and compiled tflite (int8) model compatible with coral dev board and coral usb accelerator.
 
 ### How to use
 **Step 1: Build Image**
