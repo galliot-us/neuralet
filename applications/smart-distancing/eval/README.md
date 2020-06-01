@@ -7,7 +7,7 @@ This module provides easy-to-use functions which enables you to evaluate availab
 ```
 cd neuralet/applications/smart-distancing/eval
 # Build Docker image
-docker build -f Dockerfile-eval -t neuralet/detector-eval .
+docker build -f Dockerfile-eval -t neuralet/tools:detector-eval .
 ```
 **Step 2: Create The Input Files**
 
@@ -28,11 +28,11 @@ person 91 42 247 458
 ```
 cd neuralet/applications/smart-distancing/eval
 # Run Docker image
-docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/detector-eval
+docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/tools:detector-eval
 ```
 You can also run the docker image with optional arguments
 ```
-docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/detector-eval -gt 'eval_files/groundtruths_1' -det eval_files/detresults_1 -t 0.75
+docker run -it -v /PATH_TO_CLONED_REPO_ROOT/:/repo neuralet/tools:detector-eval -gt 'eval_files/groundtruths_1' -det eval_files/detresults_1 -t 0.75
 ```
 
 
