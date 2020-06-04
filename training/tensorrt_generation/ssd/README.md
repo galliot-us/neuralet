@@ -33,7 +33,7 @@ cd neuralet/training/tensorrt_generation/ssd/
 
 You should pass a Frozen Inference Graph file to the script through a configuration file from `configs` directory. 
 The script is called with `config_ssd_mobilenet_v2_pedestrian.ini` config file by default. It automatically downloads provided retrained pedestrian_ssd_mobilenet_v2 frozen inference graph  from [Neuralet-Models](https://github.com/neuralet/neuralet-models/blob/master/amd64/ped_ssd_mobilenet_v2/frozen_inference_graph.pb) repository which is trained on the [Oxford Town Center](https://megapixels.cc/oxford_town_centre/) dataset.
-You can also use other provided config files for `SSD-MOBILENET-V1-COCO` and `SSD-MOBILENET-V2-COCO` or your customized one by changing `CMD` command in Dockerfile to run the script with other configurations.
+You can also use other provided config files for `SSD-MOBILENET-V1-COCO` and `SSD-MOBILENET-V2-COCO` or your customized one by running the docker with `--config PATH_TO_YOUR_CONFIG_FILE` to run the script with other configurations.
 
 ## Run on Jetson Nano
 
@@ -51,7 +51,7 @@ docker run -it --runtime nvidia --privileged --network host -v /PATH_TO_DOCKERFI
 
 ### Configurations
 
-You can read and modify the configurations in the `config_ssd_mobilenet_v2_pedestrian.ini` file. Under the `[MODEL]` section, you can customize the model specs, such as model name, model path, the number of classes, objects min size, max size, and input image dimensions.
+You can read and modify the configurations in the `config_ssd_mobilenet_v2_pedestrian.ini` file. Under the `[MODEL]` section, you can customize the model specs, such as model name, model path, the number of classes, min size, max size, and input image dimensions.
 The `InputOrder` parameter determines the order of `loc_data`, `conf_data`, and `priorbox_data` of the model, which is set equal to the “NMS” node input order in the `.pbtxt` file.
 
 ## References
