@@ -9,7 +9,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     config = ConfigEngine(args.config)
     teacher_model = model_builder.build(config)
-    video_uri = config.get_section_dict("App")["VideoPath"]
+    video_uri = config.get_section_dict("Teacher")["VideoPath"]
     input_cap = cv.VideoCapture(video_uri)
 
     if (input_cap.isOpened()):

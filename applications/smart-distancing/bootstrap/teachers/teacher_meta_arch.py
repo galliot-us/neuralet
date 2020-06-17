@@ -8,14 +8,12 @@ from lxml import etree
 class TeacherMetaArch(object):
     def __init__(self, config):
         self.config = config
-        # Get the model name from the config
-        self.model_name = self.config.get_section_dict('Detector')['Name']
         # Frames Per Second
         self.fps = None
-        self.image_size = [int(i) for i in self.config.get_section_dict('App')['Resolution'].split(',')]
+        self.image_size = [int(i) for i in self.config.get_section_dict('Teacher')['ImageSize'].split(',')]
         self._name = -1
-        self.image_path = self.config.get_section_dict('Detector')['Name']
-        self.xml_path = self.config.get_section_dict('Detector')['Name']
+        self.image_path = self.config.get_section_dict('Teacher')['ImagePath']
+        self.xml_path = self.config.get_section_dict('Teacher')['XmlPath']
         if not os.path.exists(self.image_path):
             os.makedirs(self.image_path)
         if not os.path.exists(self.xml_path):

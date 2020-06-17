@@ -46,8 +46,8 @@ class IterDet(TeacherMetaArch):
         # Calculate Frames rate (fps)
         self.fps = convert_infr_time_to_fps(inference_time)
 
-        class_id = int(self.config.get_section_dict('Detector')['ClassID'])
-        score_threshold = float(self.config.get_section_dict('Detector')['MinScore'])
+        class_id = int(self.config.get_section_dict('Teacher')['ClassID'])
+        score_threshold = float(self.config.get_section_dict('Teacher')['MinScore'])
         result = []
         for i, box in enumerate(output_dict[0]):  # number of boxes
             if box[-1] > score_threshold:
