@@ -89,4 +89,4 @@ class TeacherMetaArch(object):
         xml.write(xml_file_name, pretty_print=True)
 
     def write_image(self, image, image_info):
-        cv.imwrite(os.path.join(self.image_path, image_info["name"]), image)
+        cv.imwrite(os.path.join(self.image_path, image_info["name"] + ".jpg"), image)
