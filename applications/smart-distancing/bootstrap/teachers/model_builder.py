@@ -1,4 +1,4 @@
-from .iterdet import IterDet
+from iterdet import IterDet
 
 TEACHER_MAP = {"iterdet": IterDet}
 
