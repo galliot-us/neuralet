@@ -3,7 +3,8 @@
 # license of original implementation is Apache V2
 # ==============================================================================
 
-r"""Convert the Oxford Town Center dataset to TFRecord for object_detection.
+r"""Convert the teacher generated dataset to TFRecord for student's training process and delete corresponding images and
+annotations.
 See: https://www.robots.ox.ac.uk/ActiveVision/Research/Projects/2009bbenfold_headpose/project.html
 Example usage:
     python create_tfrecord.py \
@@ -11,6 +12,7 @@ Example usage:
         --output_dir $DATASET_DIR \
         --label_map_path ./label_map.pbtxt \
         --validation_split 0.25
+        --num_of_images_per_round 2500
 """
 
 import glob
@@ -155,16 +157,36 @@ def create_tf_record(output_filename,
     writer.close()
 
 
-def select_items(directory, num_of_images):
+def select_items(directory, num_of_images, max_retry=100):
+    """
+    select appropriate number of images from teacher's data directory and return list of selected images.
+    Args:
+        directory: directory to search
+        num_of_images: how many images to select
+        max_retry: how many times tries if the number of existing images on the directory are less than num_of_images
+
+    Returns:
+        a list that contains selected images name.
+    """
+    tries = 0
     while True:
 
         images_list = sorted(
             list(map(lambda x: int((x.split(".")[0]).split("/")[-1]), glob.glob(directory + "/*.jpg"))))
         print(directory)
         if len(images_list) >= num_of_images:
-            return images_list[:100]
+            # Wait a while for the data to be stored properly
+            time.sleep(5)
+            logging.info("{} images picked for training".format(num_of_images))
+            return images_list[:num_of_images]
         else:
-            time.sleep(10)
+            if tries >= max_retry:
+                raise StopIteration("The maximum retry has been reached")
+            logging.info(
+                "There is not {} images on the {} directory. try number {} from {}".format(num_of_images, directory,
+                                                                                           tries + 1, max_retry))
+            tries += 1
+            time.sleep(300)
 
 
 def main(_):
@@ -172,7 +194,7 @@ def main(_):
     validation_split = FLAGS.validation_split
     label_map_dict = label_map_util.get_label_map_dict(FLAGS.label_map_path)
 
-    logging.info('Reading from Oxford Town Center Dataset.')
+    logging.info('Reading from Teacher Generated Dataset.')
     image_dir = os.path.join(data_dir, 'images')
     annotations_dir = os.path.join(data_dir, 'xmls')
     examples_list = select_items(image_dir, FLAGS.num_of_images_per_round)
@@ -186,8 +208,8 @@ def main(_):
     logging.info('%d training and %d validation examples.',
                  len(train_examples), len(val_examples))
 
-    train_output_path = os.path.join(FLAGS.output_dir, 'oxford_town_center_train.record')
-    val_output_path = os.path.join(FLAGS.output_dir, 'oxford_town_center_val.record')
+    train_output_path = os.path.join(FLAGS.output_dir, 'train.record')
+    val_output_path = os.path.join(FLAGS.output_dir, 'val.record')
     create_tf_record(
         train_output_path,
         label_map_dict,

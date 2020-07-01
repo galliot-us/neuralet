@@ -23,6 +23,8 @@ services:
     container_name: student-container
     volumes:
     - ../../../:/repo
+    ports:
+      - "2029:6006"
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=1

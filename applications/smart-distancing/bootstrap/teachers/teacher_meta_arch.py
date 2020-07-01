@@ -1,23 +1,28 @@
 import abc
 import os
-
+import logging
 import cv2 as cv
 from lxml import etree
 
 
 class TeacherMetaArch(object):
+    # TODO: add docstring
     def __init__(self, config):
         self.config = config
+        self.min_detection = int(self.config.get_section_dict('Teacher')['MinDetectionPerFrame'])
+        self.save_frequency = int(self.config.get_section_dict('Teacher')['SaveFrequency'])
         # Frames Per Second
         self.fps = None
         self.image_size = [int(i) for i in self.config.get_section_dict('Teacher')['ImageSize'].split(',')]
         self._name = -1
+        # try catch on filling image path and xml path
         self.image_path = self.config.get_section_dict('Teacher')['ImagePath']
         self.xml_path = self.config.get_section_dict('Teacher')['XmlPath']
         if not os.path.exists(self.image_path):
             os.makedirs(self.image_path)
         if not os.path.exists(self.xml_path):
             os.makedirs(self.xml_path)
+        logging.info("The Images and XML files will be saved under {} and {}".format(self.image_path, self.xml_path))
 
     @abc.abstractmethod
     def inference(self, preprocessed_image):
@@ -37,11 +42,12 @@ class TeacherMetaArch(object):
         return preprocessed_image
 
     def save_results(self, image, results):
-        h, w, d = image.shape
         name = self.name
-        image_info = {"name": name, "w": w, "h": h, "d": d}
-        self.write_to_xml(results, image_info)
-        self.write_image(image, image_info)
+        if (len(results) >= self.min_detection) and (int(name) % self.save_frequency == 0):
+            h, w, d = image.shape
+            image_info = {"name": name, "w": w, "h": h, "d": d}
+            self.write_to_xml(results, image_info)
+            self.write_image(image, image_info)
 
     def convert_to_xml(self, bboxes, image_info):
         """

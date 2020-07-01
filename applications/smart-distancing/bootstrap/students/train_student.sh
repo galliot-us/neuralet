@@ -27,6 +27,10 @@ then
 fi
 
 # Begin script in case all parameters are correct
+echo "====================================================="
+echo "BootStrapping Process Started..."
+echo "====================================================="
+sleep 5
 TRAINING_PIPELINE_FILE="/repo/applications/smart-distancing/bootstrap/students/ssd_mobilenet_v2_pedestrian.config"
 python apply_configs.py --config "$CONFIG_FILE" --pipeline $TRAINING_PIPELINE_FILE
 
@@ -35,15 +39,20 @@ DATASET_DIR=$(sed -n -e 's/^\s*DataDir\s*:\s*//p' "$CONFIG_FILE")
 BATCHSIZE=$(sed -n -e 's/^\s*BatchSize\s*:\s*//p' "$CONFIG_FILE")
 EPOCHS=$(sed -n -e 's/^\s*Epochs\s*:\s*//p' "$CONFIG_FILE")
 EXAMPLE_PER_ROUND=$(sed -n -e 's/^\s*ExamplePerRound\s*:\s*//p' "$CONFIG_FILE")
+Validation_Split=$(sed -n -e 's/^\s*ValidationSplit\s*:\s*//p' "$CONFIG_FILE")
 
 NUM_TRAIN_STEPS=$(( EXAMPLE_PER_ROUND * EPOCHS / BATCHSIZE ))
 
-
 PRETRAINED_MODELS_DIR="/repo/applications/smart-distancing/bootstrap/data/pretrained_models"
 mkdir -p $PRETRAINED_MODELS_DIR
-wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz \
--O $PRETRAINED_MODELS_DIR/ssd_mobilenet_v2_coco_2018_03_29.tar.gz
-tar -xzvf $PRETRAINED_MODELS_DIR/ssd_mobilenet_v2_coco_2018_03_29.tar.gz -C $PRETRAINED_MODELS_DIR
+if [ ! -f $PRETRAINED_MODELS_DIR/ssd_mobilenet_v2_coco_2018_03_29.tar.gz ]
+then
+  echo "The Pretrained checkpoints are not exists"
+  echo "Start Downloading Pretrained Checkpoits"
+  wget http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_coco_2018_03_29.tar.gz \
+  -O $PRETRAINED_MODELS_DIR/ssd_mobilenet_v2_coco_2018_03_29.tar.gz
+  tar -xzvf $PRETRAINED_MODELS_DIR/ssd_mobilenet_v2_coco_2018_03_29.tar.gz -C $PRETRAINED_MODELS_DIR
+fi
 
 
 MODEL_DIR="/repo/applications/smart-distancing/bootstrap/data/student_model"
@@ -52,30 +61,34 @@ TFRECORD_DIR="/repo/applications/smart-distancing/bootstrap/data/tfrecords"
 mkdir -p $MODEL_DIR
 mkdir -p $EXPORT_DIR
 mkdir -p $TFRECORD_DIR
-
+# TODO: add infinite loop option
 for ((i=1;i<=TRAINING_ROUNDS;i++))
 do
   echo "============Round $i of Training Started================="
+
+  echo "=================================================================================="
+  echo "Start Creating TFrecords ..."
+  echo "=================================================================================="
   python create_tfrecord.py --data_dir "$DATASET_DIR" \
   --output_dir $TFRECORD_DIR \
   --label_map_path "/repo/applications/smart-distancing/bootstrap/students/label_map.pbtxt" \
-  --validation_split 0.10 \
+  --validation_split $Validation_Split \
   --num_of_images_per_round "$EXAMPLE_PER_ROUND"
   echo "=================================================================================="
+  echo "Start Training ..."
   echo "=================================================================================="
-  echo "=================================================================================="
-
   NUM_TRAIN_STEPS_NEW=$(( NUM_TRAIN_STEPS * i ))
   python /models/research/object_detection/model_main.py --pipeline_config_path=$TRAINING_PIPELINE_FILE \
   --model_dir=$MODEL_DIR \
   --num_train_steps=$NUM_TRAIN_STEPS_NEW \
   --sample_1_of_n_eval_examples=1 \
-  --eval_training_data=True \
-  --sample_1_of_n_eval_on_train_examples=9 \ 
-  --alsologtostderr 2>&1 | tee log.txt
+  --alsologtostderr 2>&1 | tee training_log.txt
   CHECKPOINT=$(ls -t $MODEL_DIR|grep ckpt|head -n 1 | tr -dc '0-9')
   TRAINED_CKPT_PREFIX=$MODEL_DIR/model.ckpt-$CHECKPOINT
 
+  echo "=================================================================================="
+  echo "Start Exporting Checkpoint to Frozen Graph ..."
+  echo "=================================================================================="
   rm -rf $EXPORT_DIR/*
   python /models/research/object_detection/export_inference_graph.py --input_type=image_tensor \
   --pipeline_config_path=$TRAINING_PIPELINE_FILE \
