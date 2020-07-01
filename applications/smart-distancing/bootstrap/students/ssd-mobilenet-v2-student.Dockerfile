@@ -2,7 +2,7 @@
 
 FROM tensorflow/tensorflow:1.15.0-gpu-py3
 VOLUME /repo
-RUN export DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y git protobuf-compiler python3-tk vim
+RUN export DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y git protobuf-compiler python3-tk vim wget
 
 RUN pip install Cython && \
     pip install contextlib2 && \
