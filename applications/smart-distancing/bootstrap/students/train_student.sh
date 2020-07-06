@@ -34,6 +34,7 @@ sleep 5
 TRAINING_PIPELINE_FILE="/repo/applications/smart-distancing/bootstrap/students/ssd_mobilenet_v2_pedestrian.config"
 python apply_configs.py --config "$CONFIG_FILE" --pipeline $TRAINING_PIPELINE_FILE
 
+# extrat config items
 TRAINING_ROUNDS=$(sed -n -e 's/^\s*TrainingRounds\s*:\s*//p' "$CONFIG_FILE")
 DATASET_DIR=$(sed -n -e 's/^\s*DataDir\s*:\s*//p' "$CONFIG_FILE")
 BATCHSIZE=$(sed -n -e 's/^\s*BatchSize\s*:\s*//p' "$CONFIG_FILE")
@@ -43,6 +44,7 @@ Validation_Split=$(sed -n -e 's/^\s*ValidationSplit\s*:\s*//p' "$CONFIG_FILE")
 
 NUM_TRAIN_STEPS=$(( EXAMPLE_PER_ROUND * EPOCHS / BATCHSIZE ))
 
+# download pretrained checkpoint if it does not exist
 PRETRAINED_MODELS_DIR="/repo/applications/smart-distancing/bootstrap/data/pretrained_models"
 mkdir -p $PRETRAINED_MODELS_DIR
 if [ ! -f $PRETRAINED_MODELS_DIR/ssd_mobilenet_v2_coco_2018_03_29.tar.gz ]

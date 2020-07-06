@@ -6,7 +6,9 @@ from lxml import etree
 
 
 class TeacherMetaArch(object):
-    # TODO: add docstring
+    """
+    base class of teacher models
+    """
     def __init__(self, config):
         self.config = config
         self.min_detection = int(self.config.get_section_dict('Teacher')['MinDetectionPerFrame'])
@@ -29,6 +31,9 @@ class TeacherMetaArch(object):
         raise NotImplementedError
 
     def postprocessing(self, raw_results):
+        """
+        override this method for custom postprocessing and filtering.
+        """
         return raw_results
 
     @property
@@ -42,6 +47,9 @@ class TeacherMetaArch(object):
         return preprocessed_image
 
     def save_results(self, image, results):
+        """
+        store image and teacher predicted bounding boxes based on given frequency and number of detected instances.
+        """
         name = self.name
         if (len(results) >= self.min_detection) and (int(name) % self.save_frequency == 0):
             h, w, d = image.shape
@@ -76,6 +84,12 @@ class TeacherMetaArch(object):
         return xml
 
     def write_to_xml(self, results, image_info):
+        """
+        create xml annotation file from teacher prediction output
+        Args:
+            results: list of dictionary, output of postprocessing method
+            image_info: a dictionary contains image size and name.
+        """
         w = image_info["w"]
         h = image_info["h"]
 
@@ -95,4 +109,10 @@ class TeacherMetaArch(object):
         xml.write(xml_file_name, pretty_print=True)
 
     def write_image(self, image, image_info):
+        """
+        save image frame for training purposes
+        Args:
+            image: input frame
+            image_info: a dictionary contains image size and name.
+        """
         cv.imwrite(os.path.join(self.image_path, image_info["name"] + ".jpg"), image)
