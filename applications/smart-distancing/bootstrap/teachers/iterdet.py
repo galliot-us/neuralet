@@ -7,6 +7,7 @@ from mmdet.apis import init_detector, inference_detector
 import cv2 as cv
 from teacher_meta_arch import TeacherMetaArch
 import torch
+import numpy as np
 
 
 class IterDet(TeacherMetaArch):
@@ -25,6 +26,7 @@ class IterDet(TeacherMetaArch):
         self.background_filter = True if self.postprocessing_method == "background_filter" else False
         if self.background_filter:
             self.background_subtractor = cv.createBackgroundSubtractorMOG2()
+        self.image_features = self.config.get_section_dict('Teacher')['ImageFeature']
 
     def inference(self, preprocessed_image):
         """
@@ -59,6 +61,9 @@ class IterDet(TeacherMetaArch):
             a filter version of raw_results
         """
         post_processed_results = copy.copy(raw_results)
+        if self.background_filter:
+            self.foreground_mask = self.background_subtractor.apply(self.frame)
+            self.foreground_mask = cv.threshold(self.foreground_mask, 128, 255, cv.THRESH_BINARY)[1] / 255
         for bbox in raw_results:
             # delete large boxes
             if (bbox["bbox"][2] - bbox["bbox"][0]) * (bbox["bbox"][3] - bbox["bbox"][1]) > 0.2:
@@ -66,13 +71,11 @@ class IterDet(TeacherMetaArch):
                 continue
             # delete background boxes
             if self.background_filter:
-                foreground_mask = self.background_subtractor.apply(self.frame)
-                foreground_mask = cv.threshold(foreground_mask, 128, 255, cv.THRESH_BINARY)[1] / 255
                 x_min = max(0, int(bbox["bbox"][0] * self.image_size[0]))
                 y_min = max(0, int(bbox["bbox"][1] * self.image_size[1]))
                 x_max = min(self.image_size[0] - 1, int(bbox["bbox"][2] * self.image_size[0]))
                 y_max = min(self.image_size[1] - 1, int(bbox["bbox"][3] * self.image_size[1]))
-                bbox_mask_window = foreground_mask[y_min:y_max, x_min:x_max]
+                bbox_mask_window = self.foreground_mask[y_min:y_max, x_min:x_max]
                 foreground_portion = bbox_mask_window.sum() / bbox_mask_window.size
                 if foreground_portion < .07:
                     post_processed_results.remove(bbox)
@@ -108,3 +111,33 @@ class IterDet(TeacherMetaArch):
         model = init_detector(config_file, checkpoint_file, device=device)
 
         return model
+
+    def write_image(self, image, image_info):
+        if self.image_features == "foreground_mask":
+            image[..., 0] = (self.foreground_mask * 255).astype(int)
+        elif self.image_features == "optical_flow_magnitude":
+            if image_info["name"] == "0":
+                self.prvs = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+                image[..., 0] = np.zeros((self.image_size[1], self.image_size[0]))
+            else:
+                next_frame = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+                flow = cv.calcOpticalFlowFarneback(self.prvs, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+                mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
+                image[..., 0] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
+                self.prvs = next_frame
+
+        elif self.image_features == "foreground_mask && optical_flow_magnitude":
+            if image_info["name"] == "0":
+                self.prvs = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+                image[..., 0] = self.prvs
+                image[..., 1] = np.zeros((self.image_size[1], self.image_size[0]))
+                image[..., 2] = (self.foreground_mask * 255).astype(int)
+            else:
+                next_frame = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+                flow = cv.calcOpticalFlowFarneback(self.prvs, next_frame, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+                mag, ang = cv.cartToPolar(flow[..., 0], flow[..., 1])
+                image[..., 0] = next_frame
+                image[..., 1] = cv.normalize(mag, None, 0, 255, cv.NORM_MINMAX)
+                image[..., 2] = (self.foreground_mask * 255).astype(int)
+                self.prvs = next_frame
+        super(IterDet, self).write_image(image, image_info)

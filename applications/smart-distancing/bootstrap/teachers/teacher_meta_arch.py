@@ -115,4 +115,5 @@ class TeacherMetaArch(object):
             image: input frame
             image_info: a dictionary contains image size and name.
         """
+
         cv.imwrite(os.path.join(self.image_path, image_info["name"] + ".jpg"), image)
