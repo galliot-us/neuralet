@@ -14,7 +14,7 @@ You can run this application on edge devices such as NVIDIA's Jetson Nano or Goo
 
 We encourage the community to join us in building a practical solution to keep people safe while allowing them to get back to their jobs. You can read more about the project motivation and roadmap here: https://docs.google.com/presentation/d/13EEt4JfdkYSqpPLpotx9taBHpNW6WtfXo2SfwFU_aQ0/edit?usp=sharing
 
-Please join [our slack channel](https://neuralet.slack.com/join/shared_invite/zt-ez7x601j-1NehEt5LZxkQFg99ElYXbw#/) or reach out to covid19project@neuralet.com if you have any questions. 
+Please join [our slack channel](https://join.slack.com/t/neuralet/shared_invite/zt-g1w9o45u-Y4R2tADwdGBCruxuAAKgJA) or reach out to covid19project@neuralet.com if you have any questions. 
 
 
 ## Getting Started
