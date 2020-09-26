@@ -28,10 +28,17 @@ fi
 
 # Begin script in case all parameters are correct
 echo "====================================================="
-echo "BootStrapping Process Started..."
+echo "Adaptive Learning Process Started..."
 echo "====================================================="
 sleep 5
-TRAINING_PIPELINE_FILE="/repo/applications/adaptive-learning/students/ssd_mobilenet_v2_pedestrian.config"
+Quantization_Aware=$(sed -n -e 's/^\s*QuantizationAware\s*:\s*//p' "$CONFIG_FILE")
+if $Quantization_Aware
+then
+  TRAINING_PIPELINE_FILE="/repo/applications/adaptive-learning/students/ssd_mobilenet_v2_pedestrian_quant.config"
+else
+  TRAINING_PIPELINE_FILE="/repo/applications/adaptive-learning/students/ssd_mobilenet_v2_pedestrian.config"
+fi
+	
 python apply_configs.py --config "$CONFIG_FILE" --pipeline $TRAINING_PIPELINE_FILE
 
 # extrat config items
@@ -92,15 +99,18 @@ do
   echo "Start Exporting Checkpoint to Frozen Graph ..."
   echo "=================================================================================="
   rm -rf $EXPORT_DIR/*
-  python /models/research/object_detection/export_inference_graph.py --input_type=image_tensor \
-  --pipeline_config_path=$TRAINING_PIPELINE_FILE \
-  --trained_checkpoint_prefix="$TRAINED_CKPT_PREFIX" \
-  --output_directory=$EXPORT_DIR
-
-#  python /models/research/object_detection/export_tflite_ssd_graph.py \
-#  --pipeline_config_path=$TRAINING_CONFIG_FILE \
-#  --trained_checkpoint_prefix="$TRAINED_CKPT_PREFIX" \
-#  --output_directory=$EXPORT_DIR \
-#  --max_detections=50 \
-#  --add_postprocessing_op=true
+  if $Quantization_Aware
+  then
+    python /models/research/object_detection/export_tflite_ssd_graph.py \
+    --pipeline_config_path=$TRAINING_PIPELINE_FILE \
+    --trained_checkpoint_prefix="$TRAINED_CKPT_PREFIX" \
+    --output_directory=$EXPORT_DIR \
+    --max_detections=50 \
+    --add_postprocessing_op=true
+  else
+    python /models/research/object_detection/export_inference_graph.py --input_type=image_tensor \
+    --pipeline_config_path=$TRAINING_PIPELINE_FILE \
+    --trained_checkpoint_prefix="$TRAINED_CKPT_PREFIX" \
+    --output_directory=$EXPORT_DIR 
+  fi
 done
