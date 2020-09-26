@@ -96,4 +96,11 @@ do
   --pipeline_config_path=$TRAINING_PIPELINE_FILE \
   --trained_checkpoint_prefix="$TRAINED_CKPT_PREFIX" \
   --output_directory=$EXPORT_DIR
+
+#  python /models/research/object_detection/export_tflite_ssd_graph.py \
+#  --pipeline_config_path=$TRAINING_CONFIG_FILE \
+#  --trained_checkpoint_prefix="$TRAINED_CKPT_PREFIX" \
+#  --output_directory=$EXPORT_DIR \
+#  --max_detections=50 \
+#  --add_postprocessing_op=true
 done
