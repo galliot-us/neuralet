@@ -17,7 +17,7 @@ class IterDet(TeacherMetaArch):
         """
         IterDet class constructor
         Args:
-            config: a bootstrap config file
+            config: an adaptive learning config file
         """
         super(IterDet, self).__init__(config=config)
         self.detection_model = self.load_model()

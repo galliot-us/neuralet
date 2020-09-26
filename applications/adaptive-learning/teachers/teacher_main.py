@@ -3,8 +3,8 @@ import time
 import os
 import model_builder
 
-sys.path.append("../../")
-from libs.config_engine import ConfigEngine
+sys.path.append("../")
+from configs.config_engine import ConfigEngine
 import argparse
 import cv2 as cv
 import logging

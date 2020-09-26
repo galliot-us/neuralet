@@ -26,6 +26,6 @@ RUN echo 'export PYTHONPATH=$PYTHONPATH:/models/research:/models/research/slim' 
     echo 'export export TF_FORCE_GPU_ALLOW_GROWTH=true' >> ~/.bashrc && \
     source ~/.bashrc
 
-WORKDIR /repo/applications/smart-distancing/bootstrap/students
+WORKDIR /repo/applications/adaptive-learning/students
 ENTRYPOINT ["bash", "./train_student.sh"]
-CMD ["-c", "/repo/applications/smart-distancing/bootstrap/configs/iterdet.ini"]
+CMD ["-c", "/repo/applications/adaptive-learning/configs/iterdet.ini"]

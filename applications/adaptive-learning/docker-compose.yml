@@ -8,7 +8,7 @@ services:
     tty: true
     container_name: teacher-container
     volumes:
-      - ../../../:/repo
+      - ../../:/repo
 
     runtime: nvidia
     environment:
@@ -22,7 +22,7 @@ services:
     tty: true
     container_name: student-container
     volumes:
-    - ../../../:/repo
+    - ../../:/repo
     ports:
       - "2029:6006"
     runtime: nvidia

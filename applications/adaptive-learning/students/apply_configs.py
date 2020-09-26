@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 import logging
 
-sys.path.append("../../")
-from libs.config_engine import ConfigEngine
+sys.path.append("../")
+from configs.config_engine import ConfigEngine
 
 import tensorflow as tf
 from google.protobuf import text_format
@@ -14,7 +14,7 @@ from object_detection.protos import pipeline_pb2
 
 def main(args):
     """
-    This script will change some items TensorFlow Object Detection API training config file base on bootstrapping
+    This script will change some items TensorFlow Object Detection API training config file base on adaptive learning
     config.ini
     """
     pipeline_config = pipeline_pb2.TrainEvalPipelineConfig()

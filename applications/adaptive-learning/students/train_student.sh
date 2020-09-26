@@ -5,7 +5,7 @@ set -e
 helpFunction()
 {
    echo ""
-   echo "Usage: $0 -c [A bootstrap config file]"
+   echo "Usage: $0 -c [An adaptive learning config file]"
    exit 1 # Exit script after printing help
 }
 
@@ -31,7 +31,7 @@ echo "====================================================="
 echo "BootStrapping Process Started..."
 echo "====================================================="
 sleep 5
-TRAINING_PIPELINE_FILE="/repo/applications/smart-distancing/bootstrap/students/ssd_mobilenet_v2_pedestrian.config"
+TRAINING_PIPELINE_FILE="/repo/applications/adaptive-learning/students/ssd_mobilenet_v2_pedestrian.config"
 python apply_configs.py --config "$CONFIG_FILE" --pipeline $TRAINING_PIPELINE_FILE
 
 # extrat config items
@@ -45,7 +45,7 @@ Validation_Split=$(sed -n -e 's/^\s*ValidationSplit\s*:\s*//p' "$CONFIG_FILE")
 NUM_TRAIN_STEPS=$(( EXAMPLE_PER_ROUND * EPOCHS / BATCHSIZE ))
 
 # download pretrained checkpoint if it does not exist
-PRETRAINED_MODELS_DIR="/repo/applications/smart-distancing/bootstrap/data/pretrained_models"
+PRETRAINED_MODELS_DIR="/repo/applications/adaptive-learning/data/pretrained_models"
 mkdir -p $PRETRAINED_MODELS_DIR
 if [ ! -f $PRETRAINED_MODELS_DIR/ssd_mobilenet_v2_coco_2018_03_29.tar.gz ]
 then
@@ -57,9 +57,9 @@ then
 fi
 
 
-MODEL_DIR="/repo/applications/smart-distancing/bootstrap/data/student_model"
+MODEL_DIR="/repo/applications/adaptive-learning/data/student_model"
 EXPORT_DIR=$MODEL_DIR/frozen_graph
-TFRECORD_DIR="/repo/applications/smart-distancing/bootstrap/data/tfrecords"
+TFRECORD_DIR="/repo/applications/adaptive-learning/data/tfrecords"
 mkdir -p $MODEL_DIR
 mkdir -p $EXPORT_DIR
 mkdir -p $TFRECORD_DIR
@@ -73,7 +73,7 @@ do
   echo "=================================================================================="
   python create_tfrecord.py --data_dir "$DATASET_DIR" \
   --output_dir $TFRECORD_DIR \
-  --label_map_path "/repo/applications/smart-distancing/bootstrap/students/label_map.pbtxt" \
+  --label_map_path "/repo/applications/adaptive-learning/students/label_map.pbtxt" \
   --validation_split $Validation_Split \
   --num_of_images_per_round "$EXAMPLE_PER_ROUND"
   echo "=================================================================================="
