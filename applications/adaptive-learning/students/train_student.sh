@@ -70,6 +70,7 @@ TFRECORD_DIR="/repo/applications/adaptive-learning/data/tfrecords"
 mkdir -p $MODEL_DIR
 mkdir -p $EXPORT_DIR
 mkdir -p $TFRECORD_DIR
+tensorboard --logdir $MODEL_DIR &
 # TODO: add infinite loop option
 for ((i=1;i<=TRAINING_ROUNDS;i++))
 do
