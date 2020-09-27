@@ -107,10 +107,15 @@ do
     --output_directory=$EXPORT_DIR \
     --max_detections=50 \
     --add_postprocessing_op=true
+    /usr/local/bin/toco --graph_def_file "$EXPORT_DIR/tflite_graph.pb" --output_format TFLITE --input_shapes 1,300,300,3 --input_arrays normalized_input_image_tensor \
+    --output_arrays "TFLite_Detection_PostProcess,TFLite_Detection_PostProcess:1,TFLite_Detection_PostProcess:2,TFLite_Detection_PostProcess:3" \
+    --inference_type QUANTIZED_UINT8 --mean_values 128 --std_dev_values 128 --change_concat_input_ranges false \
+    --allow_custom_op --output_file "$EXPORT_DIR/detect.tflite"
+
   else
     python /models/research/object_detection/export_inference_graph.py --input_type=image_tensor \
     --pipeline_config_path=$TRAINING_PIPELINE_FILE \
     --trained_checkpoint_prefix="$TRAINED_CKPT_PREFIX" \
-    --output_directory=$EXPORT_DIR 
+    --output_directory=$EXPORT_DIR  
   fi
 done
