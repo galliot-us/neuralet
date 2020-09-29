@@ -1,6 +1,6 @@
 {
   "dataset": {
-    "path": "../datasets/facemask-dataset-v2.1/",
+    "path": "datasets/data_synth_real/",
     "no_classes": 2,
     "img_size": 45,
     "no_channel": 3
@@ -17,13 +17,13 @@
   },
   "train": {
     "train_image_folder": "train",
-    "epochs": 20,
+    "epochs": 2,
     "batch_size": 64,
     "learning_rate": 0.0002,
     "saved_weights_folder": "../checkpoints",
     "export_folder": "../export_files"
   },
   "validation": {
-    "validation_image_folder": "validation_org"
+    "validation_image_folder": "validation"
   }
 }
