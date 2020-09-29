@@ -25,5 +25,10 @@
   },
   "validation": {
     "validation_image_folder": "validation"
+  },
+  "classifier": {
+    "name": "face_mask",
+    "model_dir": "data/x86/face_mask",
+    "input_size": 45
   }
 }
