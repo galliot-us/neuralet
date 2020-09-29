@@ -10,7 +10,7 @@
     "include_top": "False",
     "training": "True",
     "load_pretrained": "False",
-    "pretrained_model": "../checkpoints/soheil-exp/5/SoheilCnn/model.h5"
+    "pretrained_model": "../checkpoints/facemask/model.h5"
   },
   "pretrained_model": {
     "pretrained_folder": "../pretrained_folder"
@@ -28,7 +28,7 @@
   },
   "classifier": {
     "name": "face_mask",
-    "model_dir": "data/x86/face_mask",
+    "model_dir": "data/x86/face_mask/model.h5",
     "input_size": 45
   }
 }
