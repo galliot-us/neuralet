@@ -6,13 +6,13 @@ class Classifier:
     input image in order to get the classifier results.
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
-    def __init__(self, config):
+    def __init__(self, model, config):
         self.config = config
         self.name = self.config.CLASSIFIER_NAME
 
         if self.name == 'face_mask':
             from libs.classifiers.x86 import face_mask
-            self.net = face_mask.Classifier(self.config)
+            self.net = face_mask.Classifier(model, self.config)
         else:
             raise ValueError('Not supported network named: ', self.name)
 
