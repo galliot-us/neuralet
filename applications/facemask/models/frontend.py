@@ -21,9 +21,8 @@ class FacemaskClassifierModel:
 
         nn = OFMClassifier(cfg)
         features = nn.model(input_image)
-
-        out = Dense(64, activation='relu', name='fc_1')(features)
-        out = Dense(10, activation='relu', name='fc_2')(out)
+        out = Flatten()(features)
+        out = Dense(10, activation='relu', name='fc_1')(out)
         out = Dense(cfg.NO_CLASSES, activation="softmax", name="fc_out")(out)
 
         self.model = Model(input_image, out)
