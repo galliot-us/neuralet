@@ -26,6 +26,10 @@ class Config:
         self.LOAD_PRETRAINED = self._config["model"]["load_pretrained"]
         self.PRETRAINED_MODEL = self._config["model"]["pretrained_model"]
 
+        self.CLASSIFIER_NAME = self._config["classifier"]["name"]
+        self.CLASSIFIER_MODEL_DIR = self._config["classifier"]["model_dir"]
+        self.CLASSIFIER_INPUT_SIZE = self._config["classifier"]["input_size"]
+
     def _file_loader(self) -> dict:
         cfg = None
         try:
