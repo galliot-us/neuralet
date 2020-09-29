@@ -19,6 +19,11 @@ git clone https://github.com/neuralet/neuralet.git
 
 cd neuralet/applications/adaptive-learning
 ```
+### Download Sample Video (In Case of Trying Demo):
+
+```
+bash ./download_sample_video.sh
+```
 ### Configure Adaptive Learning Config File
 To customize the Adaptive Learning framework based on your needs, you must configure one of the sample config files on `configs/` directory.
 there is a brief explanation on each parameter of config files in the following table:
@@ -30,7 +35,7 @@ there is a brief explanation on each parameter of config files in the following 
 | Teacher/ImageSize | 300,300,3 (or any other appropriate image size) | the input image size of the teacher model |
 | Teacher/ClassID | integer | The pedestrian class ID of the Teacher. (this parameter is important only where the teacher model is a multiple class object detector.) |
 | Teacher/MinScore | a float number between 0 and 1 | the teacher model threshold for detecting an object |
-| Teacher/VideoPath | a unix-like path | path to the video file that you want to apply adaptive learning  |
+| Teacher/VideoPath | a unix-like path | path to the video file that you want to apply adaptive learning. (don't change it if you just want run demo)  |
 | Teacher/MaxAllowedImage | an integer number | Maximum number of images that can be stored in hard, when this threshold is exeeded, the teacher model stops processing video frames until the student models picks some of the images and remove them from hard disk. |
 | Teacher/MinDetectionPerFrame | an integer number | The teacher only stores the frame only if it detects at least this many objects, otherwise it discards the frame.|
 | Teacher/SaveFrequency | An integer bigger than 0 | The teacher model will store video frames and the corresponding predictions with this frequency |
