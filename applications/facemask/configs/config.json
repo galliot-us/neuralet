@@ -1,0 +1,29 @@
+{
+  "dataset": {
+    "path": "../datasets/facemask-dataset-v2.1/",
+    "no_classes": 2,
+    "img_size": 45,
+    "no_channel": 3
+  },
+  "model": {
+    "backend": "MobileNet",
+    "include_top": "False",
+    "training": "True",
+    "load_pretrained": "False",
+    "pretrained_model": "../checkpoints/soheil-exp/5/SoheilCnn/model.h5"
+  },
+  "pretrained_model": {
+    "pretrained_folder": "../pretrained_folder"
+  },
+  "train": {
+    "train_image_folder": "train",
+    "epochs": 20,
+    "batch_size": 64,
+    "learning_rate": 0.0002,
+    "saved_weights_folder": "../checkpoints",
+    "export_folder": "../export_files"
+  },
+  "validation": {
+    "validation_image_folder": "validation_org"
+  }
+}
