@@ -15,11 +15,11 @@ class Detector:
     def __init__(self, config):
         self.config = config
         # Get the model name from the config
-        self.model_name = self.config.get_section_dict('Detector')['Name']
+        self.model_name = self.config.DETECTOR_NAME
         # Frames Per Second
         self.fps = None
         self.net, self.processor = self.load_model()
-        self.w, self.h, _ = [int(i) for i in self.config.get_section_dict('Detector')['ImageSize'].split(',')]
+        self.w, self.h, = self.config.DETECTOR_INPUT_SIZE, self.config.DETECTOR_INPUT_SIZE
 
     def load_model(self):
         self.device = "cpu"
