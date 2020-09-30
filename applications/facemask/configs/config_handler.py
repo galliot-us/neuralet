@@ -32,6 +32,10 @@ class Config:
 
         self.DETECTOR_NAME = self._config["detector"]["name"]
         self.DETECTOR_INPUT_SIZE = self._config["detector"]["input_size"]
+
+        self.APP_VIDEO_PATH = self._config["app"]["video_path"]
+        self.APP_HOST = self._config["app"]["host"]
+        self.APP_PORT = self._config["app"]["port"]
         
     def _file_loader(self) -> dict:
         cfg = None
