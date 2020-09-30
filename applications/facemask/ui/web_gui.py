@@ -42,15 +42,15 @@ class WebGUI:
 
         # Get a proper dictionary of bounding boxes and colors for visualizing_boxes_and_labels_on_image_array function
         output_dict = vis_util.visualization_preparation(nn_out)  # TODO
-
+        #print(output_dict)
         category_index = {
             0: {
                 "id": 0,
-                "name": "Face",
+                "name": "Mask",
             },
             1: {
                 "id": 1,
-                "name": "Mask",
+                "name": "Face",
             }}
         # Draw bounding boxes and other visualization factors on input_frame
         vis_util.visualize_boxes_and_labels_on_image_array(
