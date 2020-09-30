@@ -30,5 +30,8 @@
     "name": "face_mask",
     "model_dir": "data/x86/face_mask/model.h5",
     "input_size": 45
+  },
+  "detector": {
+    "name": "openpifpaf"
   }
 }
