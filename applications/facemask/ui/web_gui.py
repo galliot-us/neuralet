@@ -41,7 +41,7 @@ class WebGUI:
         """
 
         # Get a proper dictionary of bounding boxes and colors for visualizing_boxes_and_labels_on_image_array function
-        output_dict = vis_util.visualization_preparation(nn_out, distances, self._dist_threshold)  # TODO
+        output_dict = vis_util.visualization_preparation(nn_out)  # TODO
 
         category_index = {
             0: {
