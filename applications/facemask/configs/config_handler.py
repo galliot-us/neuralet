@@ -27,7 +27,7 @@ class Config:
         self.PRETRAINED_MODEL = self._config["model"]["pretrained_model"]
 
         self.CLASSIFIER_NAME = self._config["classifier"]["name"]
-        self.CLASSIFIER_MODEL_DIR = self._config["classifier"]["model_dir"]
+        self.CLASSIFIER_MODEL_PATH = self._config["classifier"]["model_path"]
         self.CLASSIFIER_INPUT_SIZE = self._config["classifier"]["input_size"]
 
         self.DETECTOR_NAME = self._config["detector"]["name"]
