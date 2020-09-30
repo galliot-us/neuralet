@@ -5,7 +5,6 @@ class Detector:
     input image in order to get the detection results.
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
-
     def __init__(self, config):
         self.config = config
         self.name = self.config.DETECTOR_NAME
