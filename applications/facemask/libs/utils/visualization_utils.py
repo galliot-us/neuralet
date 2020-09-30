@@ -389,17 +389,16 @@ def visualize_boxes_and_labels_on_image_array(
     return image
 
 
-def visualization_preparation(nn_out, distances, dist_threshold):
+def visualization_preparation(nn_out):
     """
     prepare the objects boxes and id in order to visualize
     Args:
         nn_out: a list of dicionary contains normalized numbers of bonding boxes
         {'id' : '0-0', 'bbox' : [x0, y0, x1, y1], 'score' : 0.99(optional} of shape [N, 3] or [N, 2]
-        distances: a symmetric matrix of normalized distances
-        dist_threshold: the minimum distance for considering unsafe distance between objects
     Returns:
         an output dictionary contains object classes, boxes, scores
     """
+    # TODO
     output_dict = {}
     detection_classes = []
     detection_scores = []
@@ -407,59 +406,7 @@ def visualization_preparation(nn_out, distances, dist_threshold):
     is_violating = []
     colors = []
 
-    distance = np.amin(distances + np.identity(len(distances)) * dist_threshold * 2, 0) if distances != [] else [
-        dist_threshold]
-    for i, obj in enumerate(nn_out):
-        # Colorizing bounding box based on the distances between them
-        # R = 255 when dist=0 and R = 0 when dist > dist_threshold
-        redness_factor = 1.5
-        r_channel = np.maximum(255 * (dist_threshold - distance[i]) / dist_threshold, 0) * redness_factor
-        g_channel = 255 - r_channel
-        b_channel = 0
-        # Create a tuple object of colors
-        color = (int(b_channel), int(g_channel), int(r_channel))
-        # Get the object id
-        obj_id = obj["id"]
-        # Split and get the first item of obj_id
-        obj_id = obj_id.split("-")[0]
-        box = obj["bbox"]
-        if "score" in obj:
-            score = obj["score"]
-        else:
-            score = 1.0
-        # Append all processed items
-        detection_classes.append(int(obj_id))
-        detection_scores.append(score)
-        detection_boxes.append(box)
-        colors.append(color)
-        is_violating.append(True) if distance[i] < dist_threshold else is_violating.append(False)
-    output_dict["detection_boxes"] = np.array(detection_boxes)
-    output_dict["detection_scores"] = detection_scores
-    output_dict["detection_classes"] = detection_classes
-    output_dict["violating_objects"] = is_violating
-    output_dict["detection_colors"] = colors
     return output_dict
-
-
-def birds_eye_view(input_frame, boxes, is_violating):
-    """
-    This function receives a black window and draw circles (based on boxes) at the frame.
-    Args:
-        input_frame: uint8 numpy array with shape (img_height, img_width, 3)
-        boxes: A numpy array of shape [N, 4]
-        is_violating: List of boolean (True/False) which indicates the correspond object at boxes is
-        a violating object or not
-    Returns:
-        input_frame: Frame with red and green circles
-    """
-    h, w = input_frame.shape[0:2]
-    for i, box in enumerate(boxes):
-        center_x = int((box[0] * w + box[2] * w) / 2)
-        center_y = int((box[1] * h + box[3] * h) / 2)
-        center_coordinates = (center_x, center_y)
-        color = (0, 0, 255) if is_violating[i] else (0, 255, 0)
-        input_frame = cv.circle(input_frame, center_coordinates, 2, color, 2)
-    return input_frame
 
 
 def text_putter(input_frame, txt, origin, fontscale=0.75, color=(255, 0, 20), thickness=2):
