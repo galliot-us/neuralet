@@ -1,40 +1,69 @@
 import cv2 as cv
 import numpy as np
 from libs.detectors.x86.detector import Detector
+from libs.classifiers.x86.classifier import Classifier
+
 
 
 class FaceMaskAppEngine:
 
-    def __init__(self, config):
+    def __init__(self, model, config):
         self.config = config
         self.ui = None
+        self.model = model
         self.detector = None
         self.running_video = False
 
         self.detector = Detector(self.config)
         self.image_size = (self.config.DETECTOR_INPUT_SIZE, self.config.DETECTOR_INPUT_SIZE, 3)
+        self.classifier_model = Classifier(self.model, self.config)
+        self.classifier_img_size = (self.config.CLASSIFIER_INPUT_SIZE, self.config.CLASSIFIER_INPUT_SIZE, 3)
 
     def set_ui(self, ui):
         self.ui = ui
 
     def __process(self, cv_image):
         # Resize input image to resolution
-        resolution = self.config.APP_VIDEO_RESOLUTION
-        cv_image = cv.resize(cv_image, tuple(resolution))
+        self.resolution = self.config.APP_VIDEO_RESOLUTION
+        cv_image = cv.resize(cv_image, tuple(self.resolution))
 
         resized_image = cv.resize(cv_image, tuple(self.image_size[:2]))
         rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
         objects_list = self.detector.inference(rgb_resized_image)
-        [w, h] = resolution
-
+        [w, h] = self.resolution
+        #objects_list = [{'id': '1-0', 'bbox': [.1, .2, .5, .5]}, {'id': '1-1', 'bbox': [.3, .1, .5, .5]}]
+        faces = []
         for obj in objects_list:
-            box = obj["bbox"]
-            x0 = box[1]
-            y0 = box[0]
-            x1 = box[3]
-            y1 = box[2]
-            obj["bbox"] = [x0, y0, x1, y1]
-            obj["bboxReal"] = [x0 * w, y0 * h, x1 * w, y1 * h]
+            if 'bbox' in obj.keys():
+                face_bbox = obj['bbox']  # [ymin, xmin, ymax, xmax]
+                xmin, xmax = np.multiply([face_bbox[1], face_bbox[3]], self.resolution[0])
+                ymin, ymax = np.multiply([face_bbox[0], face_bbox[2]], self.resolution[1])
+                croped_face = cv_image[int(ymin):int(ymin) + (int(ymax) - int(ymin)),
+                                      int(xmin):int(xmin) + (int(xmax) - int(xmin))]
+                # Resizing input image
+                croped_face = cv.resize(croped_face, tuple(self.classifier_img_size[:2]))
+                croped_face = cv.cvtColor(croped_face, cv.COLOR_BGR2RGB)
+                # Normalizing input image to [0.0-1.0]
+                croped_face = croped_face / 255.0
+                faces.append(croped_face)
+        
+        faces = np.array(faces)
+        face_mask_results = self.classifier_model.inference(faces)
+
+        # TODO: it could be optimized by the returned dictionary from openpifpaf (returining List instead dict)
+        [w, h] = self.resolution
+        idx = 0
+        for obj in objects_list:
+            if 'bbox' in obj.keys():
+                obj['face_label'] = face_mask_results[idx] 
+                idx = idx+1
+                box = obj["bbox"]
+                x0 = box[1]
+                y0 = box[0]
+                x1 = box[3]
+                y1 = box[2]
+                obj["bbox"] = [x0, y0, x1, y1]
+
 
         return cv_image, objects_list
 
