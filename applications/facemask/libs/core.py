@@ -7,16 +7,14 @@ from libs.classifiers.x86.classifier import Classifier
 
 class FaceMaskAppEngine:
 
-    def __init__(self, model, config):
+    def __init__(self, config):
         self.config = config
-        self.ui = None
-        self.model = model
         self.detector = None
         self.running_video = False
 
         self.detector = Detector(self.config)
         self.image_size = (self.config.DETECTOR_INPUT_SIZE, self.config.DETECTOR_INPUT_SIZE, 3)
-        self.classifier_model = Classifier(self.model, self.config)
+        self.classifier_model = Classifier(self.config)
         self.classifier_img_size = (self.config.CLASSIFIER_INPUT_SIZE, self.config.CLASSIFIER_INPUT_SIZE, 3)
 
     def set_ui(self, ui):
