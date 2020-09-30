@@ -18,5 +18,5 @@ class Classifier:
 
     def inference(self, resized_rgb_image):
         self.fps = self.net.fps
-        output = self.net.inference(resized_rgb_image)
-        return output
+        output, scores = self.net.inference(resized_rgb_image)
+        return output, scores
