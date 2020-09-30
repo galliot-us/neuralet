@@ -46,15 +46,17 @@ class FaceMaskAppEngine:
                 faces.append(croped_face)
         
         faces = np.array(faces)
-        face_mask_results = self.classifier_model.inference(faces)
+        face_mask_results, scores = self.classifier_model.inference(faces)
 
         # TODO: it could be optimized by the returned dictionary from openpifpaf (returining List instead dict)
         [w, h] = self.resolution
+        
         idx = 0
         for obj in objects_list:
             if 'bbox' in obj.keys():
                 obj['face_label'] = face_mask_results[idx] 
-                idx = idx+1
+                obj['score'] = scores[idx]
+                idx = idx + 1
                 box = obj["bbox"]
                 x0 = box[1]
                 y0 = box[0]
