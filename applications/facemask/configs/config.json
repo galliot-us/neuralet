@@ -36,9 +36,9 @@
     "input_size": 300
   },
   "app": {
-    "video_path": "data/video/sample.avi",
-    "resolution": [640, 480],
+    "video_path": "data/video/sample2.mov",
+    "resolution": [320, 240],
     "host": "0.0.0.0",
-    "port": "8000"
+    "port": "6006"
   }
 }
