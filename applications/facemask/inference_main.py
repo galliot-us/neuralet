@@ -8,6 +8,13 @@ def main():
     config_path = 'configs/config.json'
     print("-_- -_- -_- -_- -_- -_- -_- Running %s -_- -_- -_- -_- -_- -_- -_-" % config_path)
     cfg = Config(path=config_path)
+    from libs.core import FaceMaskAppEngine as CvEngine
+    from ui.web_gui import WebGUI as UI
+    engine = CvEngine(cfg)
+    ui = UI(cfg, engine)
+    engine.set_ui(ui)
+    ui.start()
+    exit()
     classifier = FacemaskClassifierModel(cfg)
     detector = Detector(cfg)
     model = classifier.model
