@@ -22,18 +22,18 @@ class Classifier:
         # Frames Per Second
         self.fps = None
 
-    def inference(self, resized_rgb_image: list) -> list:
+    def inference(self, resized_rgb_image) -> list:
         """
         Inference function sets input tensor to input image and gets the output.
         The interpreter instance provides corresponding class id output which is used for creating result
         Args:
-            resized_rgb_image: List of images with shape (no_images, img_height, img_width, channels)
+            resized_rgb_image: Array of images with shape (no_images, img_height, img_width, channels)
         Returns:
             result: List of class id for each input image [0, 0, 1, 1, 0]
         """
-        if resized_rgb_image == []:
+        if np.shape(resized_rgb_image)[0] == 0:
             return resized_rgb_image
-        # iinput_image = np.expand_dims(resized_rgb_image, axis=0)
+        #input_image = np.expand_dims(resized_rgb_image, axis=0)
         t_begin = time.perf_counter()
         output_dict = self.classifier_model.predict(resized_rgb_image)
         inference_time = time.perf_counter() - t_begin  # Seconds

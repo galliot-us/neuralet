@@ -406,6 +406,32 @@ def visualization_preparation(nn_out):
     is_violating = []
     colors = []
 
+    for i, obj in enumerate(nn_out):
+        if 'bbox' in obj.keys():
+            if obj['face_label'] == 1:
+                color = (0, 0, 255)
+            else:
+                color = (0, 255, 0)
+
+            obj_id = i
+            # Split and get the first item of obj_id
+            obj_id = obj['face_label']
+            box = obj["bbox"]
+            if "score" in obj:
+                score = obj["score"]
+            else:
+                score = 1.0
+
+            detection_classes.append(int(obj_id))
+            detection_scores.append(score)
+            detection_boxes.append(box)
+            colors.append(color)
+
+    output_dict["detection_boxes"] = np.array(detection_boxes)
+    output_dict["detection_scores"] = detection_scores
+    output_dict["detection_classes"] = detection_classes
+    output_dict["detection_colors"] = colors
+
     return output_dict
 
 
