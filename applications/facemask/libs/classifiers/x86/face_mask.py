@@ -14,11 +14,10 @@ class Classifier:
     :param config: Is a ConfigEngine instance which provides necessary parameters.
     """
 
-    def __init__(self, model, config):
+    def __init__(self, config):
         self.config = config
-        self.model_dir = self.config.CLASSIFIER_MODEL_DIR
-        self.classifier_model = model
-        self.classifier_model.load_weights(self.model_dir)
+        self.model_dir = self.config.CLASSIFIER_MODEL_PATH
+        self.classifier_model = tf.keras.models.load_model(self.model_dir)
         # Frames Per Second
         self.fps = None
 

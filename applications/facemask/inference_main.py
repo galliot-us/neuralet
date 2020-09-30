@@ -13,7 +13,7 @@ def main():
     classifier = FacemaskClassifierModel(cfg)
     model = classifier.model
     
-    engine = CvEngine(model, cfg)
+    engine = CvEngine(cfg)
     ui = UI(cfg, engine)
     engine.set_ui(ui)
     ui.start()
