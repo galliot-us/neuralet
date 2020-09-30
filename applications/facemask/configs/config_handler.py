@@ -31,6 +31,8 @@ class Config:
         self.CLASSIFIER_INPUT_SIZE = self._config["classifier"]["input_size"]
 
         self.DETECTOR_NAME = self._config["detector"]["name"]
+        self.DETECTOR_INPUT_SIZE = self._config["detector"]["input_size"]
+        
     def _file_loader(self) -> dict:
         cfg = None
         try:

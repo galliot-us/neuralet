@@ -32,6 +32,7 @@
     "input_size": 45
   },
   "detector": {
-    "name": "openpifpaf"
+    "name": "openpifpaf",
+    "input_size": 300
   }
 }
