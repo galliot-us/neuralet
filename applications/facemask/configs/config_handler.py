@@ -34,6 +34,7 @@ class Config:
         self.DETECTOR_INPUT_SIZE = self._config["detector"]["input_size"]
 
         self.APP_VIDEO_PATH = self._config["app"]["video_path"]
+        self.APP_VIDEO_RESOLUTION = self._config["app"]["resolution"]
         self.APP_HOST = self._config["app"]["host"]
         self.APP_PORT = self._config["app"]["port"]
         
