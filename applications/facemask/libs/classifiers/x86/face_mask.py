@@ -39,4 +39,10 @@ class Classifier:
         # Calculate Frames rate (fps)
         self.fps = convert_infr_time_to_fps(inference_time)
         result = list(np.argmax(output_dict, axis=1))  # returns class id
-        return result
+        
+        # TODO: optimized without for
+        scores = []
+        for i, itm in enumerate(output_dict):
+             scores.append(itm[result[i]])
+
+        return result, scores
