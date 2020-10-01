@@ -1,8 +1,5 @@
 import cv2 as cv
 import numpy as np
-from libs.detectors.x86.detector import Detector
-from libs.classifiers.x86.classifier import Classifier
-
 
 
 class FaceMaskAppEngine:
@@ -10,11 +7,23 @@ class FaceMaskAppEngine:
     def __init__(self, config):
         self.config = config
         self.detector = None
+        self.classifier_model = None
         self.running_video = False
+        self.device = self.config.DEVICE
+        if self.device == "x86":
+            from libs.detectors.x86.detector import Detector
+            from libs.classifiers.x86.classifier import Classifier
+            self.detector = Detector(self.config)
+            self.classifier_model = Classifier(self.config)
+        elif self.device == "EdgeTPU":
+            from libs.detectors.edgetpu.detector import Detector
+            from libs.classifiers.edgetpu.classifier import Classifier
+            self.detector = Detector(self.config)
+            self.classifier_model = Classifier(self.config)
+        else:
+            raise ValueError('Not supported device named: ', self.device)
 
-        self.detector = Detector(self.config)
         self.image_size = (self.config.DETECTOR_INPUT_SIZE, self.config.DETECTOR_INPUT_SIZE, 3)
-        self.classifier_model = Classifier(self.config)
         self.classifier_img_size = (self.config.CLASSIFIER_INPUT_SIZE, self.config.CLASSIFIER_INPUT_SIZE, 3)
 
     def set_ui(self, ui):
