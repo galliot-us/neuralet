@@ -6,6 +6,14 @@ import os
 
 
 def plot_confusion_matrix(cls_pred, cls_true, num_classes, out_path):
+    """
+    Plot confution matrix and export the figure at .png file
+    :param cls_pred: List of predicted results ex:[0, 1, 0, 1]
+    :param cls_true: List of labels ex: [1, 1, 0, 0]
+    :param num_classes: The number of classes
+    :param out_path: The directory of exporting .png file
+    :return:
+    """
     plt.clf()
     cm = confusion_matrix(y_true=cls_true,
                           y_pred=cls_pred)
@@ -33,6 +41,16 @@ def plot_confusion_matrix(cls_pred, cls_true, num_classes, out_path):
 
 
 def plot_roc_curve(Y_test, y_score, n_classes, pltlabel='ROC curve', color=[1, .5, .5], out_path="../checkpoints"):
+    """
+    Plot ROC curve and export the figure at .png file
+    :param Y_test: Groundtruths ex: for two classes [[1, 0], [0, 1], ....]
+    :param y_score: The confidence ex: for two classes [[0.3, 0.7], [0.25, .75], ...]
+    :param n_classes: Number of classes
+    :param pltlabel: Label of figure
+    :param color: Curve color
+    :param out_path: The directory of exporting .png file
+    :return:
+    """
     from sklearn.metrics import roc_curve, auc
     fpr = dict()
     tpr = dict()
