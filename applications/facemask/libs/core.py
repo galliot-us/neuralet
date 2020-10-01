@@ -6,6 +6,11 @@ from libs.classifiers.x86.classifier import Classifier
 
 
 class FaceMaskAppEngine:
+    """
+    Perform detector which detects faces from input video,
+    and classifier to classify croped faces to face or mask class
+    :param config: Is a Config instance which provides necessary parameters.
+    """
 
     def __init__(self, config):
         self.config = config
