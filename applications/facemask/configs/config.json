@@ -36,6 +36,7 @@
     "input_size": 300
   },
   "app": {
+    "device": "x86",
     "video_path": "data/video/sample2.mov",
     "resolution": [320, 320],
     "host": "0.0.0.0",
