@@ -13,8 +13,8 @@ class WebGUI:
     The Webgui object implements a flask application and acts as an interface for users.
     Once it is created it will act as a central application for viewing outputs.
 
-    :param config: Is a ConfigEngine instance which provides necessary parameters.
-    :param engine_instance:  A ConfigEngine object which store all of the config parameters. Access to any parameter
+    :param config: Is a Config instance which provides necessary parameters.
+    :param engine_instance:  A Config object which store all of the config parameters. Access to any parameter
         is possible by calling get_section_dict method.
     """
 
