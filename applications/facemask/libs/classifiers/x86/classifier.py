@@ -1,10 +1,10 @@
 
 class Classifier:
     """
-    Classifier class is a high level class for classifying images using x86 devices.
+    Classifier class is a high-level class for classifying images using x86 devices.
     When an instance of the Classifier is created you can call inference method and feed your
     input image in order to get the classifier results.
-    :param config: Is a ConfigEngine instance which provides necessary parameters.
+    :param config: Is a Config instance which provides necessary parameters.
     """
     def __init__(self, config):
         self.config = config
