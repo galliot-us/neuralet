@@ -23,7 +23,7 @@ class FaceMaskAppEngine:
         else:
             raise ValueError('Not supported device named: ', self.device)
 
-        self.image_size = (self.config.DETECTOR_INPUT_SIZE, self.config.DETECTOR_INPUT_SIZE, 3)
+        self.image_size = (self.config.DETECTOR_INPUT_SIZE[0], self.config.DETECTOR_INPUT_SIZE[1], 3)
         self.classifier_img_size = (self.config.CLASSIFIER_INPUT_SIZE, self.config.CLASSIFIER_INPUT_SIZE, 3)
 
     def set_ui(self, ui):
