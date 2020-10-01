@@ -9,7 +9,7 @@ import PIL
 class Detector:
     """
     Perform pose estimation with Openpifpaf model. extract pedestrian's bounding boxes from key-points.
-    :param config: Is a ConfigEngine instance which provides necessary parameters.
+    :param config: Is a Config instance which provides necessary parameters.
     """
 
     def __init__(self, config):
