@@ -16,6 +16,7 @@ RUN git clone \
     https://github.com/google-coral/project-posenet.git && sed -i 's/sudo / /g' \
     /project-posenet/install_requirements.sh && sh /project-posenet/install_requirements.sh
 
+ENV PYTHONPATH=$PYTHONPATH:/project-posenet
 
 RUN python3 -m pip install https://dl.google.com/coral/python/tflite_runtime-2.1.0.post1-cp37-cp37m-linux_x86_64.whl 
 
