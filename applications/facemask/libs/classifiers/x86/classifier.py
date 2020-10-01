@@ -10,7 +10,7 @@ class Classifier:
         self.config = config
         self.name = self.config.CLASSIFIER_NAME
 
-        if self.name == 'face_mask':
+        if self.name == 'OFMClassifier':
             from libs.classifiers.x86 import face_mask
             self.net = face_mask.Classifier(self.config)
         else:
