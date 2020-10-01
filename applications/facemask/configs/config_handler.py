@@ -2,6 +2,10 @@ import json
 
 
 class Config:
+    """
+    Config class load a json file and provide a high-level of abstraction for parameters.
+    :param path: the path of json file.
+    """
     def __init__(self, path: str):
         self._path = path
         self._config = self._file_loader()
@@ -39,6 +43,10 @@ class Config:
         self.APP_PORT = self._config["app"]["port"]
         
     def _file_loader(self) -> dict:
+        """
+        Load json file which is path is set at self.path
+        :return: cfg
+        """
         cfg = None
         try:
             with open(self._path) as file:
