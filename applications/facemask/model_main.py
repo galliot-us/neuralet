@@ -5,14 +5,19 @@ from models.frontend import FacemaskClassifierModel
 from data_loader.loader import DataLoader
 from configs.config_handler import Config
 from trainers.train import Train
-import itertools
+from argparse import ArgumentParser
 from utils.eval_model_tools import plot_confusion_matrix, plot_roc_curve
-from PIL import Image
-import io
 
 
 def main():
-    config_path = 'configs/config.json'
+    '''
+    Training a classifier and export confusion matrix and ROC curve.
+    '''
+
+    argparse = ArgumentParser()
+    argparse.add_argument('--config', type=str, help='json config file path', default='configs/config.json')
+    args = argparse.parse_args()
+    config_path = args.config
     print("-_- -_- -_- -_- -_- -_- -_- Running %s -_- -_- -_- -_- -_- -_- -_-" % config_path)
     cfg = Config(path=config_path)
     data_generator = DataLoader(cfg)
@@ -27,6 +32,7 @@ def main():
     trainer.train()
 
     log_dir = os.path.join(cfg.SAVED_FOLDER, cfg.MODEL_NAME)
+    print("The model is trained successfully, Confusion Matrix and ROC Curve will be exported at '{}'".format(log_dir))
     print("-_- -_- -_- -_- -_- -_- -_- Create Confusion Matrix -_- -_- -_- -_- -_- -_- -_-")
     print("Confution Matrix and ROC curve will be saved at: ", log_dir)
     scores = model.predict(data_generator['valid'])
