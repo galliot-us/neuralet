@@ -6,6 +6,11 @@ import cv2
 
 
 class DataLoader:
+    """
+    Read and load images into keras image data generator.
+    :param cfg: Is a Config instance which provides necessary parameters.
+    """
+
     def __init__(self, cfg):
         self._cfg = cfg
 
@@ -16,7 +21,7 @@ class DataLoader:
         self._train_dir = os.path.join(self._cfg.PATH, self._cfg.TRAIN_FOLDER)
 
     def _preproc_func(self, image):
-        result = image
+        # Uncommend if you want to add random noise to image
         # if_noise = random.randint(0,3)
         # if if_noise == 0:
         #    result = self.add_noise(image)
@@ -40,6 +45,11 @@ class DataLoader:
         # return img
 
     def _keras_based_data_reader(self, **kwargs):
+        """
+        Loads images from given directory and returns keras ImageDataGenerator
+        :param kwargs:
+        :return:
+        """
         directory = kwargs["data_directory"]
         if not kwargs["train"]:
             data_generator = ImageDataGenerator(rescale=1.0 / 255,
@@ -78,11 +88,15 @@ class DataLoader:
         return train_data_gen
 
     def _get_params(self, item):
+        """
+        Returns the directory of dataset based on item name, 'train': train set, 'valid': validation set
+        :param item: the subset name of data. eg: train, valid
+        """
         if item == "train":
             directory = self._train_dir
             epoch = self._cfg.EPOCHS
             is_train = True
-        elif item == "valid":
+        elif item == "valid" or item == "validation":
             directory = self._validation_dir
             epoch = 1
             is_train = False
@@ -93,10 +107,14 @@ class DataLoader:
         return directory, epoch, is_train
 
     def __getitem__(self, item):
+        """
+        Python getter function for retrieving data based on the item name (train, valid)
+        :param item:
+        :return:
+        """
         directory, epoch, is_train = self._get_params(item)
 
         train_data_gen = self._keras_based_data_reader(
             data_directory=directory, epoch=epoch, train=is_train
         )
-
         return train_data_gen
