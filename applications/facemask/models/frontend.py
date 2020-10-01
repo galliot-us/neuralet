@@ -12,7 +12,6 @@ from tensorflow.keras.models import load_model
 import tensorflow.compat.v1 as tf
 
 model_backend_dic = {
-    "MobileNet": MobileNetFeature,
     "OFMClassifier": OFMClassifier
 
 }
