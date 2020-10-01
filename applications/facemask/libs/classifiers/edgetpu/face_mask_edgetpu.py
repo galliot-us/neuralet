@@ -64,7 +64,7 @@ class Classifier:
             # TODO: optimized without for
             scores = []
             for i, itm in enumerate(net_results):
-                scores.append(itm[result[i]])
+                scores.append(1)
 
             return result, scores
             
