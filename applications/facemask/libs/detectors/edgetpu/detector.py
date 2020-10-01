@@ -11,7 +11,7 @@ class Detector:
 
         if self.name == "posenet":
             from libs.detectors.edgetpu import posenet
-            self.net = openpifpaf.Detector(self.config)
+            self.net = posenet.Detector(self.config)
         else:
             raise ValueError('Not supported network named:{} on EdgeTPU device '.format(self.name))
 
