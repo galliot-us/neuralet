@@ -6,7 +6,7 @@
     "no_channel": 3
   },
   "model": {
-    "backend": "MobileNet",
+    "backend": "OFMClassifier",
     "include_top": "False",
     "training": "True",
     "load_pretrained": "False",
