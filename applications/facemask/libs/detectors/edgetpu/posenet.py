@@ -76,7 +76,7 @@ class Detector:
                         y_min_face = int(max(0, y_min_face - 0.2 * h_crop))
                         x_max_face = int(min(self.w, x_min_face + 1.0 * h_crop))
                         y_max_face = int(min(self.h, y_min_face + 1.0 * h_crop))
-                        bbox_dict["face"] = [y_min_face / self.h, x_min_face / self.w, y_max_face / self.h, x_max_face / self.w]
+                        bbox_dict["bbox"] = [y_min_face / self.h, x_min_face / self.w, y_max_face / self.h, x_max_face / self.w]
  
                 result.append(bbox_dict)
 
