@@ -3,6 +3,7 @@ import numpy as np
 import pathlib
 import os
 import time
+import wget
 from libs.utils.fps_calculator import convert_infr_time_to_fps
 
 
@@ -23,7 +24,19 @@ class Classifier:
         else:
             url = 'https://github.com/neuralet/neuralet-models/raw/master/amd64/OFMClassifier/OFMClassifier.h5'
             model_file = 'OFMClassifier.h5'
-            model_dir = 'repo/data/x86/'
+            model_dir = 'data'
+            if not os.path.exists(model_dir):
+                os.mkdir(model_dir)
+            
+            model_dir = os.path.join(model_dir, 'x86')
+            if not os.path.exists(model_dir):
+                os.mkdir(model_dir)
+            
+            model_dir = os.path.join(model_dir, self.config.CLASSIFIER_NAME)
+            if not os.path.exists(model_dir):
+                os.mkdir(model_dir)
+
+
             self.model_path = model_dir + model_file
             if not os.path.isfile(self.model_path):
                 print("model does not exist under: ", self.model_path, 'downloading from ', url)
