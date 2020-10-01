@@ -27,8 +27,8 @@
     "validation_image_folder": "validation"
   },
   "classifier": {
-    "name": "face_mask",
-    "model_path": "data/x86/face_mask/model.h5",
+    "name": "OFMClassifier",
+    "model_path": "",
     "input_size": 45
   },
   "detector": {
