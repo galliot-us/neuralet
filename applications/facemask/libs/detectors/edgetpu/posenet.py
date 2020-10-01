@@ -22,7 +22,7 @@ class Detector:
                 "/project-posenet/models/mobilenet/posenet_mobilenet_v1_075_721_1281_quant_decoder_edgetpu.tflite"
                 )
 
-        self.w, self.h, = self.config.DETECTOR_INPUT_SIZE, self.config.DETECTOR_INPUT_SIZE
+        self.w, self.h, = self.config.DETECTOR_INPUT_SIZE[0], self.config.DETECTOR_INPUT_SIZE[1]
         self.keypoints = (
 	      'nose',
 	      'left eye',
@@ -65,18 +65,18 @@ class Detector:
                     [[keypoint.yx[1], keypoint.yx[0], keypoint.score] for _, keypoint in pose_dict.items()])
                 bbox_dict = {}
                 if np.all(keypoints[[0, 1, 2, 5, 6], -1] > 0.15):
-                    x_min_face = int(keypoints[6, 0])
-                    x_max_face = int(keypoints[5, 0])
-                    y_max_face = int((keypoints[5, 1] + keypoints[6, 1]) / 2)
-                    y_eyes = int((keypoints[1, 1] + keypoints[2, 1]) / 2)
+                    x_min_face = int(keypoints[6, 0]) / self.w
+                    x_max_face = int(keypoints[5, 0]) / self.w
+                    y_max_face = int((keypoints[5, 1] + keypoints[6, 1]) / 2) /self.h
+                    y_eyes = int((keypoints[1, 1] + keypoints[2, 1]) / 2) / self.h
                     y_min_face = 2 * y_eyes - y_max_face
                     if (y_max_face - y_min_face > 0) and (x_max_face - x_min_face > 0):
                         h_crop = y_max_face - y_min_face
-                        x_min_face = int(max(0, x_min_face - 0.2 * h_crop))
-                        y_min_face = int(max(0, y_min_face - 0.2 * h_crop))
-                        x_max_face = int(min(self.w, x_min_face + 1.0 * h_crop))
-                        y_max_face = int(min(self.h, y_min_face + 1.0 * h_crop))
-                        bbox_dict["bbox"] = [y_min_face / self.h, x_min_face / self.w, y_max_face / self.h, x_max_face / self.w]
+                        x_min_face = max(0, x_min_face - 0.2 * h_crop)
+                        y_min_face = max(0, y_min_face - 0.0 * h_crop)
+                        x_max_face = min(1, x_min_face + 1.0 * h_crop)
+                        y_max_face = min(1, y_min_face + 1.0 * h_crop)
+                        bbox_dict["bbox"] = [y_min_face, x_min_face, y_max_face, x_max_face]
  
                 result.append(bbox_dict)
 

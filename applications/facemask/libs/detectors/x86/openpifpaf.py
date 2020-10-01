@@ -19,7 +19,7 @@ class Detector:
         # Frames Per Second
         self.fps = None
         self.net, self.processor = self.load_model()
-        self.w, self.h, = self.config.DETECTOR_INPUT_SIZE, self.config.DETECTOR_INPUT_SIZE
+        self.w, self.h, = self.config.DETECTOR_INPUT_SIZE[0], self.config.DETECTOR_INPUT_SIZE[1]
 
     def load_model(self):
         self.device = "cpu"
