@@ -27,19 +27,19 @@
     "validation_image_folder": "validation"
   },
   "classifier": {
-    "name": "OFMClassifier",
+    "name": "face_mask_edgetpu",
     "model_path": "",
     "input_size": 45
   },
   "detector": {
-    "name": "openpifpaf",
-    "input_size": 300
+    "name": "posenet",
+    "input_size": [1281,721]
   },
   "app": {
-    "device": "x86",
-    "video_path": "data/video/sample2.mov",
+    "device": "EdgeTPU",
+    "video_path": "data/sample2.mov",
     "resolution": [320, 320],
     "host": "0.0.0.0",
-    "port": "6006"
+    "port": "8000"
   }
 }
