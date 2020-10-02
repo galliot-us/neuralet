@@ -33,7 +33,7 @@
   },
   "detector": {
     "name": "openpifpaf",
-    "input_size": 300
+    "input_size":  [1281,721]
   },
   "app": {
     "device": "x86",
