@@ -10,18 +10,18 @@
     "include_top": "False",
     "training": "True",
     "load_pretrained": "False",
-    "pretrained_model": "../checkpoints/facemask/model.h5"
+    "pretrained_model": "checkpoints/facemask/model.h5"
   },
   "pretrained_model": {
-    "pretrained_folder": "../pretrained_folder"
+    "pretrained_folder": "pretrained_folder"
   },
   "train": {
     "train_image_folder": "train",
     "epochs": 2,
     "batch_size": 64,
     "learning_rate": 0.0002,
-    "saved_weights_folder": "../checkpoints",
-    "export_folder": "../export_files"
+    "saved_weights_folder": "checkpoints",
+    "export_folder": "export_files"
   },
   "validation": {
     "validation_image_folder": "validation"
