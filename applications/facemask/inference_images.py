@@ -14,7 +14,7 @@ def main():
     argparse = ArgumentParser()
     argparse.add_argument('--config', type=str, help='json config file path')
     argparse.add_argument('--input_image_dir', type=str, help='the directory of input images')
-    argparse.add_argument('--output_image_dir', 'the directory of output images', default='output_images')
+    argparse.add_argument('--output_image_dir', type=str, help='the directory of output images', default='output_images')
     args = argparse.parse_args()
 
     config_path = args.config
@@ -75,6 +75,10 @@ def main():
                     cordinates.append([int(xmin), int(ymin), int(xmax), int(ymax)])
 
             faces = np.array(faces)
+            if np.shape(faces)[0] == 0:
+                print("can not find face at ". image_path)
+                continue
+
             face_mask_results, scores = classifier_model.inference(faces)
             for i, cor in enumerate(cordinates):
                 if face_mask_results[i] == 1:
@@ -92,5 +96,5 @@ def main():
 
     print('INFO: Finish:) Output images are exported at: ', output_dir)
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
