@@ -1,15 +1,34 @@
 from configs.config_handler import Config
 import cv2 as cv
-import PIL
 import numpy as np
+from argparse import ArgumentParser
 
 
 def main():
-    config_path = 'configs/config.json'
-    input_path = 'data/video/sample2.mov'
-    output_path = ''
+    """
+    Read input video and process it, the output video will be exported output_video path
+     which can be set by input arguments.
+    Example: python inference_video.py --config configs/config.json --input_video_path data/video/sample.mov
+     --output_path = data/videos/output.avi
+    """
+    argparse = ArgumentParser()
+    argparse.add_argument('--config', type=str, help='json config file path')
+    argparse.add_argument('--input_video_path', type=str, help='the path of input video', default='')
+    argparse.add_argument('--output_video', 'the name of output video file', default='face_mask_output.avi')
+    args = argparse.parse_args()
 
+    config_path = args.config
     cfg = Config(path=config_path)
+
+    if args.input_video_path == '':
+        input_path = cfg.APP_VIDEO_PATH
+    else:
+        input_path = args.input_video_path
+
+    print("INFO: Input video is: ", input_path)
+    output_path = args.output_video
+    print("INFO: The output video will be exported at: ", output_path)
+
     detector_input_size = (cfg.DETECTOR_INPUT_SIZE[0], cfg.DETECTOR_INPUT_SIZE[1], 3)
     classifier_img_size = (cfg.CLASSIFIER_INPUT_SIZE, cfg.CLASSIFIER_INPUT_SIZE, 3)
 
@@ -17,8 +36,6 @@ def main():
     detector = None
     classifier = None
     output_vidwriter = None
-    output_path = 'm.mp4'
-
 
     if device == "x86":
         from libs.detectors.x86.detector import Detector
@@ -33,13 +50,16 @@ def main():
     detector = Detector(cfg)
     classifier_model = Classifier(cfg)
     input_cap = cv.VideoCapture(input_path)
-    
+
+    print("INFO: Start inferencing")
+    frame_id = 0
     while (input_cap.isOpened()):
         ret, raw_img = input_cap.read()
         if output_vidwriter is None:
-            output_vidwriter = cv.VideoWriter(output_path, cv.VideoWriter_fourcc('M','J','P','G'), 24, (raw_img.shape[1],raw_img.shape[0]))
+            output_vidwriter = cv.VideoWriter(output_path, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'), 24,
+                                              (raw_img.shape[1], raw_img.shape[0]))
             height, width = raw_img.shape[:2]
-        
+
         if ret == False:
             break
         _, cv_image = input_cap.read()
@@ -63,12 +83,12 @@ def main():
                     croped_face = croped_face / 255.0
                     faces.append(croped_face)
                     cordinates.append([int(xmin), int(ymin), int(xmax), int(ymax)])
-            
+
             faces = np.array(faces)
             face_mask_results, scores = classifier_model.inference(faces)
             for i, cor in enumerate(cordinates):
                 if face_mask_results[i] == 1:
-                    color = (0, 0 , 255)
+                    color = (0, 0, 255)
                 elif face_mask_results[i] == 0:
                     color = (0, 255, 0)
                 else:
@@ -76,14 +96,14 @@ def main():
 
                 cv.rectangle(raw_img, (cor[0], cor[1]), (cor[2], cor[3]), color, 2)
             output_vidwriter.write(raw_img)
+            print('{} Frames number are processed. {} fps'.format(frame_id, detector.fps))
+            frame_id = frame_id + 1
         else:
             continue
 
     input_cap.release()
     output_vidwriter.release()
+    print('INFO: Finish:) Output video is exported at: ', output_path)
 
-
-
-
-if __name__ == '__main__':
-    main()
+    if __name__ == '__main__':
+        main()
