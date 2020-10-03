@@ -31,7 +31,7 @@ def backend_loader(cfg):
         backend = model_backend_dic.get(model_name)
     else:
         raise ValueError(f"{cfg.MODEL_NAME} is not in defined models")
-    return backend
+    return backend(cfg)
 
 
 class FacemaskClassifierModel:

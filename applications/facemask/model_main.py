@@ -9,6 +9,7 @@ from argparse import ArgumentParser
 from utils.eval_model_tools import plot_confusion_matrix, plot_roc_curve
 
 
+
 def main():
     '''
     Training a classifier and export confusion matrix and ROC curve.
@@ -24,7 +25,7 @@ def main():
 
     print('_- -_- -_- -_- -_- -_- -_- -_- Training Phase -_- -_- -_- -_- -_- -_- -_- -_-')
     # Uncomment the below code if you want to train the models
-    tf.disable_eager_execution()
+    # tf.disable_eager_execution()
     classifier = FacemaskClassifierModel(cfg)
     # classifier = ClassifierModel(cfg)
     model = classifier.model
