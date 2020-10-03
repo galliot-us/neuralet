@@ -37,7 +37,7 @@ class Classifier:
                 os.mkdir(model_dir)
 
 
-            self.model_path = model_dir + model_file
+            self.model_path = os.path.join(model_dir, model_file)
             if not os.path.isfile(self.model_path):
                 print("model does not exist under: ", self.model_path, 'downloading from ', url)
                 wget.download(url, self.model_path)
