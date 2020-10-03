@@ -14,7 +14,7 @@ def main():
     argparse = ArgumentParser()
     argparse.add_argument('--config', type=str, help='json config file path')
     argparse.add_argument('--input_video_path', type=str, help='the path of input video', default='')
-    argparse.add_argument('--output_video', 'the name of output video file', default='face_mask_output.avi')
+    argparse.add_argument('--output_video', type=str, help='the name of output video file', default='face_mask_output.avi')
     args = argparse.parse_args()
 
     config_path = args.config
@@ -105,5 +105,5 @@ def main():
     output_vidwriter.release()
     print('INFO: Finish:) Output video is exported at: ', output_path)
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
