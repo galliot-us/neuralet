@@ -9,7 +9,7 @@ def main():
     Read input video and process it, the output video will be exported output_video path
      which can be set by input arguments.
     Example: python inference_video.py --config configs/config.json --input_video_path data/video/sample.mov
-     --output_path = data/videos/output.avi
+     --output_video data/videos/output.avi
     """
     argparse = ArgumentParser()
     argparse.add_argument('--config', type=str, help='json config file path')
