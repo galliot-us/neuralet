@@ -54,6 +54,7 @@ def main():
         image_path = os.path.join(input_dir, filename)
         raw_img = cv.imread(image_path)
         if np.shape(raw_img) != ():
+            width, height, _ = raw_img.shape
             resized_image = cv.resize(raw_img, tuple(detector_input_size[:2]))
             rgb_resized_image = cv.cvtColor(resized_image, cv.COLOR_BGR2RGB)
             objects_list = detector.inference(rgb_resized_image)
