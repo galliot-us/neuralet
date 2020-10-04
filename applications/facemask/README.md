@@ -95,7 +95,9 @@ python model_main.py --config configs/config.json
 ### Inferencing On Video and Images
 There are two easy-to-use scripts for inferencing on video and image.
 - The following script get a video file as its input and export the output video at given path. 
+
 `python inference_video.py --config configs/config.json --input_video_path data/video/sample.mov --output_video data/videos/output.avi`
 
 - For inferencing on images run the below scrip.
+
 `python inference_images.py --config configs/config.json --input_image_dir data/images --output_image_dir output_images`
