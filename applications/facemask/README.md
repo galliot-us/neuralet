@@ -21,8 +21,8 @@ A host edge device. We currently support the following:
 ### Install
 Make sure you have the prerequisites and then clone this repository to your local system by running this command:
 ```
-git clone https://github.com/neuralet/face-mask.git
-cd facemask/
+git clone https://github.com/neuralet/neuralet
+cd neuralet/applications/facemask/
 ```
 ## Usage
 The application has a module for trainig Face-Mask classifier and three inference mode:
