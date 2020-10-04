@@ -9,9 +9,9 @@ import sys
 import configparser
 
 def inference_image(img_orig, pose_estimator, model_input_size,config):
-    img_orig = cv2.cvtColor(img_orig, cv2.COLOR_BGR2RGB)
+    img_input = cv2.cvtColor(img_orig, cv2.COLOR_BGR2RGB)
     img_normalized = np.zeros(img_orig.shape)
-    img_normalized = cv2.normalize(img_orig,  img_normalized, 0, 255, cv2.NORM_MINMAX)
+    img_normalized = cv2.normalize(img_input,  img_normalized, 0, 255, cv2.NORM_MINMAX)
 
     heads = pose_estimator.inference(img_normalized)
     #convert heads to fields
@@ -29,16 +29,22 @@ def inference_image(img_orig, pose_estimator, model_input_size,config):
     img_vis = cv2.resize(img_orig, model_input_size)
 
     for l in annotations:
-        for i in l:
-             pred = i.data
+        for annotation_object in l:
+             pred = annotation_object.data
              pred_visible = pred[pred[:, 2] > 0]
              xs = pred_visible[:, 0]
              ys = pred_visible[:, 1]
              color = (random.randint(60, 200), random.randint(0, 255), random.randint(0, 255))
              for x,y in zip(xs,ys):
                  cv2.circle(img_vis,(x, y), 2, color, -1)
-             for (a,b) in i.skeleton:
-                 cv2.line(img_vis,(xs[a-1],ys[a-1]),(xs[b-1],ys[b-1]),color,1)
+             decode_order=[(a,b) for (a,b,c,d) in annotation_object.decoding_order]
+             for index, (a,b) in enumerate(decode_order):
+                 if (a,b) in annotation_object.skeleton or (b,a) in annotation_object.skeleton:
+                    x1,y1,_ = annotation_object.decoding_order[index][2]   
+                    x2,y2,_ = annotation_object.decoding_order[index][3]
+                 else:
+                     continue
+                 cv2.line(img_vis, ( x1, y1), ( x2, y2), color, 1)
              #x_min = int(xs.min())
              #x_max = int(xs.max())
              #y_min = int(ys.min())
@@ -79,8 +85,11 @@ def main():
                 continue
     elif config['App']['ProcessVideo'] == 'no':
         img_orig = cv2.imread(input_path)
+        h,w,_ = img_orig.shape
+        orig_size = (w,h)
         if np.shape(img_orig) != ():
             output_img = inference_image(img_orig, pose_estimator, model_input_size, config)
+            output_img = cv2.resize(output_img, orig_size)
             cv2.imwrite(output_path,output_img)
             print('Output image is saved!')
         else:
