@@ -1,0 +1,12 @@
+__pycache__/
+*~
+*.swp
+*.tflite
+*.bin
+*.pb
+*.caffemodel
+*.uff
+*.avi
+/datasets
+/checkpoints
+/data
