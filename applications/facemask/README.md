@@ -13,6 +13,7 @@ A host edge device. We currently support the following:
 * Coral Dev Board
 * AMD64 node with attached Coral USB Accelerator
 * X86 node
+* Jetson TX2 (only available for image inference)
 
 #### Software
 
@@ -29,7 +30,7 @@ The application has a module for trainig Face-Mask classifier and three inferenc
 1- Inference on app mode
 2- Inference on video
 3- Inference on image
-which are compatible with x86 devices, Coral USB Accelerator, and Coral Dev Borad.
+which are compatible with x86 devices, Coral USB Accelerator, Coral Dev Borad and JetsonTX2 (only image inference mode).
 
 * NOTE: There is a config file at `configs/` directory for customizing the parameters of the model and the application. Please set the parameters if you plan to have a customized setting  
 
@@ -65,6 +66,17 @@ docker run  -it --privileged -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neura
 
 # 3) Run main application python script
 python inference_main_app.py --config configs/config_edgetpu.json 
+```
+### Run on Jetson TX2 (For Image Inference Only)
+```
+# 1) Build Docker image
+docker build -f jetson.Dockerfile -t "neuralet/face-mask:latest-jetson" .
+
+# 2) Run Docker container:
+docker run  -it --privileged --runtime nvidia -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neuralet/face-mask:latest-jetson
+
+# 3) Run Image Inference
+python inference_images.py --config configs/config_jetson.json --input_image_dir data/images --output_image_dir output_images
 ```
 
 ### Train The Model
