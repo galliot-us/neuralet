@@ -115,3 +115,8 @@ There are two easy-to-use scripts for inferencing on video and image.
 `python inference_images.py --config configs/config-x86.json --input_image_dir data/images --output_image_dir output_images`
 
 * NOTE: All scripts should be run inside the docker.
+
+
+### License
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. http://creativecommons.org/licenses/by-nc-sa/4.0/ 
+If you need to use this code or model for comeercial applications, please reach out to us at hello@neuralet.com
