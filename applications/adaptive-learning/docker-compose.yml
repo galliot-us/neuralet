@@ -1,0 +1,32 @@
+version: '2.3'
+services:
+  teacher:
+    build:
+      context: ./teachers/
+      dockerfile: iterdet-teacher.Dockerfile
+    stdin_open: true
+    tty: true
+    container_name: teacher-container
+    volumes:
+      - ../../:/repo
+
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+
+  student:
+    build:
+      context: ./students/
+      dockerfile: ssd-mobilenet-v2-student.Dockerfile
+    stdin_open: true
+    tty: true
+    container_name: student-container
+    volumes:
+    - ../../:/repo
+    ports:
+      - "2029:6006"
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - PYTHONPATH=$PYTHONPATH:/models/research:/models/research/slim
+      - TF_FORCE_GPU_ALLOW_GROWTH=true
