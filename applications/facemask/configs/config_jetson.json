@@ -13,7 +13,7 @@
     "pretrained_model": "checkpoints/facemask/model.h5"
   },
   "pretrained_model": {
-    "pretrained_folder": "pretrained_folder"
+    "pretrained_folder": "../pretrained_folder"
   },
   "train": {
     "train_image_folder": "train",
@@ -32,14 +32,14 @@
     "input_size": 45
   },
   "detector": {
-    "name": "openpifpaf",
-    "input_size":  [1281,721]
+    "name": "open_pifpaf_jetson",
+    "input_size": [257,193]
   },
   "app": {
-    "device": "x86",
-    "video_path": "data/video/sample2.mov",
+    "device": "Jetson-tx2",
+    "video_path": "data/sample2.mov",
     "resolution": [320, 320],
     "host": "0.0.0.0",
-    "port": "6006"
+    "port": "8000"
   }
 }

@@ -10,7 +10,7 @@ class Classifier:
         self.config = config
         self.name = self.config.CLASSIFIER_NAME
 
-        if self.name == 'face_mask_edgetpu':
+        if self.name == 'OFMClassifier':
             from libs.classifiers.edgetpu import face_mask_edgetpu
             self.net = face_mask_edgetpu.Classifier(self.config)
         else:

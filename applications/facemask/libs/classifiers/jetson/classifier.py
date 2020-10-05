@@ -10,7 +10,7 @@ class Classifier:
         self.config = config
         self.name = self.config.CLASSIFIER_NAME
 
-        if self.name == 'face_mask_jetson':
+        if self.name == 'OFMClassifier':
             from libs.classifiers.jetson import face_mask_jetson
             self.net = face_mask_jetson.Classifier(self.config)
         else:
