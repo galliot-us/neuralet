@@ -66,7 +66,7 @@ class Classifier:
 
 
         if np.shape(resized_rgb_image)[0] == 0:
-            return resized_rgb_image
+            return [], []
         result = []
         net_results = []
         for img in resized_rgb_image:
