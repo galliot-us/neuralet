@@ -57,7 +57,7 @@ class Classifier:
             scores: The classification confidence for each class. ex: [.99, .75, .80, 1.0]
         """
         if np.shape(resized_rgb_image)[0] == 0:
-            return resized_rgb_image
+            return [], []
         # input_image = np.expand_dims(resized_rgb_image, axis=0)
         t_begin = time.perf_counter()
         output_dict = self.classifier_model.predict(resized_rgb_image)

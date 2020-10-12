@@ -46,7 +46,7 @@ class Classifier:
                 scores: The classification confidence for each class. ex: [.99, .75, .80, 1.0]
             """
             if np.shape(resized_rgb_image)[0] == 0:
-                return resized_rgb_image
+                return [], []
             resized_rgb_image = (resized_rgb_image * 255).astype("uint8")
             result = []
             net_results = []
