@@ -3,10 +3,10 @@ import cv2
 import time
 import tensorflow as tf
 from scipy.special import expit
-import tiny_face_model
+from libs.detectors.x86 import  tiny_face_model
 from libs.utils.fps_calculator import convert_infr_time_to_fps
 
-weight_file_path = '../weights.pkl'
+weight_file_path = 'libs/detectors/x86/weights.pkl'
 MAX_INPUT_DIM = 5000.0
 
 
@@ -47,6 +47,7 @@ class Detector:
 
     def inference(self, resized_rgb_images):
         self.sess.run(tf.global_variables_initializer())
+        inp_h, inp_w = np.shape(resized_rgb_images)[:2]
 
         scales = self._calc_scales(resized_rgb_images)
         bboxes = np.empty(shape=(0, 5))
@@ -118,7 +119,6 @@ class Detector:
         for r in refined_bboxes:
             _score = expit(r[4])
             _r = [int(x) for x in r[:4]]
-            nn_out.append({"bbox": [np.abs(_r[0]), np.abs(_r[1]), np.abs(_r[2]), np.abs(_r[3])], "score": r[4]})
+            nn_out.append({"bbox": [np.abs(_r[1])/inp_h, np.abs(_r[0]/inp_w), np.abs(_r[3])/inp_h, np.abs(_r[2])/inp_w], "score": r[4]})
             # cv2.rectangle(raw_img, (_r[0], _r[1]), (_r[2], _r[3]), rect_color, _lw)
-            boxes.append([_r[0], _r[1], _r[2], _r[3]])
         return nn_out
