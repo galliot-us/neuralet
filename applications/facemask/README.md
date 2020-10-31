@@ -35,6 +35,7 @@ which are compatible with x86 devices, Coral USB Accelerator, Coral Dev Borad an
 * NOTE: There is a config file at `configs/` directory for customizing the parameters of the model and the application. Please set the parameters if you plan to have a customized setting  
 
 ### Run on x86
+On x86 devices, you can use two different face detectors. Openpipaf and tiny face detector [[1]](#1).
 ```
 # 1) Build Docker image
 docker build -f x86.Dockerfile -t "neuralet/face-mask:latest-x86" .
@@ -42,8 +43,10 @@ docker build -f x86.Dockerfile -t "neuralet/face-mask:latest-x86" .
 # 2) Run Docker container:
 docker run  -it --gpus all -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neuralet/face-mask:latest-x86
 
-# 3) Run main application python script inside the docker
-python inference_main_app.py --config configs/config-x6.json 
+# 3) Run main application python script inside the docker 
+# config-x86.json: runs openpifpaf as a face detector
+# config-tinyface-x86.json: runs tiny face detetcor
+python inference_main_app.py --config configs/config-x86.json 
 ```
 ### Run on AMD64 node with a connected Coral USB Accelerator
 ```
@@ -120,3 +123,7 @@ There are two easy-to-use scripts for inferencing on video and image.
 ### License
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. http://creativecommons.org/licenses/by-nc-sa/4.0/ 
 If you need to use this code or model for comeercial applications, please reach out to us at hello@neuralet.com
+
+## References
+<a id="1">[1]</a>
+Hu, Peiyun and Ramanan, Deva, Finding Tiny Faces, The IEEE Conference on Computer Vision and Pattern Recognition (CVPR 2017). [project page](https://www.cs.cmu.edu/~peiyunh/tiny/), [arXiv](https://arxiv.org/abs/1612.04402)
