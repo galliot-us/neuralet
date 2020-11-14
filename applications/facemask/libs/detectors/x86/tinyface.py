@@ -5,25 +5,31 @@ import os
 import wget
 import tensorflow as tf
 from scipy.special import expit
-from libs.detectors.x86 import  tiny_face_model
+from libs.detectors.x86 import tiny_face_model
 from libs.utils.fps_calculator import convert_infr_time_to_fps
 
-weight_file_path = 'libs/detectors/x86/weights.pkl'
 MAX_INPUT_DIM = 5000.0
 
 
 class Detector:
+    """
+    Perform object detection with the given model. The model is a pkl
+    file which if the detector can not find it at the path it will download it
+    from neuralet repository automatically.
+
+    :param config: Is a Config instance which provides necessary parameters.
+    """
+
     def __init__(self, config):
         self.config = config
         self.prob_thresh = 0.25
         self.fps = None
         self.score_final = None
         self.model_path = self.config.DETECTOR_MODEL_PATH
-        
+
         if len(self.model_path) > 0:
             print('using %s as model' % self.model_path)
         else:
-            #url = "https://github.com/neuralet/neuralet-models/blob/master/amd64/tinyface/tiny_face_detector.pkl"
             url = "https://github.com/neuralet/neuralet-models/blob/master/amd64/tinyface/tiny_face_detector.pkl?raw=true"
             model_file = "tiny_face_detector.pkl"
             model_dir = "data"
@@ -39,7 +45,6 @@ class Detector:
                 print("model does not exist under: ", self.model_path, 'downloading from ', url)
                 wget.download(url, self.model_path)
 
-
         self.x = tf.placeholder(tf.float32, [1, None, None, 3])
         self.model = self.load_model()
 
@@ -48,8 +53,9 @@ class Detector:
 
         self._clusters = self.model.get_data_by_key("clusters")
         self._average_image = self.model.get_data_by_key("average_image")
-    
+
     def load_model(self):
+        """Loads tiny face model from a pkl file and returns model"""
         model = tiny_face_model.Model(self.model_path)
         self.score_final = model.tiny_face(self.x)
         return model
@@ -78,7 +84,7 @@ class Detector:
 
         raw_img_f = resized_rgb_images.astype(np.float32)
         for s in scales:
-            #print("Processing frame {} at scale {:.4f}".format(frame_count, s))
+            # print("Processing frame {} at scale {:.4f}".format(frame_count, s))
             img = cv2.resize(raw_img_f, (0, 0), fx=s, fy=s, interpolation=cv2.INTER_LINEAR)
             img = img - self._average_image
             img = img[np.newaxis, :]
@@ -138,11 +144,12 @@ class Detector:
         refind_idx = self.sess.run(refind_idx)
         refined_bboxes = bboxes[refind_idx]
         nn_out = []
-        boxes = []
 
         for r in refined_bboxes:
             _score = expit(r[4])
             _r = [int(x) for x in r[:4]]
-            nn_out.append({"bbox": [np.abs(_r[1])/inp_h, np.abs(_r[0]/inp_w), np.abs(_r[3])/inp_h, np.abs(_r[2])/inp_w], "score": r[4]})
+            nn_out.append(
+                {"bbox": [np.abs(_r[1]) / inp_h, np.abs(_r[0] / inp_w), np.abs(_r[3]) / inp_h, np.abs(_r[2]) / inp_w],
+                 "score": r[4]})
             # cv2.rectangle(raw_img, (_r[0], _r[1]), (_r[2], _r[3]), rect_color, _lw)
         return nn_out
