@@ -33,6 +33,7 @@
   },
   "detector": {
     "name": "posenet",
+    "model_path": "",
     "input_size": [1281,721]
   },
   "app": {

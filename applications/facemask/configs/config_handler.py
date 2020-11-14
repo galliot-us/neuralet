@@ -35,6 +35,7 @@ class Config:
         self.CLASSIFIER_INPUT_SIZE = self._config["classifier"]["input_size"]
 
         self.DETECTOR_NAME = self._config["detector"]["name"]
+        self.DETECTOR_MODEL_PATH = self._config["detector"]["model_path"]
         self.DETECTOR_INPUT_SIZE = self._config["detector"]["input_size"]
 
         self.DEVICE = self._config["app"]["device"]
