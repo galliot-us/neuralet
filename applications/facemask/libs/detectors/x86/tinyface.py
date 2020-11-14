@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 import time
+import os
+import wget
 import tensorflow as tf
 from scipy.special import expit
 from libs.detectors.x86 import  tiny_face_model
@@ -16,6 +18,28 @@ class Detector:
         self.prob_thresh = 0.25
         self.fps = None
         self.score_final = None
+        self.model_path = self.config.DETECTOR_MODEL_PATH
+        
+        if len(self.model_path) > 0:
+            print('using %s as model' % self.model_path)
+        else:
+            #url = "https://github.com/neuralet/neuralet-models/blob/master/amd64/tinyface/tiny_face_detector.pkl"
+            url = "https://github.com/neuralet/neuralet-models/blob/master/amd64/tinyface/tiny_face_detector.pkl?raw=true"
+            model_file = "tiny_face_detector.pkl"
+            model_dir = "data"
+            if not os.path.exists(model_dir):
+                os.mkdir(model_dir)
+
+            model_dir = os.path.join(model_dir, "x86")
+            if not os.path.exists(model_dir):
+                os.mkdir(model_dir)
+
+            self.model_path = os.path.join(model_dir, model_file)
+            if not os.path.isfile(self.model_path):
+                print("model does not exist under: ", self.model_path, 'downloading from ', url)
+                wget.download(url, self.model_path)
+
+
         self.x = tf.placeholder(tf.float32, [1, None, None, 3])
         self.model = self.load_model()
 
@@ -26,7 +50,7 @@ class Detector:
         self._average_image = self.model.get_data_by_key("average_image")
     
     def load_model(self):
-        model = tiny_face_model.Model(weight_file_path)
+        model = tiny_face_model.Model(self.model_path)
         self.score_final = model.tiny_face(self.x)
         return model
 
