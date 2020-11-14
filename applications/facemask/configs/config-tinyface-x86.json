@@ -33,6 +33,7 @@
   },
   "detector": {
     "name": "tinyface",
+    "model_path": "",
     "input_size":  [640, 480]
   },
   "app": {
