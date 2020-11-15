@@ -25,25 +25,20 @@ class Detector:
         self.prob_thresh = 0.25
         self.fps = None
         self.score_final = None
-        self.model_path = self.config.DETECTOR_MODEL_PATH
 
-        if len(self.model_path) > 0:
-            print('using %s as model' % self.model_path)
+        self.model_name = "tiny_face_detector.pkl"
+        if os.path.isfile(config.CLASSIFIER_MODEL_PATH):
+            self.model_path = config.CLASSIFIER_MODEL_PATH
         else:
-            url = "https://github.com/neuralet/neuralet-models/blob/master/amd64/tinyface/tiny_face_detector.pkl?raw=true"
-            model_file = "tiny_face_detector.pkl"
-            model_dir = "data"
-            if not os.path.exists(model_dir):
-                os.mkdir(model_dir)
+            self.model_path = 'data/detectors/x86/'
+            if not os.path.isdir(self.model_path):
+                os.makedirs(self.model_path)
+            self.model_path = self.model_path + self.model_name
 
-            model_dir = os.path.join(model_dir, "x86")
-            if not os.path.exists(model_dir):
-                os.mkdir(model_dir)
-
-            self.model_path = os.path.join(model_dir, model_file)
-            if not os.path.isfile(self.model_path):
-                print("model does not exist under: ", self.model_path, 'downloading from ', url)
-                wget.download(url, self.model_path)
+        url = "https://github.com/neuralet/neuralet-models/blob/master/amd64/tinyface/tiny_face_detector.pkl?raw=true"
+        if not os.path.isfile(self.model_path):
+            print("model does not exist under: ", self.model_path, 'downloading from ', url)
+            wget.download(url, self.model_path)
 
         self.x = tf.placeholder(tf.float32, [1, None, None, 3])
         self.model = self.load_model()
@@ -135,7 +130,7 @@ class Detector:
 
             tmp_bboxes = _calc_bounding_boxes()
             bboxes = np.vstack((bboxes, tmp_bboxes))  # <class 'tuple'>: (5265, 5)
-        
+
         self.fps = convert_infr_time_to_fps(inference_time)
         # non maximum suppression
         refind_idx = tf.image.non_max_suppression(tf.convert_to_tensor(bboxes[:, :4], dtype=tf.float32),
