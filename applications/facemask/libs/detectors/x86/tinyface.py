@@ -76,7 +76,6 @@ class Detector:
         return scales
 
     def inference(self, resized_rgb_images):
-        self.sess.run(tf.global_variables_initializer())
         inp_h, inp_w = np.shape(resized_rgb_images)[:2]
 
         scales = self._calc_scales(resized_rgb_images)
