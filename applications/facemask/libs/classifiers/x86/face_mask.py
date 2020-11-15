@@ -17,30 +17,20 @@ class Classifier:
 
     def __init__(self, config):
         self.config = config
-        self.model_path = self.config.CLASSIFIER_MODEL_PATH
+        self.model_name = "OFMClassifier.h5"
 
-        if len(self.model_path) > 0:
-            print('using %s as model' % self.model_path)
+        if os.path.isfile(config.CLASSIFIER_MODEL_PATH):
+            self.model_path = config.CLASSIFIER_MODEL_PATH
         else:
-            url = 'https://github.com/neuralet/neuralet-models/raw/master/amd64/OFMClassifier/OFMClassifier.h5'
-            model_file = 'OFMClassifier.h5'
-            model_dir = 'data'
-            if not os.path.exists(model_dir):
-                os.mkdir(model_dir)
-            
-            model_dir = os.path.join(model_dir, 'x86')
-            if not os.path.exists(model_dir):
-                os.mkdir(model_dir)
-            
-            model_dir = os.path.join(model_dir, self.config.CLASSIFIER_NAME)
-            if not os.path.exists(model_dir):
-                os.mkdir(model_dir)
-
-
-            self.model_path = os.path.join(model_dir, model_file)
-            if not os.path.isfile(self.model_path):
-                print("model does not exist under: ", self.model_path, 'downloading from ', url)
-                wget.download(url, self.model_path)
+            self.model_path = 'data/classifiers/x86/'
+            if not os.path.isdir(self.model_path):
+                os.makedirs(self.model_path)
+            self.model_path = self.model_path + self.model_name
+        
+        url = 'https://github.com/neuralet/neuralet-models/raw/master/amd64/OFMClassifier/OFMClassifier.h5'
+        if not os.path.isfile(self.model_path):
+            print("model does not exist under: ", self.model_path, 'downloading from ', url)
+            wget.download(url, self.model_path)
 
         self.classifier_model = tf.keras.models.load_model(self.model_path)
         # Frames Per Second
