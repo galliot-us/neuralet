@@ -1,4 +1,8 @@
-# -*- coding: utf-8 -*-
+"""
+Implementation of this code is borrowed from the following:
+https://github.com/cydonia999/Tiny_Faces_in_Tensorflow
+"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
