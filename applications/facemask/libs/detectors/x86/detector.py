@@ -12,6 +12,9 @@ class Detector:
         if self.name == "openpifpaf":
             from libs.detectors.x86 import openpifpaf
             self.net = openpifpaf.Detector(self.config)
+        elif self.name == "tinyface":
+            from libs.detectors.x86 import tinyface
+            self.net = tinyface.Detector(self.config)
         else:
             raise ValueError('Not supported network named: ', self.name)
 

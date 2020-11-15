@@ -33,6 +33,7 @@
   },
   "detector": {
     "name": "open_pifpaf_jetson",
+    "model_path": "",
     "input_size": [257,193]
   },
   "app": {
