@@ -26,7 +26,7 @@ def main():
     print("INFO: The directory of input images is: ", input_dir)
     output_dir = args.output_image_dir
     if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+        os.makedirs(output_dir)
     if not os.path.isdir(output_dir):
         print('"{} "output directory is not exists please make the directory before running this script.'.format(
             output_dir))
