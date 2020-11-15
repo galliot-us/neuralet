@@ -1,6 +1,6 @@
 class Detector:
     """
-    Detector class is a high level class for detecting object using EdgeTPU devices.
+    Detector class is a high level class for detecting object using Jetson Nano devices.
     When an instance of the Detector is created you can call inference method and feed your
     input image in order to get the detection results.
     :param config: Is a ConfigEngine instance which provides necessary parameters.
