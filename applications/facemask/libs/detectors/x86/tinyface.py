@@ -53,6 +53,9 @@ class Detector:
 
         self._clusters = self.model.get_data_by_key("clusters")
         self._average_image = self.model.get_data_by_key("average_image")
+        self._clusters_h = self._clusters[:, 3] - self._clusters[:, 1] + 1
+        self._clusters_w = self._clusters[:, 2] - self._clusters[:, 0] + 1
+        self._normal_idx = np.where(self._clusters[:, 4] == 1)
 
     def load_model(self):
         """Loads tiny face model from a pkl file and returns model"""
@@ -62,12 +65,9 @@ class Detector:
 
     def _calc_scales(self, raw_img):
 
-        clusters_h = self._clusters[:, 3] - self._clusters[:, 1] + 1
-        clusters_w = self._clusters[:, 2] - self._clusters[:, 0] + 1
-        normal_idx = np.where(self._clusters[:, 4] == 1)
         raw_h, raw_w = raw_img.shape[0], raw_img.shape[1]
-        min_scale = min(np.floor(np.log2(np.max(clusters_w[normal_idx] / raw_w))),
-                        np.floor(np.log2(np.max(clusters_h[normal_idx] / raw_h))))
+        min_scale = min(np.floor(np.log2(np.max(self._clusters_w[self._normal_idx] / raw_w))),
+                        np.floor(np.log2(np.max(self._clusters_h[self._normal_idx] / raw_h))))
         max_scale = min(1.0, -np.log2(max(raw_h, raw_w) / MAX_INPUT_DIM))
         scales_down = np.arange(min_scale, 0, 1.)
         scales_up = np.arange(0.5, max_scale, 0.5)
