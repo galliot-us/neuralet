@@ -2,6 +2,7 @@ from configs.config_handler import Config
 import cv2 as cv
 import numpy as np
 from argparse import ArgumentParser
+import os
 
 
 def main():
@@ -14,7 +15,8 @@ def main():
     argparse = ArgumentParser()
     argparse.add_argument('--config', type=str, help='json config file path')
     argparse.add_argument('--input_video_path', type=str, help='the path of input video', default='')
-    argparse.add_argument('--output_video', type=str, help='the name of output video file', default='face_mask_output.avi')
+    argparse.add_argument('--output_video', type=str, help='the name of output video file',
+                          default='face_mask_output.avi')
     args = argparse.parse_args()
 
     config_path = args.config
@@ -27,6 +29,12 @@ def main():
 
     print("INFO: Input video is: ", input_path)
     output_path = args.output_video
+    file_name_size = len(output_path.split('/')[-1])
+    output_dir = output_path[:-file_name_size]
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
     print("INFO: The output video will be exported at: ", output_path)
 
     detector_input_size = (cfg.DETECTOR_INPUT_SIZE[0], cfg.DETECTOR_INPUT_SIZE[1], 3)
@@ -104,6 +112,7 @@ def main():
     input_cap.release()
     output_vidwriter.release()
     print('INFO: Finish:) Output video is exported at: ', output_path)
+
 
 if __name__ == '__main__':
     main()
