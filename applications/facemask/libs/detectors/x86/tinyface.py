@@ -82,6 +82,7 @@ class Detector:
         bboxes = np.empty(shape=(0, 5))
 
         raw_img_f = resized_rgb_images.astype(np.float32)
+        inference_time = 0
         for s in scales:
             # print("Processing frame {} at scale {:.4f}".format(frame_count, s))
             img = cv2.resize(raw_img_f, (0, 0), fx=s, fy=s, interpolation=cv2.INTER_LINEAR)
@@ -95,8 +96,7 @@ class Detector:
             # run through the net
             t_begin = time.perf_counter()
             score_final_tf = self.sess.run(self.score_final, feed_dict={self.x: img})
-            inference_time = time.perf_counter() - t_begin  # Seconds
-            self.fps = convert_infr_time_to_fps(inference_time)
+            inference_time += time.perf_counter() - t_begin  # Seconds
 
             # collect scores
             score_cls_tf, score_reg_tf = score_final_tf[:, :, :, :25], score_final_tf[:, :, :, 25:125]
@@ -135,7 +135,8 @@ class Detector:
 
             tmp_bboxes = _calc_bounding_boxes()
             bboxes = np.vstack((bboxes, tmp_bboxes))  # <class 'tuple'>: (5265, 5)
-
+        
+        self.fps = convert_infr_time_to_fps(inference_time)
         # non maximum suppression
         refind_idx = tf.image.non_max_suppression(tf.convert_to_tensor(bboxes[:, :4], dtype=tf.float32),
                                                   tf.convert_to_tensor(bboxes[:, 4], dtype=tf.float32),
