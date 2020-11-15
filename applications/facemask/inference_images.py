@@ -27,6 +27,10 @@ def main():
     output_dir = args.output_image_dir
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
+    if not os.path.isdir(output_dir):
+        print('"{} "output directory is not exists please make the directory before running this script.'.format(
+            output_dir))
+        exit(1)
 
     print("INFO: The output images will be exported at: ", output_dir)
 
