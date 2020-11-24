@@ -1,6 +1,10 @@
 from iterdet import IterDet
+from faster_rcnn_nas import FasterRcnnNas
 import logging
-TEACHER_MAP = {"iterdet": IterDet}
+TEACHER_MAP = {
+    "iterdet": IterDet,
+    "faster_rcnn_nas": FasterRcnnNas
+               }
 
 
 def build(config):
