@@ -4,7 +4,7 @@ import numpy as np
 import tarfile
 import wget
 import tensorflow as tf
-from teacher_meta_arc import TeacherMetaArch
+from teacher_meta_arch import TeacherMetaArch
 
 
 class FasterRcnnNas(TeacherMetaArch):
@@ -39,7 +39,7 @@ class FasterRcnnNas(TeacherMetaArch):
         result = []
         for i in range(boxes.shape[1]):  # number of boxes
             if labels[0, i] == self.class_id and scores[0, i] > self.score_threshold:
-                result.append({"id": str(self.class_id) + '-' + str(i), "bbox": boxes[0, i, :].tolist(), "score": scores[0, i]})
+                result.append({"id": str(self.class_id) + '-' + str(i), "bbox": boxes[0, i, :].numpy().tolist(), "score": scores[0, i]})
 
         return result
 
