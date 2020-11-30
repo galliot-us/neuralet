@@ -13,6 +13,7 @@ services:
     runtime: nvidia
     environment:
       - NVIDIA_VISIBLE_DEVICES=0
+      - ADAPTIVE_LEARNING_CONFIG=/repo/applications/adaptive-learning/configs/iterdet.ini
 
   student:
     build:
@@ -30,3 +31,4 @@ services:
       - NVIDIA_VISIBLE_DEVICES=0
       - PYTHONPATH=$PYTHONPATH:/models/research:/models/research/slim
       - TF_FORCE_GPU_ALLOW_GROWTH=true
+      - ADAPTIVE_LEARNING_CONFIG=/repo/applications/adaptive-learning/configs/iterdet.ini
