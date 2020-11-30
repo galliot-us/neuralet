@@ -39,9 +39,14 @@ class FasterRcnnNas(TeacherMetaArch):
         result = []
         for i in range(boxes.shape[1]):  # number of boxes
             if labels[0, i] == self.class_id and scores[0, i] > self.score_threshold:
-                result.append({"id": str(self.class_id) + '-' + str(i), "bbox": boxes[0, i, :].numpy().tolist(), "score": scores[0, i]})
+                result.append({"id": str(self.class_id) + '-' + str(i), "bbox": self.change_coordinate_order(boxes[0, i, :].numpy().tolist()), "score": scores[0, i]})
 
         return result
+
+    @staticmethod
+    def change_coordinate_order(bbox):
+        bbox_new = [bbox[1], bbox[0], bbox[3], bbox[2]]
+        return bbox_new
 
     def load_model(self):
         """
