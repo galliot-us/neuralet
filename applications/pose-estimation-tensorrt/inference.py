@@ -79,10 +79,10 @@ def main():
         while input_cap.isOpened():
             _, img_orig = input_cap.read()
             if np.shape(img_orig) != ():
-                output_img = img_orig#inference_image(img_orig, pose_estimator, model_input_size, config)
+                output_img = inference_image(img_orig, pose_estimator, model_input_size, config)
                 output_cap.write(output_img)
             else:
-                continue
+               break 
     elif config['App']['ProcessVideo'] == 'no':
         img_orig = cv2.imread(input_path)
         h,w,_ = img_orig.shape
