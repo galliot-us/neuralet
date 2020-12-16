@@ -82,7 +82,6 @@ class PoseEstimator():
 
     def inference(self, img):
         """Estimate human poses in the input image."""
-        self._init_cuda_stuff()
 
         img = cv.resize(img, self.model_input_size)
         pil_im = PIL.Image.fromarray(img)
@@ -98,6 +97,7 @@ class PoseEstimator():
             
         self.host_inputs[0] = np.ravel(np.zeros_like(np_img)) #np.ravel(np.zeros_like(np_img))
         
+        self.cuda_context.push() 
         start_time = time.time()
 
         np.copyto(self.host_inputs[0], np.ravel(np_img))
