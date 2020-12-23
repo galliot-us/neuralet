@@ -13,7 +13,7 @@ A host edge device. We currently support the following:
 * Coral Dev Board
 * AMD64 node with attached Coral USB Accelerator
 * X86 node
-* Jetson TX2 (only available for image inference)
+* Jetson 
 
 #### Software
 
@@ -30,7 +30,7 @@ The application has a module for trainig Face-Mask classifier and three inferenc
 1- Inference on app mode (using WebGUI to show the result)
 2- Inference on video
 3- Inference on image
-which are compatible with x86 devices, Coral USB Accelerator, Coral Dev Borad and JetsonTX2 (only image inference mode).
+which are compatible with x86 devices, Coral USB Accelerator, Coral Dev Borad and Jetson.
 
 * NOTE: There is a config file at `configs/` directory for customizing the parameters of the model and the application. Please set the parameters if you plan to have a customized setting  
 
@@ -46,7 +46,7 @@ docker run  -it --gpus all -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neurale
 # 3) Run main application python script inside the docker 
 # config-x86.json: runs openpifpaf as a face detector
 # config-tinyface-x86.json: runs tiny face detetcor
-python inference_main_app.py --config configs/config-x86.json 
+python3 inference_main_app.py --config configs/config-x86.json 
 ```
 ### Run on AMD64 node with a connected Coral USB Accelerator
 ```
@@ -57,7 +57,7 @@ docker build -f amd64-usbtpu.Dockerfile -t "neuralet/face-mask:latest-amd64" .
 docker run  -it --privileged -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neuralet/face-mask:latest-amd64
 
 # 3) Run main application python script inside the docker
-python inference_main_app.py --config configs/config_edgetpu.json 
+python3 inference_main_app.py --config configs/config_edgetpu.json 
 ```
 ### Run on Coral Dev Board
 ```
@@ -68,18 +68,19 @@ docker build -f amd64-usbtpu.Dockerfile -t "neuralet/face-mask:latest-coral-dev-
 docker run  -it --privileged -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neuralet/face-mask:latest-coral-dev-board
 
 # 3) Run main application python script inside the docker
-python inference_main_app.py --config configs/config_edgetpu.json 
+python3 inference_main_app.py --config configs/config_edgetpu.json 
 ```
-### Run on Jetson TX2 (For Image Inference Only)
+### Run on Jetson
+You need to have JetPack 4.4 installed on your Jetson.
 ```
 # 1) Build Docker image
-docker build -f jetson.Dockerfile -t "neuralet/face-mask:latest-jetson" .
+docker build -f jetson-4-4.Dockerfile -t "neuralet/face-mask:latest-jetson-4-4" .
 
 # 2) Run Docker container:
-docker run  -it --privileged --runtime nvidia -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neuralet/face-mask:latest-jetson
+docker run  -it --privileged --runtime nvidia -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neuralet/face-mask:latest-jetson-4-4
 
 # 3) Run Image Inference inside the docker
-python inference_images.py --config configs/config_jetson.json --input_image_dir data/images --output_image_dir output_images
+python3 inference_images.py --config configs/config_jetson.json --input_image_dir data/images --output_image_dir output_images
 ```
 
 ### Train The Model
@@ -105,17 +106,17 @@ Ex:
 Set dataset path at `configs/config-x86.json` file according and run the below script.
 
 ```
-python model_main.py --config configs/config-x86.json
+python3 model_main.py --config configs/config-x86.json
 ```
 ### Inferencing On Video and Images
 There are two easy-to-use scripts for inferencing on video and image.
 - The following script get a video file as its input and export the output video at given path. 
 
-`python inference_video.py --config configs/config-x86.json --input_video_path data/video/sample.mov --output_video data/videos/output.avi`
+`python3 inference_video.py --config configs/config-x86.json --input_video_path data/video/sample.mov --output_video data/videos/output.avi`
 
 - For inferencing on images run the below scrip.
 
-`python inference_images.py --config configs/config-x86.json --input_image_dir data/images --output_image_dir output_images`
+`python3 inference_images.py --config configs/config-x86.json --input_image_dir data/images --output_image_dir output_images`
 
 * NOTE: All scripts should be run inside the docker.
 
