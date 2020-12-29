@@ -28,7 +28,7 @@ cd neuralet/applications/facemask/
 ## Usage
 The application has a module for trainig Face-Mask classifier and three inference mode:
 1- Inference on app mode (using WebGUI to show the result)
-2- Inference on video
+2- Inference on video and save output on a video file.
 3- Inference on image
 which are compatible with x86 devices, Coral USB Accelerator, Coral Dev Borad and Jetson.
 
