@@ -32,7 +32,7 @@ The application has a module for trainig Face-Mask classifier and three inferenc
 3- Inference on image and save output on a image file.
 which are compatible with x86 devices, Coral USB Accelerator, Coral Dev Borad and Jetson.
 
-* NOTE: There is a config file at `configs/` directory for customizing the parameters of the model and the application. Please set the parameters if you plan to have a customized setting  
+* NOTE: There is a bunch of config files at `configs/` directory for customizing the parameters of the model and the application. Please set the parameters if you plan to have a customized setting  
 
 ### Run on x86
 On x86 devices, you can use two different face detectors. Openpipaf and tiny face detector [[1]](#1).
