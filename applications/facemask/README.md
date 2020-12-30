@@ -17,7 +17,8 @@ A host edge device. We currently support the following:
 
 #### Software
 
-* You should have [Docker](https://docs.docker.com/get-docker/) on your device.
+* You should have [Docker](https://docs.docker.com/get-docker/) on your device. 
+* Note that you should have Nvidia Docker Toolkit to run the app for training and inference with GPU support.
 
 ### Install
 Make sure you have the prerequisites and then clone this repository to your local system by running this command:
@@ -33,6 +34,7 @@ The application has a module for trainig Face-Mask classifier and three inferenc
 which are compatible with x86 devices, Coral USB Accelerator, Coral Dev Borad and Jetson.
 
 * NOTE: There is a bunch of config files at `configs/` directory for customizing the parameters of the model and the application. Please set the parameters if you plan to have a customized setting  
+* Input ImageSize for Openpifpaf detector should be multiples of 16 plus 1 ( [321,193] and [641,369] is supported on jetson devices for now)
 
 ### Run on x86
 On x86 devices, you can use two different face detectors. Openpipaf and tiny face detector [[1]](#1).
@@ -79,8 +81,8 @@ docker build -f jetson-4-4.Dockerfile -t "neuralet/face-mask:latest-jetson-4-4" 
 # 2) Run Docker container:
 docker run  -it --privileged --runtime nvidia -p HOST_PORT:8000 -v "$PWD/../../":/repo/ -it neuralet/face-mask:latest-jetson-4-4
 
-# 3) Run Image Inference inside the docker
-python3 inference_images.py --config configs/config_jetson.json --input_image_dir data/images --output_image_dir output_images
+# 3) Run main application python script inside the docker
+python3 inference_main_app.py --config configs/config_jetson.json
 ```
 
 ### Train The Model
