@@ -1,5 +1,4 @@
 import time
-import logging
 import os
 import torch
 import numpy as np
@@ -12,8 +11,6 @@ import tensorrt as trt
 from libs.detectors.jetson.openpifpaf_tensorrt.decoder import CifCafDecoder
 from libs.utils.fps_calculator import convert_infr_time_to_fps
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 def allocate_buffers(engine):
     host_inputs = []
@@ -167,7 +164,7 @@ class Detector:
         predictions = decoder.decode(fields)
         decoder_time = time.perf_counter() - t_begin
         self.fps = convert_infr_time_to_fps(inference_time+decoder_time)
-        logger.info(f'inference time is {inference_time} and decoder time is :{decoder_time}') 
+        #print(f'inference time is {inference_time} and decoder time is :{decoder_time}') 
         result = []
 
      

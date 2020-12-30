@@ -3,9 +3,7 @@ import tensorrt as trt
 import pycuda.driver as cuda
 import sys 
 import time
-import logging
 
-logging.getLogger().setLevel(logging.INFO)
 
 def allocate_buffers(engine):
     host_inputs = []
@@ -101,8 +99,6 @@ class Classifier():
         scores = []
         for img in resized_rgb_images: 
             img = np.expand_dims(img, axis=0)
-            #logging.info(f'img min and max:{max(img)}')
-            #img = img/255.0
             img = img.astype(np.float32)
 
             host_inputs[0] = np.ravel(np.zeros_like(img)) #np.ravel(np.zeros_like(np_img))
