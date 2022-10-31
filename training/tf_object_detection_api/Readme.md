@@ -1,9 +1,9 @@
 # Docker Containers for Training and Deploying Models to Edge Devices With TensorFlow Object Detection API
 
 
-This is a guide on how to use Neuralet's Docker containers that are designed for training and deploying TensorFlow Object Detection API models to edge devices, such as [NVIDIA Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) and [Coral Edge TPU](https://coral.ai/products/). 
+This is a guide on how to use Galliot's Docker containers that are designed for training and deploying TensorFlow Object Detection API models to edge devices, such as [NVIDIA Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) and [Coral Edge TPU](https://coral.ai/products/). 
 
-To learn more about the quantization of TensorFlow Object Detection API models, read [this tutorial](https://neuralet.com/docs/tutorials/tf-object-detection-api-model-quantization/) on Neuralet's website.
+To learn more about the quantization of TensorFlow Object Detection API models, read [this tutorial](https://galliot.us/blog/quantization-of-tensorflow-object-detection/) on Galliot's website.
 
 ## TOCO Docker Container
 
@@ -15,7 +15,7 @@ To run this container, you can either build the Docker container from source or 
 
 ```
 # 1- Clone the repository
-git clone https://github.com/neuralet/neuralet
+git clone https://github.com/galliot-us/neuralet
 cd training/tf_object_detection_api
 
 # 2- Build the container
@@ -46,7 +46,7 @@ The `tools-tf-object-detection-api-training.Dockerfile` will install the TensorF
 ### Build the Container from Source:
 ```
 # 1- Clone the repository
-git clone https://github.com/neuralet/neuralet
+git clone https://github.com/galliot-us/neuralet
 cd training/tf_object_detection_api
 
 # 2- Build the container
@@ -69,7 +69,7 @@ You should have the [Nvidia Docker Toolkit](https://github.com/NVIDIA/nvidia-doc
 
 ```
 # 1- Clone the repository
-git clone https://github.com/neuralet/neuralet
+git clone https://github.com/galliot-us/neuralet
 cd training/tf_object_detection_api
 
 # 2- Build the container
