@@ -1,3 +1,5 @@
+> **Galliot now hosts all Neuralet’s content and expertise gained in three years of work and completing high-quality applications, mainly in Computer Vision and Deep Learning. [More Info](https://galliot.us/blog/neuralet-migrated-to-galliot/)**
+
 # Neuralet
 
 Neuralet is an open-source platform for deep learning models on GPUs, TPUs, and more. This open-source project was backed by the Galliot team (galliot.us) in 2019, and later added to their portfolio. The goal is to make it easier to start and evaluate deep learning models on different edge devices.
