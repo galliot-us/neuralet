@@ -1,5 +1,5 @@
 
-## Attention: This project is now developed in it's own independent repository here: https://github.com/neuralet/smart-social-distancing - Please use the new repository to get the latest version and updates.
+## Attention: This project is now developed in it's own independent repository here: https://github.com/galliot-us/smart-social-distancing - Please use the new repository to get the latest version and updates.
 
 # Smart Social Distancing
 
@@ -11,16 +11,16 @@ Smart Distancing is an open-source application to quantify social distancing mea
   <img  width="100%" src="demo.gif">
 </div>
 
-You can run this application on edge devices such as NVIDIA's Jetson Nano or Google's Coral Edge-TPU. This application measures social distancing rates and gives proper notifications each time someone ignores social distancing rules. By generating and analyzing data, this solution outputs statistics about high-traffic areas that are at high risk of exposure to COVID-19 or any other contagious virus. The project is under substantial active development; you can find our roadmap at https://github.com/neuralet/neuralet/projects/1.
+You can run this application on edge devices such as NVIDIA's Jetson Nano or Google's Coral Edge-TPU. This application measures social distancing rates and gives proper notifications each time someone ignores social distancing rules. By generating and analyzing data, this solution outputs statistics about high-traffic areas that are at high risk of exposure to COVID-19 or any other contagious virus. The project is under substantial active development; you can find our roadmap at https://github.com/galliot-us/neuralet/projects/1.
 
 We encourage the community to join us in building a practical solution to keep people safe while allowing them to get back to their jobs. You can read more about the project motivation and roadmap here: https://docs.google.com/presentation/d/13EEt4JfdkYSqpPLpotx9taBHpNW6WtfXo2SfwFU_aQ0/edit?usp=sharing
 
-Please join [our slack channel](https://join.slack.com/t/neuralet/shared_invite/zt-g1w9o45u-Y4R2tADwdGBCruxuAAKgJA) or reach out to covid19project@neuralet.com if you have any questions.
+Please join [our slack channel](https://join.slack.com/t/neuralet/shared_invite/zt-g1w9o45u-Y4R2tADwdGBCruxuAAKgJA) or reach out to hello@galliot.us if you have any questions.
 
 
 ## Getting Started
 
-You can read the [Smart Social Distancing tutorial](https://neuralet.com/docs/tutorials/smart-social-distancing/overview/) on our website. The following instructions will help you get started.
+You can read the [Smart Social Distancing tutorial](https://galliot.us/blog/smart-social-distancing-new-codebase-architecture/) on our website. The following instructions will help you get started.
 
 ### Prerequisites
 
@@ -38,7 +38,7 @@ You can read the [Smart Social Distancing tutorial](https://neuralet.com/docs/tu
 Make sure you have the prerequisites and then clone this repository to your local system by running this command:
 
 ```
-git clone https://github.com/neuralet/neuralet.git
+git clone https://github.com/galliot-us/neuralet.git
 cd neuralet/applications/smart-distancing/
 ```
 
@@ -121,13 +121,13 @@ Under the `[Detector]` section, you can modify the `Min score` parameter to defi
 
 ## Issues and Contributing
 
-The project is under substantial active development; you can find our roadmap at https://github.com/neuralet/neuralet/projects/1. Feel free to open an issue, send a Pull Request, or reach out if you have any feedback.
-* [Submit a feature request](https://github.com/neuralet/neuralet/issues/new?assignees=&labels=&template=feature_request.md&title=).
-* If you spot a problem or bug, please let us know by [opening a new issue](https://github.com/neuralet/neuralet/issues/new?assignees=&labels=&template=bug_report.md&title=).
+The project is under substantial active development; you can find our roadmap at https://github.com/galliot-us/neuralet/projects/1. Feel free to open an issue, send a Pull Request, or reach out if you have any feedback.
+* [Submit a feature request](https://github.com/galliot-us/neuralet/issues/new?assignees=&labels=&template=feature_request.md&title=).
+* If you spot a problem or bug, please let us know by [opening a new issue](https://github.com/galliot-us/neuralet/issues/new?assignees=&labels=&template=bug_report.md&title=).
 
 
 ## Contact Us
 
-* Visit our website at https://neuralet.com
-* Email us at covid19project@neuralet.com
-* Check out our other models at https://github.com/neuralet.
+* Visit our website at https://galliot.us/
+* Email us at hello@galliot.us
+* Check out our other models at https://github.com/galliot-us.
