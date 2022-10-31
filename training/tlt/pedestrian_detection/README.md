@@ -9,7 +9,7 @@ Follow these steps to train the model:
 4. Install Nvidia GPU driver v410.xx or above
 5. Run followings to clone the Neuralet repository: 
 ``` 
-git clone https://github.com/neuralet/neuralet.git 
+git clone https://github.com/galliot-us/neuralet.git 
 cd neuralet
 ```
 6. Create a directory that will save all of the data and model's weights:
