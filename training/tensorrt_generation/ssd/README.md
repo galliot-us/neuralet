@@ -3,7 +3,7 @@
 # TensorRT Engine Generation from a Custom SSD-MobileNet Model 
 
 
-This repo contains instructions on how to use Neuralet's `l4t-tensorrt-conversion` Docker container. This Docker container installs all the required prerequisites on your [NVIDIA Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) and generates a [TensorRT](https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html) engine from a frozen graph.
+This repo contains instructions on how to use Galliot's `l4t-tensorrt-conversion` Docker container. This Docker container installs all the required prerequisites on your [NVIDIA Jetson Nano](https://developer.nvidia.com/embedded/jetson-nano-developer-kit) and generates a [TensorRT](https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html) engine from a frozen graph.
 
 
 ## Getting Started
@@ -25,24 +25,24 @@ Make sure you have all the prerequisites before continuing to the next section.
 After installing the prerequisites, clone this repository to your local system by running this command:
 
 ```
-git clone https://github.com/neuralet/neuralet.git
+git clone https://github.com/galliot-us/neuralet.git
 cd neuralet/training/tensorrt_generation/ssd/
 ```
 
 #### Required Files
 
 You should pass a Frozen Inference Graph file to the script through a configuration file from `configs` directory. 
-The script is called with `config_ssd_mobilenet_v2_pedestrian.ini` config file by default. It automatically downloads provided retrained pedestrian_ssd_mobilenet_v2 frozen inference graph  from [Neuralet-Models](https://github.com/neuralet/neuralet-models/blob/master/amd64/ped_ssd_mobilenet_v2/frozen_inference_graph.pb) repository which is trained on the [Oxford Town Center](https://megapixels.cc/oxford_town_centre/) dataset.
+The script is called with `config_ssd_mobilenet_v2_pedestrian.ini` config file by default. It automatically downloads provided retrained pedestrian_ssd_mobilenet_v2 frozen inference graph  from [Models](https://github.com/galliot-us/models/blob/master/amd64/ped_ssd_mobilenet_v2/frozen_inference_graph.pb) repository which is trained on the [Oxford Town Center](https://megapixels.cc/oxford_town_centre/) dataset.
 You can also use other provided config files for `SSD-MOBILENET-V1-COCO` and `SSD-MOBILENET-V2-COCO` or your customized one by running the docker with `--config PATH_TO_YOUR_CONFIG_FILE` to run the script with other configurations.
 
 ## Run on Jetson Nano
 
-The provided Docker container runs `build_engine.py` script with the configurations read from the `config_ssd_mobilenet_v2_pedestrian.ini` file. This script generates a TensorRT Engine using the UFF Parser from the frozen graph specified in the config file. The generated engine can be used for the [Smart Social Distancing](https://github.com/neuralet/neuralet/tree/master/applications/smart-distancing) application. 
+The provided Docker container runs `build_engine.py` script with the configurations read from the `config_ssd_mobilenet_v2_pedestrian.ini` file. This script generates a TensorRT Engine using the UFF Parser from the frozen graph specified in the config file. The generated engine can be used for the [Smart Social Distancing](https://github.com/galliot-us/neuralet/tree/master/applications/smart-distancing) application. 
 
 ```
 cd neuralet/training/tensorrt_generation/ssd/
 
-# 1) Build Docker image (this step is optional, you can skip it if you want to pull the container from Neuralet's Docker Hub)
+# 1) Build Docker image (this step is optional, you can skip it if you want to pull the container from Galliot's Docker Hub)
 docker build -f Dockerfile -t "neuralet/jetson-nano:tf-ssd-to-trt" .
 
 # 2) Run Docker container:
